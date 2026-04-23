@@ -1,5 +1,6 @@
 import Link from "next/link";
 import "./page.css";
+import HeroSlideshow from "@/components/HeroSlideshow";
 
 export default function Home() {
   return (
@@ -24,14 +25,7 @@ export default function Home() {
           </div>
         </div>
         <div className="hero-visual">
-          <div className="glass-card visual-card top-card">
-            <div className="skeleton img-skeleton"></div>
-            <div className="skeleton text-skeleton"></div>
-          </div>
-          <div className="glass-card visual-card bottom-card">
-            <div className="skeleton img-skeleton"></div>
-            <div className="skeleton text-skeleton short"></div>
-          </div>
+          <HeroSlideshow />
           <div className="glow-orb"></div>
         </div>
       </section>
