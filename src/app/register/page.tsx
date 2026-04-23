@@ -9,10 +9,10 @@ export default function RegisterPage() {
   const router = useRouter();
 
   const [formData, setFormData] = useState({
-    username: "", // 🔥 changed from name → username
+    name: "", // ✅ backend expects "name"
     email: "",
     password: "",
-    role: "CUSTOMER", // 🔥 FIXED default
+    role: "CUSTOMER", // ✅ default fixed
   });
 
   const [error, setError] = useState("");
@@ -26,14 +26,16 @@ export default function RegisterPage() {
     try {
       const requestBody = {
         ...formData,
-        role: formData.role.toUpperCase(), // 🔥 safety fix
+        role: formData.role.toUpperCase(), // ✅ safety
       };
 
       console.log("Sending data:", requestBody); // debug
 
       const res = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(requestBody),
       });
 
@@ -43,6 +45,7 @@ export default function RegisterPage() {
         throw new Error(data.message || "Registration failed");
       }
 
+      // ✅ success
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
@@ -69,18 +72,18 @@ export default function RegisterPage() {
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit} className="auth-form">
-          {/* USERNAME */}
+          {/* NAME */}
           <div className="form-group pb-2">
-            <label className="input-label" htmlFor="username">
-              Username
+            <label className="input-label" htmlFor="name">
+              Full Name
             </label>
             <input
               type="text"
-              id="username"
+              id="name"
               className="input-field"
-              value={formData.username}
+              value={formData.name}
               onChange={(e) =>
-                setFormData({ ...formData, username: e.target.value })
+                setFormData({ ...formData, name: e.target.value })
               }
               required
             />
