@@ -4,17 +4,18 @@
   overflow: hidden;
   padding-top: 100px;
   background:
-    radial-gradient(
-      circle at 12% 20%,
-      rgba(255, 51, 102, 0.16) 0%,
-      transparent 40%
-    ),
+    radial-gradient(circle at 12% 20%, var(--ambient-pink) 0%, transparent 40%),
     radial-gradient(
       circle at 88% 14%,
-      rgba(255, 153, 51, 0.14) 0%,
+      var(--ambient-orange) 0%,
       transparent 36%
     ),
-    linear-gradient(180deg, #0b0b0e 0%, #09090b 55%, #08080a 100%);
+    linear-gradient(
+      180deg,
+      var(--page-bg-start) 0%,
+      var(--page-bg-mid) 55%,
+      var(--page-bg-end) 100%
+    );
 }
 
 .home-container::before,
@@ -34,7 +35,7 @@
   right: -180px;
   background: radial-gradient(
     circle,
-    rgba(255, 51, 102, 0.22) 0%,
+    var(--orb-pink) 0%,
     rgba(255, 51, 102, 0) 72%
   );
   animation: floatOne 12s ease-in-out infinite;
@@ -47,7 +48,7 @@
   bottom: 14%;
   background: radial-gradient(
     circle,
-    rgba(255, 153, 51, 0.18) 0%,
+    var(--orb-orange) 0%,
     rgba(255, 153, 51, 0) 72%
   );
   animation: floatTwo 14s ease-in-out infinite;
@@ -90,8 +91,8 @@
   z-index: -1;
   pointer-events: none;
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
   background-size: 42px 42px;
   mask-image: radial-gradient(circle at center, black 35%, transparent 92%);
   -webkit-mask-image: radial-gradient(
