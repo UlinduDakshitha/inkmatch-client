@@ -89,6 +89,7 @@ export default function RegisterPage() {
             />
           </div>
 
+
           {/* EMAIL */}
           <div className="form-group pb-2">
             <label className="input-label" htmlFor="email">
