@@ -25,17 +25,16 @@ export default function Dashboard() {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    if (!token || !user) {
+    if (!token) {
       router.push("/login");
     }
-  }, [router, user]);
-
-  if (!user) return null;
+  }, [router]);
 
   return (
     <div className="page-container container" style={{ paddingTop: "120px" }}>
       <h1 className="heading-2">
-        Welcome Back, <span className="text-gradient">{user.name}</span>
+        Welcome Back,
+        <span className="text-gradient"> {user?.name ?? "Customer"}</span>
       </h1>
 
       <div className="glass-card mt-4" style={{ marginTop: "2rem" }}>

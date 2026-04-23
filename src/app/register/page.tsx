@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -9,10 +9,10 @@ export default function RegisterPage() {
   const router = useRouter();
 
   const [formData, setFormData] = useState({
-    fullName: "", // ✅ backend expects "name"
+    name: "",
     email: "",
     password: "",
-    role: "CUSTOMER", // ✅ default fixed
+    role: "CUSTOMER",
   });
 
   const [error, setError] = useState("");
@@ -24,19 +24,15 @@ export default function RegisterPage() {
     setError("");
 
     try {
-      const requestBody = {
-        ...formData,
-        role: formData.role.toUpperCase(), // ✅ safety
-      };
-
-      console.log("Sending data:", requestBody); // debug
-
       const res = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify({
+          ...formData,
+          role: formData.role.toUpperCase(),
+        }),
       });
 
       const data = await res.json();
@@ -45,16 +41,24 @@ export default function RegisterPage() {
         throw new Error(data.message || "Registration failed");
       }
 
-      // ✅ success
       localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem(
+        "user",
+        JSON.stringify(
+          data.user ?? {
+            name: formData.name,
+            email: formData.email,
+            role: formData.role,
+          },
+        ),
+      );
 
       router.push("/dashboard");
     } catch (err: unknown) {
       setError(
         err instanceof Error
           ? err.message
-          : "An error occurred during registration"
+          : "An error occurred during registration",
       );
     } finally {
       setLoading(false);
@@ -72,7 +76,6 @@ export default function RegisterPage() {
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit} className="auth-form">
-          {/* NAME */}
           <div className="form-group pb-2">
             <label className="input-label" htmlFor="name">
               Full Name
@@ -81,16 +84,14 @@ export default function RegisterPage() {
               type="text"
               id="name"
               className="input-field"
-              value={formData.fullName}
+              value={formData.name}
               onChange={(e) =>
-                setFormData({ ...formData, fullName: e.target.value })
+                setFormData({ ...formData, name: e.target.value })
               }
               required
             />
           </div>
 
-
-          {/* EMAIL */}
           <div className="form-group pb-2">
             <label className="input-label" htmlFor="email">
               Email
@@ -107,7 +108,6 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* ROLE */}
           <div className="form-group pb-2">
             <label className="input-label" htmlFor="role">
               I am a...
@@ -126,7 +126,6 @@ export default function RegisterPage() {
             </select>
           </div>
 
-          {/* PASSWORD */}
           <div className="form-group pb-4">
             <label className="input-label" htmlFor="password">
               Password
@@ -143,7 +142,6 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* BUTTON */}
           <button
             type="submit"
             className="btn-primary auth-cta-btn full-width"

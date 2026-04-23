@@ -30,7 +30,15 @@ export default function LoginPage() {
 
       const data = await res.json();
       localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem(
+        "user",
+        JSON.stringify(
+          data.user ?? {
+            name: email.split("@")[0],
+            email,
+          },
+        ),
+      );
 
       router.push("/dashboard");
     } catch (err: unknown) {
