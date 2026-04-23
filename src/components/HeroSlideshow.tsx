@@ -1,33 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
+
+import slideOne from "@/assets/download (4).jpg";
+import slideTwo from "@/assets/download (5).jpg";
+import slideThree from "@/assets/download (6).jpg";
+import slideFour from "@/assets/download (7).jpg";
+import slideFive from "@/assets/download (8).jpg";
 
 type Slide = {
+  image: typeof slideOne;
   title: string;
-  style: string;
-  artist: string;
-  location: string;
 };
 
 const slides: Slide[] = [
-  {
-    title: "Neo Traditional",
-    style: "Rich color and sharp storytelling",
-    artist: "Raya K.",
-    location: "Jakarta",
-  },
-  {
-    title: "Fine Line",
-    style: "Minimal details with elegant flow",
-    artist: "Liam V.",
-    location: "Bandung",
-  },
-  {
-    title: "Blackwork",
-    style: "Bold contrast and timeless depth",
-    artist: "Mika S.",
-    location: "Bali",
-  },
+  { image: slideOne, title: "Neo Traditional" },
+  { image: slideTwo, title: "Fine Line" },
+  { image: slideThree, title: "Blackwork" },
+  { image: slideFour, title: "Portrait" },
+  { image: slideFive, title: "Color Realism" },
 ];
 
 const intervalMs = 3600;
@@ -47,26 +39,25 @@ export default function HeroSlideshow() {
 
   return (
     <div className="slideshow-shell" aria-label="Featured tattoo styles">
-      <div className="slides-viewport">
-        <div
-          className="slides-track"
-          style={{ transform: `translate3d(-${activeIndex * 100}%, 0, 0)` }}
-        >
-          {slides.map((slide, index) => (
-            <article
-              key={slide.title}
-              className={`slide-card slide-visual-${index + 1}`}
-            >
-              <div className="slide-image" role="presentation" />
-              <div className="slide-meta">
-                <h3>{slide.style}</h3>
-                <p>
-                  {slide.artist} • {slide.location}
-                </p>
-              </div>
-            </article>
-          ))}
-        </div>
+      <div className="slides-stage">
+        {slides.map((slide, index) => (
+          <div
+            key={slide.title}
+            className={`slide-panel ${activeIndex === index ? "active" : ""}`}
+            aria-hidden={activeIndex !== index}
+          >
+            <Image
+              src={slide.image}
+              alt=""
+              fill
+              priority={index === 0}
+              sizes="(max-width: 900px) 90vw, 44vw"
+              className="slide-panel-image"
+            />
+          </div>
+        ))}
+
+        <div className="slide-panel-overlay" />
       </div>
     </div>
   );

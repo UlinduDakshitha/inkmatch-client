@@ -63,12 +63,41 @@
 }
 
 body {
+  position: relative;
   background-color: var(--bg-primary);
+  background-image: url("/site-background.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--text-primary);
   font-family: "Outfit", sans-serif;
   line-height: 1.5;
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    rgba(5, 6, 10, 0.78) 0%,
+    rgba(7, 8, 12, 0.7) 45%,
+    rgba(4, 5, 8, 0.84) 100%
+  );
+}
+
+[data-theme="light"] body::before {
+  background: linear-gradient(
+    180deg,
+    rgba(245, 247, 251, 0.76) 0%,
+    rgba(240, 244, 250, 0.66) 45%,
+    rgba(236, 241, 248, 0.76) 100%
+  );
 }
 
 a {

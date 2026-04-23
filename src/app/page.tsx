@@ -26,7 +26,6 @@ export default function Home() {
         </div>
         <div className="hero-visual">
           <HeroSlideshow />
-          <div className="glow-orb"></div>
         </div>
       </section>
 
