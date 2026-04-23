@@ -101,9 +101,9 @@ export default function RegisterPage() {
                 setFormData({ ...formData, role: e.target.value })
               }
             >
-              <option value="customer">Customer</option>
-              <option value="artist">Tattoo Artist</option>
-              <option value="studio">Studio Owner</option>
+              <option value="customer">CUSTOMER</option>
+              <option value="artist">TATOO ARTIST</option>
+              <option value="studio">STUDIO OWNER</option>
             </select>
           </div>
           <div className="form-group pb-4">
