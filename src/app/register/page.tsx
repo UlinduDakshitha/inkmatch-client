@@ -123,7 +123,7 @@ export default function RegisterPage() {
           </div>
           <button
             type="submit"
-            className="btn-primary full-width"
+            className="btn-primary auth-cta-btn full-width"
             disabled={loading}
           >
             {loading ? "Creating..." : "Sign Up"}

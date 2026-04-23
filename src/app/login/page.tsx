@@ -81,7 +81,7 @@ export default function LoginPage() {
           </div>
           <button
             type="submit"
-            className="btn-primary full-width"
+            className="btn-primary auth-cta-btn full-width"
             disabled={loading}
           >
             {loading ? "Signing in..." : "Sign In"}
