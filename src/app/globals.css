@@ -67,7 +67,7 @@ body {
   background-color: var(--bg-primary);
   background-image: url("/site-background.jpg");
   background-size: cover;
-  background-position: center;
+  background-position: center top;
   background-repeat: no-repeat;
   background-attachment: fixed;
   color: var(--text-primary);
@@ -83,21 +83,98 @@ body::before {
   inset: 0;
   pointer-events: none;
   z-index: -1;
-  background: linear-gradient(
-    180deg,
-    rgba(5, 6, 10, 0.78) 0%,
-    rgba(7, 8, 12, 0.7) 45%,
-    rgba(4, 5, 8, 0.84) 100%
-  );
+  background:
+    radial-gradient(
+      circle at 50% 24%,
+      rgba(255, 255, 255, 0.12) 0%,
+      rgba(255, 255, 255, 0.05) 18%,
+      transparent 38%
+    ),
+    radial-gradient(
+      circle at 50% 26%,
+      rgba(255, 51, 102, 0.18) 0%,
+      rgba(255, 51, 102, 0.08) 22%,
+      transparent 46%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(4, 5, 8, 0.58) 0%,
+      rgba(7, 8, 12, 0.38) 30%,
+      rgba(8, 8, 12, 0.28) 54%,
+      rgba(3, 4, 6, 0.72) 100%
+    );
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(
+      circle at 50% 20%,
+      rgba(255, 255, 255, 0.16) 0%,
+      transparent 24%
+    ),
+    radial-gradient(
+      circle at 20% 15%,
+      rgba(255, 153, 51, 0.12) 0%,
+      transparent 18%
+    ),
+    radial-gradient(
+      circle at 80% 12%,
+      rgba(255, 51, 102, 0.12) 0%,
+      transparent 20%
+    ),
+    linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.06) 100%);
+  mix-blend-mode: screen;
+  opacity: 0.72;
 }
 
 [data-theme="light"] body::before {
-  background: linear-gradient(
-    180deg,
-    rgba(245, 247, 251, 0.76) 0%,
-    rgba(240, 244, 250, 0.66) 45%,
-    rgba(236, 241, 248, 0.76) 100%
-  );
+  background:
+    radial-gradient(
+      circle at 50% 24%,
+      rgba(255, 255, 255, 0.28) 0%,
+      rgba(255, 255, 255, 0.12) 18%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 50% 26%,
+      rgba(217, 47, 89, 0.14) 0%,
+      rgba(217, 47, 89, 0.06) 24%,
+      transparent 48%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(245, 247, 251, 0.6) 0%,
+      rgba(240, 244, 250, 0.42) 34%,
+      rgba(239, 243, 248, 0.32) 58%,
+      rgba(236, 241, 248, 0.68) 100%
+    );
+}
+
+[data-theme="light"] body::after {
+  background:
+    radial-gradient(
+      circle at 50% 20%,
+      rgba(255, 255, 255, 0.2) 0%,
+      transparent 24%
+    ),
+    radial-gradient(
+      circle at 22% 16%,
+      rgba(255, 137, 58, 0.12) 0%,
+      transparent 18%
+    ),
+    radial-gradient(
+      circle at 78% 14%,
+      rgba(217, 47, 89, 0.11) 0%,
+      transparent 20%
+    ),
+    linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.06) 100%);
+  mix-blend-mode: screen;
+  opacity: 0.65;
 }
 
 a {
