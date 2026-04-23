@@ -50,25 +50,27 @@ export default function HeroSlideshow() {
       className="slideshow-shell glass-card"
       aria-label="Featured tattoo styles"
     >
-      <div
-        className="slides-track"
-        style={{ transform: `translateX(-${activeIndex * 100}%)` }}
-      >
-        {slides.map((slide, index) => (
-          <article
-            key={slide.title}
-            className={`slide-card slide-visual-${index + 1}`}
-          >
-            <div className="slide-image" role="presentation" />
-            <div className="slide-meta">
-              <p className="slide-chip">{slide.title}</p>
-              <h3>{slide.style}</h3>
-              <p>
-                {slide.artist} • {slide.location}
-              </p>
-            </div>
-          </article>
-        ))}
+      <div className="slides-viewport">
+        <div
+          className="slides-track"
+          style={{ transform: `translate3d(-${activeIndex * 100}%, 0, 0)` }}
+        >
+          {slides.map((slide, index) => (
+            <article
+              key={slide.title}
+              className={`slide-card slide-visual-${index + 1}`}
+            >
+              <div className="slide-image" role="presentation" />
+              <div className="slide-meta">
+                <p className="slide-chip">{slide.title}</p>
+                <h3>{slide.style}</h3>
+                <p>
+                  {slide.artist} • {slide.location}
+                </p>
+              </div>
+            </article>
+          ))}
+        </div>
       </div>
 
       <div

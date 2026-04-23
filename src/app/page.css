@@ -142,9 +142,14 @@
 .slideshow-shell {
   width: min(420px, 100%);
   padding: 1rem;
-  overflow: hidden;
   position: relative;
   z-index: 2;
+}
+
+.slides-viewport {
+  overflow: clip;
+  border-radius: 22px;
+  contain: paint;
 }
 
 .slides-track {
@@ -156,6 +161,7 @@
 .slide-card {
   min-width: 100%;
   border-radius: 22px;
+  overflow: hidden;
   padding: 1rem;
   background: linear-gradient(
     140deg,
