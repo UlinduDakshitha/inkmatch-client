@@ -1,18 +1,20 @@
-"use client";
+ "use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import "../login/auth.css"; // Reuse auth styles
+import "../login/auth.css";
 
 export default function RegisterPage() {
   const router = useRouter();
+
   const [formData, setFormData] = useState({
-    name: "",
+    username: "", // 🔥 changed from name → username
     email: "",
     password: "",
-    role: "customer", // default role
+    role: "CUSTOMER", // 🔥 FIXED default
   });
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -22,17 +24,25 @@ export default function RegisterPage() {
     setError("");
 
     try {
+      const requestBody = {
+        ...formData,
+        role: formData.role.toUpperCase(), // 🔥 safety fix
+      };
+
+      console.log("Sending data:", requestBody); // debug
+
       const res = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(requestBody),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        throw new Error("Registration failed");
+        throw new Error(data.message || "Registration failed");
       }
 
-      const data = await res.json();
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
@@ -41,7 +51,7 @@ export default function RegisterPage() {
       setError(
         err instanceof Error
           ? err.message
-          : "An error occurred during registration",
+          : "An error occurred during registration"
       );
     } finally {
       setLoading(false);
@@ -59,21 +69,24 @@ export default function RegisterPage() {
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit} className="auth-form">
+          {/* USERNAME */}
           <div className="form-group pb-2">
-            <label className="input-label" htmlFor="name">
-              Full Name
+            <label className="input-label" htmlFor="username">
+              Username
             </label>
             <input
               type="text"
-              id="name"
+              id="username"
               className="input-field"
-              value={formData.name}
+              value={formData.username}
               onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
+                setFormData({ ...formData, username: e.target.value })
               }
               required
             />
           </div>
+
+          {/* EMAIL */}
           <div className="form-group pb-2">
             <label className="input-label" htmlFor="email">
               Email
@@ -89,6 +102,8 @@ export default function RegisterPage() {
               required
             />
           </div>
+
+          {/* ROLE */}
           <div className="form-group pb-2">
             <label className="input-label" htmlFor="role">
               I am a...
@@ -101,11 +116,13 @@ export default function RegisterPage() {
                 setFormData({ ...formData, role: e.target.value })
               }
             >
-              <option value="CUSTOMER">CUSTOMER</option>
-              <option value="ARTIST">TATOO ARTIST</option>
-              <option value="STUDIO">STUDIO OWNER</option>
+              <option value="CUSTOMER">Customer</option>
+              <option value="ARTIST">Tattoo Artist</option>
+              <option value="STUDIO_OWNER">Studio Owner</option>
             </select>
           </div>
+
+          {/* PASSWORD */}
           <div className="form-group pb-4">
             <label className="input-label" htmlFor="password">
               Password
@@ -121,31 +138,14 @@ export default function RegisterPage() {
               required
             />
           </div>
+
+          {/* BUTTON */}
           <button
             type="submit"
             className="btn-primary auth-cta-btn full-width"
             disabled={loading}
           >
-            {loading ? (
-              "Creating..."
-            ) : (
-              <>
-                <span className="auth-cta-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" focusable="false">
-                    <path d="M17 9h-1V7a4 4 0 00-8 0v2H7a2 2 0 00-2 2v7a2 2 0 002 2h10a2 2 0 002-2v-7a2 2 0 00-2-2zm-6 6.73V17a1 1 0 002 0v-1.27a2 2 0 10-2 0zM10 9V7a2 2 0 114 0v2h-4z" />
-                  </svg>
-                </span>
-                <span>Sign Up</span>
-                <span
-                  className="auth-cta-icon auth-cta-arrow"
-                  aria-hidden="true"
-                >
-                  <svg viewBox="0 0 24 24" focusable="false">
-                    <path d="M13.29 5.29a1 1 0 011.42 0l6 6a1 1 0 010 1.42l-6 6a1 1 0 11-1.42-1.42L17.59 13H4a1 1 0 110-2h13.59l-4.3-4.29a1 1 0 010-1.42z" />
-                  </svg>
-                </span>
-              </>
-            )}
+            {loading ? "Creating..." : "Sign Up"}
           </button>
         </form>
 
