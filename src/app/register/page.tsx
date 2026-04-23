@@ -9,7 +9,7 @@ export default function RegisterPage() {
   const router = useRouter();
 
   const [formData, setFormData] = useState({
-    name: "", // ✅ backend expects "name"
+    fullName: "", // ✅ backend expects "name"
     email: "",
     password: "",
     role: "CUSTOMER", // ✅ default fixed
@@ -81,9 +81,9 @@ export default function RegisterPage() {
               type="text"
               id="name"
               className="input-field"
-              value={formData.name}
+              value={formData.fullName}
               onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
+                setFormData({ ...formData, fullName: e.target.value })
               }
               required
             />
