@@ -63,6 +63,20 @@
   text-align: center;
 }
 
+:root {
+  --auth-icon-color: rgba(255, 255, 255, 0.95);
+  --auth-icon-shadow: drop-shadow(0 0 6px rgba(255, 170, 110, 0.4));
+  --auth-arrow-color: #fff1e8;
+  --auth-arrow-shadow: drop-shadow(0 0 8px rgba(255, 130, 81, 0.5));
+}
+
+[data-theme="light"] {
+  --auth-icon-color: #fff8f2;
+  --auth-icon-shadow: drop-shadow(0 1px 2px rgba(174, 56, 30, 0.26));
+  --auth-arrow-color: #fff3ea;
+  --auth-arrow-shadow: drop-shadow(0 1px 3px rgba(180, 72, 40, 0.28));
+}
+
 .auth-cta-btn {
   position: relative;
   overflow: hidden;
@@ -84,6 +98,8 @@
   align-items: center;
   justify-content: center;
   opacity: 0.94;
+  color: var(--auth-icon-color);
+  filter: var(--auth-icon-shadow);
 }
 
 .auth-cta-icon svg {
@@ -93,7 +109,11 @@
 }
 
 .auth-cta-arrow {
-  transition: transform 0.3s ease;
+  color: var(--auth-arrow-color);
+  filter: var(--auth-arrow-shadow);
+  transition:
+    transform 0.3s ease,
+    filter 0.3s ease;
 }
 
 .auth-cta-btn::before {
@@ -141,6 +161,11 @@
 
 .auth-cta-btn:hover:not(:disabled) .auth-cta-arrow {
   transform: translateX(3px);
+  filter: drop-shadow(0 0 10px rgba(255, 206, 177, 0.75));
+}
+
+[data-theme="light"] .auth-cta-btn:hover:not(:disabled) .auth-cta-arrow {
+  filter: drop-shadow(0 1px 4px rgba(196, 78, 46, 0.35));
 }
 
 .auth-cta-btn:hover:not(:disabled)::after {
