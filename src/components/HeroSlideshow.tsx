@@ -46,10 +46,7 @@ export default function HeroSlideshow() {
   }, []);
 
   return (
-    <div
-      className="slideshow-shell glass-card"
-      aria-label="Featured tattoo styles"
-    >
+    <div className="slideshow-shell" aria-label="Featured tattoo styles">
       <div className="slides-viewport">
         <div
           className="slides-track"
@@ -62,7 +59,6 @@ export default function HeroSlideshow() {
             >
               <div className="slide-image" role="presentation" />
               <div className="slide-meta">
-                <p className="slide-chip">{slide.title}</p>
                 <h3>{slide.style}</h3>
                 <p>
                   {slide.artist} • {slide.location}
@@ -71,24 +67,6 @@ export default function HeroSlideshow() {
             </article>
           ))}
         </div>
-      </div>
-
-      <div
-        className="slide-dots"
-        role="tablist"
-        aria-label="Select featured style"
-      >
-        {slides.map((slide, index) => (
-          <button
-            key={slide.title}
-            type="button"
-            role="tab"
-            aria-label={`Show ${slide.title} slide`}
-            aria-selected={activeIndex === index}
-            className={`slide-dot ${activeIndex === index ? "active" : ""}`}
-            onClick={() => setActiveIndex(index)}
-          />
-        ))}
       </div>
     </div>
   );

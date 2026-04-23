@@ -141,7 +141,7 @@
 
 .slideshow-shell {
   width: min(420px, 100%);
-  padding: 1rem;
+  padding: 0;
   position: relative;
   z-index: 2;
 }
@@ -255,31 +255,6 @@
 
 .slide-meta p {
   color: var(--text-secondary);
-}
-
-.slide-dots {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 0.9rem;
-}
-
-.slide-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  background: color-mix(in srgb, var(--text-secondary) 55%, transparent);
-  transition: var(--transition);
-}
-
-.slide-dot.active {
-  width: 24px;
-  border-radius: 999px;
-  background: var(--accent-primary);
 }
 
 .features-section {
