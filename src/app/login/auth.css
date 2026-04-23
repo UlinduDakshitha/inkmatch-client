@@ -67,6 +67,7 @@
   position: relative;
   overflow: hidden;
   min-height: 52px;
+  padding-inline: 1.25rem;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: linear-gradient(120deg, var(--accent-primary), #ff7a42);
   box-shadow:
@@ -74,6 +75,25 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.25);
   letter-spacing: 0.02em;
   font-size: 0.95rem;
+}
+
+.auth-cta-icon {
+  width: 1.05rem;
+  height: 1.05rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.94;
+}
+
+.auth-cta-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+.auth-cta-arrow {
+  transition: transform 0.3s ease;
 }
 
 .auth-cta-btn::before {
@@ -119,6 +139,10 @@
     0 0 0 4px rgba(255, 130, 81, 0.18);
 }
 
+.auth-cta-btn:hover:not(:disabled) .auth-cta-arrow {
+  transform: translateX(3px);
+}
+
 .auth-cta-btn:hover:not(:disabled)::after {
   left: 120%;
   transform: rotate(22deg) translateY(4%);
@@ -139,11 +163,17 @@
     min-height: 50px;
     font-size: 0.92rem;
   }
+
+  .auth-cta-icon {
+    width: 1rem;
+    height: 1rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .auth-cta-btn,
-  .auth-cta-btn::after {
+  .auth-cta-btn::after,
+  .auth-cta-arrow {
     transition: none;
   }
 

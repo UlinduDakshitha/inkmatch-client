@@ -126,7 +126,26 @@ export default function RegisterPage() {
             className="btn-primary auth-cta-btn full-width"
             disabled={loading}
           >
-            {loading ? "Creating..." : "Sign Up"}
+            {loading ? (
+              "Creating..."
+            ) : (
+              <>
+                <span className="auth-cta-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false">
+                    <path d="M17 9h-1V7a4 4 0 00-8 0v2H7a2 2 0 00-2 2v7a2 2 0 002 2h10a2 2 0 002-2v-7a2 2 0 00-2-2zm-6 6.73V17a1 1 0 002 0v-1.27a2 2 0 10-2 0zM10 9V7a2 2 0 114 0v2h-4z" />
+                  </svg>
+                </span>
+                <span>Sign Up</span>
+                <span
+                  className="auth-cta-icon auth-cta-arrow"
+                  aria-hidden="true"
+                >
+                  <svg viewBox="0 0 24 24" focusable="false">
+                    <path d="M13.29 5.29a1 1 0 011.42 0l6 6a1 1 0 010 1.42l-6 6a1 1 0 11-1.42-1.42L17.59 13H4a1 1 0 110-2h13.59l-4.3-4.29a1 1 0 010-1.42z" />
+                  </svg>
+                </span>
+              </>
+            )}
           </button>
         </form>
 
