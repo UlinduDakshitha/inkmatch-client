@@ -42,9 +42,19 @@ export type Booking = {
   createdAt: string;
 };
 
+export type CustomerProfile = {
+  id: string;
+  ownerEmail: string;
+  ownerName: string;
+  phone: string;
+  city: string;
+  bio: string;
+};
+
 const ARTIST_KEY = "inkmatch.artistProfiles";
 const STUDIO_KEY = "inkmatch.studioProfiles";
 const BOOKINGS_KEY = "inkmatch.bookings";
+const CUSTOMER_KEY = "inkmatch.customerProfiles";
 
 function safeParse<T>(value: string | null, fallback: T): T {
   if (!value) {
@@ -211,5 +221,43 @@ export function addBooking(booking: Booking): Booking[] {
 
   const next = [booking, ...getBookings()];
   localStorage.setItem(BOOKINGS_KEY, JSON.stringify(next));
+  return next;
+}
+
+export function getCustomerProfiles(): CustomerProfile[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  return safeParse<CustomerProfile[]>(localStorage.getItem(CUSTOMER_KEY), []);
+}
+
+export function getCustomerProfileByOwner(
+  ownerEmail: string,
+): CustomerProfile | null {
+  const profile = getCustomerProfiles().find(
+    (item) => item.ownerEmail === ownerEmail,
+  );
+  return profile ?? null;
+}
+
+export function upsertCustomerProfile(
+  profile: CustomerProfile,
+): CustomerProfile[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const current = getCustomerProfiles();
+  const index = current.findIndex((item) => item.id === profile.id);
+  const next = [...current];
+
+  if (index >= 0) {
+    next[index] = profile;
+  } else {
+    next.unshift(profile);
+  }
+
+  localStorage.setItem(CUSTOMER_KEY, JSON.stringify(next));
   return next;
 }

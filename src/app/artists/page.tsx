@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import "./shared.css";
-import { getArtistProfiles } from "@/utils/appData";
+import {
+  getArtistProfileByOwner,
+  getArtistProfiles,
+  getCurrentUser,
+  normalizeRole,
+} from "@/utils/appData";
 
 type Artist = {
   id: number | string;
@@ -25,6 +30,12 @@ export default function ArtistsPage() {
   const [artists, setArtists] = useState<ArtistCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const currentUser = getCurrentUser();
+  const role = normalizeRole(currentUser?.role);
+  const myPortfolio =
+    role === "ARTIST" && currentUser?.email
+      ? getArtistProfileByOwner(currentUser.email)
+      : null;
 
   useEffect(() => {
     const localProfiles = getArtistProfiles();
@@ -101,6 +112,20 @@ export default function ArtistsPage() {
           Discover talented artists matching your style.
         </p>
       </div>
+
+      {role === "ARTIST" && (
+        <div className="glass-card" style={{ marginBottom: "2rem" }}>
+          <h2 className="heading-3">
+            {myPortfolio ? "Manage Your Portfolio" : "Create Your Portfolio"}
+          </h2>
+          <p className="text-secondary mt-2" style={{ marginBottom: "1rem" }}>
+            Keep your profile updated so customers can book you.
+          </p>
+          <Link href="/portfolios/me" className="btn-primary">
+            {myPortfolio ? "Edit Portfolio" : "Create Portfolio"}
+          </Link>
+        </div>
+      )}
 
       {error && (
         <div className="empty-state glass" style={{ marginBottom: "2rem" }}>

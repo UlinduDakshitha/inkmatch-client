@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import "../../artists/shared.css";
 import {
   addBooking,
   getArtistProfileById,
+  getArtistProfileByOwner,
+  getCustomerProfileByOwner,
   getCurrentUser,
   normalizeRole,
   upsertArtistProfile,
@@ -32,12 +34,54 @@ async function fileToDataUrl(file: File): Promise<string> {
 export default function PortfolioPage() {
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
-  const portfolioId = id ?? "";
+  const requestedId = id ?? "";
   const currentUser = getCurrentUser();
   const role = normalizeRole(currentUser?.role);
-  const initialLocalPortfolio = portfolioId
-    ? getArtistProfileById(portfolioId)
-    : null;
+  const ownPortfolio = useMemo(
+    () =>
+      role === "ARTIST" && currentUser?.email
+        ? getArtistProfileByOwner(currentUser.email)
+        : null,
+    [role, currentUser?.email],
+  );
+  const portfolioId = useMemo(
+    () =>
+      requestedId === "me"
+        ? ownPortfolio?.id ||
+          (currentUser?.email
+            ? `local-artist-${encodeURIComponent(currentUser.email)}`
+            : "")
+        : requestedId,
+    [requestedId, ownPortfolio?.id, currentUser?.email],
+  );
+  const initialLocalPortfolio = useMemo(
+    () =>
+      requestedId === "me"
+        ? role === "ARTIST" && currentUser?.email
+          ? (ownPortfolio ?? {
+              id: portfolioId,
+              ownerEmail: currentUser.email,
+              ownerName: currentUser.name || "Tattoo Artist",
+              style: "",
+              bio: "",
+              location: "",
+              rateRange: "",
+              profileImage: "",
+              galleryImages: [],
+            })
+          : null
+        : portfolioId
+          ? getArtistProfileById(portfolioId)
+          : null,
+    [
+      requestedId,
+      role,
+      currentUser?.email,
+      currentUser?.name,
+      ownPortfolio,
+      portfolioId,
+    ],
+  );
 
   const [portfolio, setPortfolio] = useState<ArtistPortfolio | null>(null);
   const [localPortfolio, setLocalPortfolio] = useState<ArtistProfile | null>(
@@ -49,7 +93,7 @@ export default function PortfolioPage() {
   const [bookingNote, setBookingNote] = useState("");
 
   useEffect(() => {
-    if (!portfolioId || initialLocalPortfolio) {
+    if (!portfolioId || initialLocalPortfolio || requestedId === "me") {
       return;
     }
 
@@ -67,7 +111,7 @@ export default function PortfolioPage() {
         console.error(err);
         setLoading(false);
       });
-  }, [portfolioId, initialLocalPortfolio]);
+  }, [portfolioId, initialLocalPortfolio, requestedId]);
 
   const isOwnPortfolio =
     role === "ARTIST" &&
@@ -97,13 +141,18 @@ export default function PortfolioPage() {
       return;
     }
 
+    const customerProfile = currentUser.email
+      ? getCustomerProfileByOwner(currentUser.email)
+      : null;
+
     const targetName =
       localPortfolio?.ownerName || portfolio?.userId?.name || "Artist";
 
     addBooking({
       id: `bk-${Date.now()}`,
       customerEmail: currentUser.email,
-      customerName: currentUser.name || "Customer",
+      customerName:
+        customerProfile?.ownerName || currentUser.name || "Customer",
       targetType: "ARTIST",
       targetId: String(portfolioId),
       targetName,
@@ -133,6 +182,10 @@ export default function PortfolioPage() {
       {loading ? (
         <div className="glass-card mt-4">
           <div className="skeleton text-skeleton"></div>
+        </div>
+      ) : requestedId === "me" && role !== "ARTIST" ? (
+        <div className="empty-state glass mt-4">
+          <p>Only tattoo artist accounts can manage a portfolio.</p>
         </div>
       ) : !portfolio && !localPortfolio ? (
         <div className="empty-state glass mt-4">

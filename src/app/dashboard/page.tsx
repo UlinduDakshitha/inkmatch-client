@@ -3,6 +3,13 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getRoleHomePath } from "@/utils/roleRedirect";
+import {
+  getCurrentUser,
+  getCustomerProfileByOwner,
+  normalizeRole,
+  upsertCustomerProfile,
+  type CustomerProfile,
+} from "@/utils/appData";
 
 type DashboardUser = {
   name?: string;
@@ -12,17 +19,27 @@ type DashboardUser = {
 export default function Dashboard() {
   const router = useRouter();
   const [user] = useState<DashboardUser | null>(() => {
-    const userData = localStorage.getItem("user");
-    if (!userData) {
-      return null;
-    }
-
-    try {
-      return JSON.parse(userData) as DashboardUser;
-    } catch {
-      return null;
-    }
+    return getCurrentUser() as DashboardUser | null;
   });
+  const role = normalizeRole(user?.role);
+  const [notice, setNotice] = useState("");
+  const [customerProfile, setCustomerProfile] =
+    useState<CustomerProfile | null>(() => {
+      if (role !== "CUSTOMER" || !user?.email) {
+        return null;
+      }
+
+      return (
+        getCustomerProfileByOwner(user.email) ?? {
+          id: `local-customer-${encodeURIComponent(user.email)}`,
+          ownerEmail: user.email,
+          ownerName: user.name || "Customer",
+          phone: "",
+          city: "",
+          bio: "",
+        }
+      );
+    });
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -38,6 +55,25 @@ export default function Dashboard() {
     }
   }, [router, user?.role]);
 
+  const saveCustomerProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customerProfile) {
+      return;
+    }
+
+    upsertCustomerProfile(customerProfile);
+
+    const latestUser = getCurrentUser();
+    if (latestUser) {
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ ...latestUser, name: customerProfile.ownerName }),
+      );
+    }
+
+    setNotice("Customer profile saved successfully.");
+  };
+
   return (
     <div className="page-container container" style={{ paddingTop: "120px" }}>
       <h1 className="heading-2">
@@ -51,6 +87,12 @@ export default function Dashboard() {
           Manage your bookings, consultations, and favorites from here.
         </p>
 
+        {notice && (
+          <div className="glass" style={{ marginTop: "1rem", padding: "1rem" }}>
+            <p className="text-secondary">{notice}</p>
+          </div>
+        )}
+
         {/* Placeholder for real dashboard widgets */}
         <div style={{ display: "flex", gap: "2rem", marginTop: "2rem" }}>
           <div className="glass-card">
@@ -62,6 +104,81 @@ export default function Dashboard() {
             <p className="text-secondary mt-2">0 liked</p>
           </div>
         </div>
+
+        {role === "CUSTOMER" && customerProfile && (
+          <form onSubmit={saveCustomerProfile} style={{ marginTop: "2rem" }}>
+            <h3 className="heading-3">My Profile</h3>
+            <p className="text-secondary mt-2">
+              Update your profile details before making bookings.
+            </p>
+            <div
+              style={{
+                marginTop: "1rem",
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                gap: "1rem",
+              }}
+            >
+              <input
+                className="input-field"
+                placeholder="Full Name"
+                value={customerProfile.ownerName}
+                onChange={(e) =>
+                  setCustomerProfile({
+                    ...customerProfile,
+                    ownerName: e.target.value,
+                  })
+                }
+                required
+              />
+              <input
+                className="input-field"
+                placeholder="Phone Number"
+                value={customerProfile.phone}
+                onChange={(e) =>
+                  setCustomerProfile({
+                    ...customerProfile,
+                    phone: e.target.value,
+                  })
+                }
+              />
+              <input
+                className="input-field"
+                placeholder="City"
+                value={customerProfile.city}
+                onChange={(e) =>
+                  setCustomerProfile({
+                    ...customerProfile,
+                    city: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <textarea
+              className="input-field"
+              style={{
+                marginTop: "1rem",
+                minHeight: "100px",
+                resize: "vertical",
+              }}
+              placeholder="About your tattoo idea or style preferences"
+              value={customerProfile.bio}
+              onChange={(e) =>
+                setCustomerProfile({
+                  ...customerProfile,
+                  bio: e.target.value,
+                })
+              }
+            />
+            <button
+              type="submit"
+              className="btn-primary"
+              style={{ marginTop: "1rem" }}
+            >
+              Save Profile
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );

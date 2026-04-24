@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import "../../artists/shared.css";
 import {
   addBooking,
+  getCustomerProfileByOwner,
   getCurrentUser,
   getStudioProfileById,
   normalizeRole,
@@ -64,11 +65,15 @@ export default function StudioDetailsPage() {
     }
 
     const targetName = localStudio?.name || studio?.name || "Studio";
+    const customerProfile = currentUser.email
+      ? getCustomerProfileByOwner(currentUser.email)
+      : null;
 
     addBooking({
       id: `bk-${Date.now()}`,
       customerEmail: currentUser.email,
-      customerName: currentUser.name || "Customer",
+      customerName:
+        customerProfile?.ownerName || currentUser.name || "Customer",
       targetType: "STUDIO",
       targetId: String(studioId),
       targetName,
