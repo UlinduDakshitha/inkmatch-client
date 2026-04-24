@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getRoleHomePath } from "@/utils/roleRedirect";
+import UserProfileBanner from "@/components/UserProfileBanner";
 import {
+  type AppUser,
   getCurrentUser,
   getCustomerProfileByOwner,
   normalizeRole,
@@ -11,15 +13,10 @@ import {
   type CustomerProfile,
 } from "@/utils/appData";
 
-type DashboardUser = {
-  name?: string;
-  role?: string;
-};
-
 export default function Dashboard() {
   const router = useRouter();
-  const [user] = useState<DashboardUser | null>(() => {
-    return getCurrentUser() as DashboardUser | null;
+  const [user] = useState<AppUser | null>(() => {
+    return getCurrentUser();
   });
   const role = normalizeRole(user?.role);
   const [notice, setNotice] = useState("");
@@ -76,6 +73,7 @@ export default function Dashboard() {
 
   return (
     <div className="page-container container" style={{ paddingTop: "120px" }}>
+      <UserProfileBanner />
       <h1 className="heading-2">
         Welcome Back,
         <span className="text-gradient"> {user?.name ?? "Customer"}</span>

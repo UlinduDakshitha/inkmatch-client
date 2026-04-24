@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import "./shared.css";
+import UserProfileBanner from "@/components/UserProfileBanner";
 import {
   getArtistProfileByOwner,
   getArtistProfiles,
@@ -104,6 +105,7 @@ export default function ArtistsPage() {
 
   return (
     <div className="page-container container">
+      <UserProfileBanner />
       <div className="page-header">
         <h1 className="heading-2">
           Tattoo <span className="text-gradient">Artists</span>

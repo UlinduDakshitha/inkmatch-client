@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import "../artists/shared.css"; // sharing same layout logic
+import UserProfileBanner from "@/components/UserProfileBanner";
 import {
   getCurrentUser,
   getStudioProfileByOwner,
@@ -184,6 +185,7 @@ export default function StudiosPage() {
 
   return (
     <div className="page-container container">
+      <UserProfileBanner />
       <div className="page-header">
         <h1 className="heading-2">
           Tattoo <span className="text-gradient">Studios</span>
