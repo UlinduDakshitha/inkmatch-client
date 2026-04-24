@@ -34,23 +34,26 @@ export default function StudiosPage() {
   const role = normalizeRole(currentUser?.role);
   const isStudioOwner = role === "STUDIO_OWNER";
 
-  const [myStudio, setMyStudio] = useState<StudioProfile | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [myStudio, setMyStudio] = useState<StudioProfile | null>(() => {
+    if (!isStudioOwner || !currentUser?.email) {
+      return null;
+    }
 
-  useEffect(() => {
-    const localStudios = getStudioProfiles();
-
-    if (isStudioOwner && currentUser?.email) {
-      const own = getStudioProfileByOwner(currentUser.email) ?? {
+    return (
+      getStudioProfileByOwner(currentUser.email) ?? {
         id: `local-studio-${encodeURIComponent(currentUser.email)}`,
         ownerEmail: currentUser.email,
         ownerName: currentUser.name || "Studio Owner",
         name: "",
         address: "",
         description: "",
-      };
-      setMyStudio(own);
-    }
+      }
+    );
+  });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const localStudios = getStudioProfiles();
 
     // Fetch from Spring Boot Backend
     fetch("http://localhost:8080/api/studios")

@@ -36,7 +36,7 @@ export default function Dashboard() {
     if (roleHomePath !== "/dashboard") {
       router.replace(roleHomePath);
     }
-  }, [router]);
+  }, [router, user?.role]);
 
   return (
     <div className="page-container container" style={{ paddingTop: "120px" }}>

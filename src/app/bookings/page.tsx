@@ -1,37 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
   getBookingsForCustomer,
   getCurrentUser,
   normalizeRole,
-  type Booking,
 } from "@/utils/appData";
 
 export default function BookingsPage() {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [notice, setNotice] = useState("");
+  const user = getCurrentUser();
+  const role = normalizeRole(user?.role);
 
-  useEffect(() => {
-    const user = getCurrentUser();
-    const role = normalizeRole(user?.role);
+  const notice = !user?.email
+    ? "Please login to view your bookings."
+    : role !== "CUSTOMER"
+      ? "This page shows customer bookings only."
+      : "";
 
-    if (!user?.email) {
-      setNotice("Please login to view your bookings.");
-      setLoading(false);
-      return;
-    }
-
-    if (role !== "CUSTOMER") {
-      setNotice("This page shows customer bookings only.");
-      setLoading(false);
-      return;
-    }
-
-    setBookings(getBookingsForCustomer(user.email));
-    setLoading(false);
-  }, []);
+  const bookings =
+    user?.email && role === "CUSTOMER"
+      ? getBookingsForCustomer(user.email)
+      : [];
 
   return (
     <div className="page-container container" style={{ paddingTop: "120px" }}>
@@ -48,11 +36,7 @@ export default function BookingsPage() {
         </div>
       )}
 
-      {loading ? (
-        <div className="glass-card">
-          <div className="skeleton text-skeleton"></div>
-        </div>
-      ) : bookings.length === 0 ? (
+      {bookings.length === 0 ? (
         <div className="empty-state glass">
           <p>
             You have no bookings yet. Explore artists to schedule an

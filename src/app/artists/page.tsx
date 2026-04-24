@@ -36,14 +36,13 @@ export default function ArtistsPage() {
   const role = normalizeRole(currentUser?.role);
   const isArtist = role === "ARTIST";
 
-  const [myPortfolio, setMyPortfolio] = useState<ArtistProfile | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [myPortfolio, setMyPortfolio] = useState<ArtistProfile | null>(() => {
+    if (!isArtist || !currentUser?.email) {
+      return null;
+    }
 
-  useEffect(() => {
-    const localProfiles = getArtistProfiles();
-
-    if (isArtist && currentUser?.email) {
-      const own = getArtistProfileByOwner(currentUser.email) ?? {
+    return (
+      getArtistProfileByOwner(currentUser.email) ?? {
         id: `local-${encodeURIComponent(currentUser.email)}`,
         ownerEmail: currentUser.email,
         ownerName: currentUser.name || "Tattoo Artist",
@@ -51,9 +50,13 @@ export default function ArtistsPage() {
         bio: "",
         location: "",
         rateRange: "",
-      };
-      setMyPortfolio(own);
-    }
+      }
+    );
+  });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const localProfiles = getArtistProfiles();
 
     // Fetch from Spring Boot Backend
     fetch("http://localhost:8080/api/artists")

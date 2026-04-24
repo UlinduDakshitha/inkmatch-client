@@ -20,33 +20,27 @@ type BackendStudio = {
 export default function StudioDetailsPage() {
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const studioId = id ?? "";
   const currentUser = getCurrentUser();
   const role = normalizeRole(currentUser?.role);
+  const initialLocalStudio = studioId ? getStudioProfileById(studioId) : null;
 
   const [studio, setStudio] = useState<BackendStudio | null>(null);
-  const [localStudio, setLocalStudio] = useState<StudioProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [localStudio] = useState<StudioProfile | null>(initialLocalStudio);
+  const [loading, setLoading] = useState(!initialLocalStudio);
   const [notice, setNotice] = useState("");
   const [appointmentDate, setAppointmentDate] = useState("");
   const [bookingNote, setBookingNote] = useState("");
 
   useEffect(() => {
-    if (!id) {
-      setLoading(false);
-      return;
-    }
-
-    const local = getStudioProfileById(id);
-    if (local) {
-      setLocalStudio(local);
-      setLoading(false);
+    if (!studioId || initialLocalStudio) {
       return;
     }
 
     fetch("http://localhost:8080/api/studios")
       .then((res) => res.json())
       .then((data: BackendStudio[]) => {
-        const match = data.find((item) => String(item.id) === String(id));
+        const match = data.find((item) => String(item.id) === String(studioId));
         setStudio(match ?? null);
         setLoading(false);
       })
@@ -54,7 +48,7 @@ export default function StudioDetailsPage() {
         console.error(err);
         setLoading(false);
       });
-  }, [id]);
+  }, [studioId, initialLocalStudio]);
 
   const createBooking = (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +70,7 @@ export default function StudioDetailsPage() {
       customerEmail: currentUser.email,
       customerName: currentUser.name || "Customer",
       targetType: "STUDIO",
-      targetId: String(id),
+      targetId: String(studioId),
       targetName,
       appointmentDate,
       notes: bookingNote,

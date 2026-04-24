@@ -23,28 +23,24 @@ type ArtistPortfolio = {
 export default function PortfolioPage() {
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const portfolioId = id ?? "";
   const currentUser = getCurrentUser();
   const role = normalizeRole(currentUser?.role);
+  const initialLocalPortfolio = portfolioId
+    ? getArtistProfileById(portfolioId)
+    : null;
 
   const [portfolio, setPortfolio] = useState<ArtistPortfolio | null>(null);
   const [localPortfolio, setLocalPortfolio] = useState<ArtistProfile | null>(
-    null,
+    initialLocalPortfolio,
   );
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialLocalPortfolio);
   const [notice, setNotice] = useState("");
   const [appointmentDate, setAppointmentDate] = useState("");
   const [bookingNote, setBookingNote] = useState("");
 
   useEffect(() => {
-    if (!id) {
-      setLoading(false);
-      return;
-    }
-
-    const local = getArtistProfileById(id);
-    if (local) {
-      setLocalPortfolio(local);
-      setLoading(false);
+    if (!portfolioId || initialLocalPortfolio) {
       return;
     }
 
@@ -54,7 +50,7 @@ export default function PortfolioPage() {
       .then((res) => res.json())
       .then((data: ArtistPortfolio[]) => {
         // Mock matching the ID for now
-        const artist = data.find((a) => a.id.toString() === id);
+        const artist = data.find((a) => a.id.toString() === portfolioId);
         setPortfolio(artist ?? null);
         setLoading(false);
       })
@@ -62,7 +58,7 @@ export default function PortfolioPage() {
         console.error(err);
         setLoading(false);
       });
-  }, [id]);
+  }, [portfolioId, initialLocalPortfolio]);
 
   const isOwnPortfolio =
     role === "ARTIST" &&
@@ -100,7 +96,7 @@ export default function PortfolioPage() {
       customerEmail: currentUser.email,
       customerName: currentUser.name || "Customer",
       targetType: "ARTIST",
-      targetId: String(id),
+      targetId: String(portfolioId),
       targetName,
       appointmentDate,
       notes: bookingNote,
