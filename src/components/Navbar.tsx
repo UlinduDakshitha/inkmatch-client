@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import "./Navbar.css";
 import ThemeToggle from "./ThemeToggle";
@@ -24,6 +25,17 @@ export default function Navbar() {
     roleLabel: "Guest",
     profileImage: "",
   });
+  const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setNavbarUser({
+      user: null,
+      roleLabel: "Guest",
+      profileImage: "",
+    });
+    router.push("/");
+  };
 
   useEffect(() => {
     function loadNavbarUser() {
@@ -84,31 +96,42 @@ export default function Navbar() {
         </div>
         <div className="navbar-actions">
           {navbarUser.user && (
-            <div className="navbar-user-pill" aria-label="Logged-in user">
-              {navbarUser.profileImage ? (
-                <img
-                  src={navbarUser.profileImage}
-                  alt={displayName}
-                  className="navbar-user-avatar"
-                />
-              ) : (
-                <span className="navbar-user-avatar navbar-user-initial">
-                  {displayName.charAt(0).toUpperCase()}
-                </span>
-              )}
-              <div className="navbar-user-meta">
-                <span className="navbar-user-role">{navbarUser.roleLabel}</span>
-                <span className="navbar-user-name">{displayName}</span>
+            <>
+              <div className="navbar-user-pill" aria-label="Logged-in user">
+                {navbarUser.profileImage ? (
+                  <img
+                    src={navbarUser.profileImage}
+                    alt={displayName}
+                    className="navbar-user-avatar"
+                  />
+                ) : (
+                  <span className="navbar-user-avatar navbar-user-initial">
+                    {displayName.charAt(0).toUpperCase()}
+                  </span>
+                )}
+                <div className="navbar-user-meta">
+                  <span className="navbar-user-role">
+                    {navbarUser.roleLabel}
+                  </span>
+                  <span className="navbar-user-name">{displayName}</span>
+                </div>
               </div>
-            </div>
+              <button onClick={handleLogout} className="btn-secondary">
+                Log Out
+              </button>
+            </>
           )}
           <ThemeToggle />
-          <Link href="/login" className="btn-secondary">
-            Log In
-          </Link>
-          <Link href="/register" className="btn-primary">
-            Sign Up
-          </Link>
+          {!navbarUser.user && (
+            <>
+              <Link href="/login" className="btn-secondary">
+                Log In
+              </Link>
+              <Link href="/register" className="btn-primary">
+                Sign Up
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </nav>
