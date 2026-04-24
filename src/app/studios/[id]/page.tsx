@@ -105,6 +105,18 @@ export default function StudioDetailsPage() {
         </div>
       ) : (
         <div className="glass-card mt-4" style={{ marginTop: "2rem" }}>
+          {localStudio?.profileImage && (
+            <img
+              src={localStudio.profileImage}
+              alt={localStudio.name || "Studio profile"}
+              style={{
+                width: "100%",
+                maxHeight: "320px",
+                objectFit: "cover",
+                borderRadius: "12px",
+              }}
+            />
+          )}
           <h2 className="heading-3">
             {localStudio?.name || studio?.name || "Studio"}
           </h2>
@@ -140,6 +152,40 @@ export default function StudioDetailsPage() {
               </div>
             </form>
           )}
+
+          {localStudio?.galleryImages?.length ? (
+            <>
+              <h3
+                className="heading-3"
+                style={{ marginTop: "2rem", marginBottom: "1rem" }}
+              >
+                Studio Gallery
+              </h3>
+              <div className="grid-list">
+                {localStudio.galleryImages.map((image, index) => (
+                  <div
+                    key={`${image.slice(0, 20)}-${index}`}
+                    className="glass"
+                    style={{
+                      height: "220px",
+                      borderRadius: "12px",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <img
+                      src={image}
+                      alt={`Studio image ${index + 1}`}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : null}
         </div>
       )}
     </div>

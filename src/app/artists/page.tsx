@@ -24,8 +24,18 @@ type ArtistCard = {
   id: string;
   name: string;
   style: string;
+  profileImage?: string;
   source: "backend" | "local";
 };
+
+async function fileToDataUrl(file: File): Promise<string> {
+  return await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("Image read failed"));
+    reader.readAsDataURL(file);
+  });
+}
 
 export default function ArtistsPage() {
   const [artists, setArtists] = useState<ArtistCard[]>([]);
@@ -50,6 +60,8 @@ export default function ArtistsPage() {
         bio: "",
         location: "",
         rateRange: "",
+        profileImage: "",
+        galleryImages: [],
       }
     );
   });
@@ -66,6 +78,7 @@ export default function ArtistsPage() {
           id: String(artist.id),
           name: artist.userId?.name || "Unknown Artist",
           style: artist.style || "Various Styles",
+          profileImage: "",
           source: "backend",
         }));
 
@@ -73,6 +86,7 @@ export default function ArtistsPage() {
           id: profile.id,
           name: profile.ownerName,
           style: profile.style || "Custom Style",
+          profileImage: profile.profileImage,
           source: "local",
         }));
 
@@ -86,6 +100,7 @@ export default function ArtistsPage() {
           id: profile.id,
           name: profile.ownerName,
           style: profile.style || "Custom Style",
+          profileImage: profile.profileImage,
           source: "local",
         }));
         setArtists(localCards);
@@ -101,6 +116,7 @@ export default function ArtistsPage() {
           id: profile.id,
           name: profile.ownerName,
           style: profile.style || "Custom Style",
+          profileImage: profile.profileImage,
           source: "local",
         }),
       );
@@ -134,11 +150,63 @@ export default function ArtistsPage() {
         id: profile.id,
         name: profile.ownerName,
         style: profile.style || "Custom Style",
+        profileImage: profile.profileImage,
         source: "local",
       }));
       return [...localCards, ...backendOnly];
     });
     setSaving(false);
+  };
+
+  const handleArtistProfileImageChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    if (!myPortfolio) {
+      return;
+    }
+
+    const file = e.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    const imageData = await fileToDataUrl(file);
+    setMyPortfolio({ ...myPortfolio, profileImage: imageData });
+  };
+
+  const handleArtistGalleryChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    if (!myPortfolio) {
+      return;
+    }
+
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) {
+      return;
+    }
+
+    const galleryImages = await Promise.all(
+      files.map((file) => fileToDataUrl(file)),
+    );
+    setMyPortfolio({
+      ...myPortfolio,
+      galleryImages: [...myPortfolio.galleryImages, ...galleryImages].slice(
+        0,
+        12,
+      ),
+    });
+  };
+
+  const removeGalleryImage = (index: number) => {
+    if (!myPortfolio) {
+      return;
+    }
+
+    setMyPortfolio({
+      ...myPortfolio,
+      galleryImages: myPortfolio.galleryImages.filter((_, i) => i !== index),
+    });
   };
 
   return (
@@ -215,6 +283,66 @@ export default function ArtistsPage() {
                 setMyPortfolio({ ...myPortfolio, bio: e.target.value })
               }
             />
+            <div style={{ marginTop: "1rem", display: "grid", gap: "0.75rem" }}>
+              <label className="text-secondary">Profile Picture</label>
+              <input
+                type="file"
+                accept="image/*"
+                className="input-field"
+                onChange={handleArtistProfileImageChange}
+              />
+              {myPortfolio.profileImage && (
+                <img
+                  src={myPortfolio.profileImage}
+                  alt="Artist profile"
+                  style={{
+                    width: "120px",
+                    height: "120px",
+                    objectFit: "cover",
+                    borderRadius: "50%",
+                  }}
+                />
+              )}
+            </div>
+            <div style={{ marginTop: "1rem", display: "grid", gap: "0.75rem" }}>
+              <label className="text-secondary">Work Gallery</label>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                className="input-field"
+                onChange={handleArtistGalleryChange}
+              />
+              {myPortfolio.galleryImages.length > 0 && (
+                <div className="grid-list">
+                  {myPortfolio.galleryImages.map((image, index) => (
+                    <div
+                      key={`${image.slice(0, 20)}-${index}`}
+                      className="glass-card item-card"
+                    >
+                      <img
+                        src={image}
+                        alt={`Artwork ${index + 1}`}
+                        style={{
+                          width: "100%",
+                          height: "180px",
+                          objectFit: "cover",
+                          borderRadius: "12px",
+                        }}
+                      />
+                      <button
+                        type="button"
+                        className="btn-secondary"
+                        style={{ marginTop: "0.75rem" }}
+                        onClick={() => removeGalleryImage(index)}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
             <button
               type="submit"
               className="btn-primary"
@@ -253,10 +381,24 @@ export default function ArtistsPage() {
         <div className="grid-list">
           {artists.map((artist) => (
             <div key={artist.id} className="glass-card item-card">
-              <div className="item-avatar">
-                {/* Fallback initials if no distinct image */}
-                {artist.name.charAt(0) || "A"}
-              </div>
+              {artist.profileImage ? (
+                <img
+                  src={artist.profileImage}
+                  alt={artist.name}
+                  style={{
+                    width: "80px",
+                    height: "80px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    margin: "0 auto",
+                  }}
+                />
+              ) : (
+                <div className="item-avatar">
+                  {/* Fallback initials if no distinct image */}
+                  {artist.name.charAt(0) || "A"}
+                </div>
+              )}
               <h3 className="item-title mt-4">{artist.name}</h3>
               <p className="item-subtitle text-secondary">{artist.style}</p>
               <div className="mt-4">

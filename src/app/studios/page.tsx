@@ -22,8 +22,18 @@ type StudioCard = {
   id: string;
   name: string;
   address: string;
+  profileImage?: string;
   source: "backend" | "local";
 };
+
+async function fileToDataUrl(file: File): Promise<string> {
+  return await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("Image read failed"));
+    reader.readAsDataURL(file);
+  });
+}
 
 export default function StudiosPage() {
   const [studios, setStudios] = useState<StudioCard[]>([]);
@@ -47,6 +57,8 @@ export default function StudiosPage() {
         name: "",
         address: "",
         description: "",
+        profileImage: "",
+        galleryImages: [],
       }
     );
   });
@@ -63,12 +75,14 @@ export default function StudiosPage() {
           id: String(studio.id),
           name: studio.name || "Unknown Studio",
           address: studio.address || "Address not listed",
+          profileImage: "",
           source: "backend",
         }));
         const localCards: StudioCard[] = localStudios.map((studio) => ({
           id: studio.id,
           name: studio.name || "Studio",
           address: studio.address || "Address not listed",
+          profileImage: studio.profileImage,
           source: "local",
         }));
         setStudios([...localCards, ...backendCards]);
@@ -80,6 +94,7 @@ export default function StudiosPage() {
           id: studio.id,
           name: studio.name || "Studio",
           address: studio.address || "Address not listed",
+          profileImage: studio.profileImage,
           source: "local",
         }));
         setStudios(localCards);
@@ -94,6 +109,7 @@ export default function StudiosPage() {
         id: studio.id,
         name: studio.name || "Studio",
         address: studio.address || "Address not listed",
+        profileImage: studio.profileImage,
         source: "local",
       }));
       setStudios((prev) => {
@@ -119,6 +135,7 @@ export default function StudiosPage() {
       id: studio.id,
       name: studio.name || "Studio",
       address: studio.address || "Address not listed",
+      profileImage: studio.profileImage,
       source: "local",
     }));
     setStudios((prev) => {
@@ -126,6 +143,43 @@ export default function StudiosPage() {
       return [...localCards, ...backendOnly];
     });
     setSaving(false);
+  };
+
+  const handleStudioProfileImageChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    if (!myStudio) {
+      return;
+    }
+
+    const file = e.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    const imageData = await fileToDataUrl(file);
+    setMyStudio({ ...myStudio, profileImage: imageData });
+  };
+
+  const handleStudioGalleryChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    if (!myStudio) {
+      return;
+    }
+
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) {
+      return;
+    }
+
+    const galleryImages = await Promise.all(
+      files.map((file) => fileToDataUrl(file)),
+    );
+    setMyStudio({
+      ...myStudio,
+      galleryImages: [...myStudio.galleryImages, ...galleryImages].slice(0, 12),
+    });
   };
 
   return (
@@ -184,6 +238,37 @@ export default function StudiosPage() {
                 setMyStudio({ ...myStudio, description: e.target.value })
               }
             />
+            <div style={{ marginTop: "1rem", display: "grid", gap: "0.75rem" }}>
+              <label className="text-secondary">Studio Profile Picture</label>
+              <input
+                type="file"
+                accept="image/*"
+                className="input-field"
+                onChange={handleStudioProfileImageChange}
+              />
+              {myStudio.profileImage && (
+                <img
+                  src={myStudio.profileImage}
+                  alt="Studio profile"
+                  style={{
+                    width: "120px",
+                    height: "120px",
+                    objectFit: "cover",
+                    borderRadius: "12px",
+                  }}
+                />
+              )}
+            </div>
+            <div style={{ marginTop: "1rem", display: "grid", gap: "0.75rem" }}>
+              <label className="text-secondary">Studio Gallery</label>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                className="input-field"
+                onChange={handleStudioGalleryChange}
+              />
+            </div>
             <button
               className="btn-primary"
               type="submit"
@@ -224,6 +309,18 @@ export default function StudiosPage() {
         <div className="grid-list">
           {studios.map((studio) => (
             <div key={studio.id} className="glass-card item-card">
+              {studio.profileImage ? (
+                <img
+                  src={studio.profileImage}
+                  alt={studio.name}
+                  style={{
+                    width: "100%",
+                    height: "180px",
+                    objectFit: "cover",
+                    borderRadius: "12px",
+                  }}
+                />
+              ) : null}
               <h3 className="item-title mt-2">{studio.name}</h3>
               <p className="item-subtitle text-secondary mb-4">
                 {studio.address}

@@ -20,6 +20,15 @@ type ArtistPortfolio = {
   };
 };
 
+async function fileToDataUrl(file: File): Promise<string> {
+  return await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("Image read failed"));
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function PortfolioPage() {
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
@@ -141,11 +150,24 @@ export default function PortfolioPage() {
                 fontSize: "3rem",
               }}
             >
-              {(
-                localPortfolio?.ownerName ||
-                portfolio?.userId?.name ||
-                "A"
-              ).charAt(0)}
+              {localPortfolio?.profileImage ? (
+                <img
+                  src={localPortfolio.profileImage}
+                  alt={localPortfolio.ownerName}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    borderRadius: "50%",
+                  }}
+                />
+              ) : (
+                (
+                  localPortfolio?.ownerName ||
+                  portfolio?.userId?.name ||
+                  "A"
+                ).charAt(0)
+              )}
             </div>
             <div>
               <h2 className="heading-3">
@@ -269,6 +291,54 @@ export default function PortfolioPage() {
                   setLocalPortfolio({ ...localPortfolio, bio: e.target.value })
                 }
               />
+              <div
+                style={{ marginTop: "1rem", display: "grid", gap: "0.75rem" }}
+              >
+                <label className="text-secondary">Profile Picture</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="input-field"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file || !localPortfolio) {
+                      return;
+                    }
+                    const imageData = await fileToDataUrl(file);
+                    setLocalPortfolio({
+                      ...localPortfolio,
+                      profileImage: imageData,
+                    });
+                  }}
+                />
+              </div>
+              <div
+                style={{ marginTop: "1rem", display: "grid", gap: "0.75rem" }}
+              >
+                <label className="text-secondary">Portfolio Images</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="input-field"
+                  onChange={async (e) => {
+                    const files = Array.from(e.target.files ?? []);
+                    if (files.length === 0 || !localPortfolio) {
+                      return;
+                    }
+                    const images = await Promise.all(
+                      files.map((file) => fileToDataUrl(file)),
+                    );
+                    setLocalPortfolio({
+                      ...localPortfolio,
+                      galleryImages: [
+                        ...localPortfolio.galleryImages,
+                        ...images,
+                      ].slice(0, 16),
+                    });
+                  }}
+                />
+              </div>
               <button
                 className="btn-primary"
                 type="submit"
@@ -285,20 +355,35 @@ export default function PortfolioPage() {
           >
             Gallery
           </h3>
-          <div className="grid-list">
-            {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className="glass"
-                style={{ height: "200px", borderRadius: "12px" }}
-              >
+          {localPortfolio?.galleryImages?.length ? (
+            <div className="grid-list">
+              {localPortfolio.galleryImages.map((image, index) => (
                 <div
-                  className="skeleton"
-                  style={{ height: "100%", width: "100%" }}
-                ></div>
-              </div>
-            ))}
-          </div>
+                  key={`${image.slice(0, 20)}-${index}`}
+                  className="glass"
+                  style={{
+                    height: "220px",
+                    borderRadius: "12px",
+                    overflow: "hidden",
+                  }}
+                >
+                  <img
+                    src={image}
+                    alt={`Artwork ${index + 1}`}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state glass">
+              <p>No artwork uploaded yet.</p>
+            </div>
+          )}
         </div>
       )}
     </div>

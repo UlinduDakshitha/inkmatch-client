@@ -14,6 +14,8 @@ export type ArtistProfile = {
   bio: string;
   location: string;
   rateRange: string;
+  profileImage?: string;
+  galleryImages: string[];
 };
 
 export type StudioProfile = {
@@ -23,6 +25,8 @@ export type StudioProfile = {
   name: string;
   address: string;
   description: string;
+  profileImage?: string;
+  galleryImages: string[];
 };
 
 export type Booking = {
@@ -81,7 +85,15 @@ export function getArtistProfiles(): ArtistProfile[] {
     return [];
   }
 
-  return safeParse<ArtistProfile[]>(localStorage.getItem(ARTIST_KEY), []);
+  const parsed = safeParse<ArtistProfile[]>(
+    localStorage.getItem(ARTIST_KEY),
+    [],
+  );
+  return parsed.map((item) => ({
+    ...item,
+    profileImage: item.profileImage || "",
+    galleryImages: Array.isArray(item.galleryImages) ? item.galleryImages : [],
+  }));
 }
 
 export function getArtistProfileById(id: string): ArtistProfile | null {
@@ -104,13 +116,20 @@ export function upsertArtistProfile(profile: ArtistProfile): ArtistProfile[] {
   }
 
   const current = getArtistProfiles();
-  const index = current.findIndex((item) => item.id === profile.id);
+  const normalizedProfile: ArtistProfile = {
+    ...profile,
+    profileImage: profile.profileImage || "",
+    galleryImages: Array.isArray(profile.galleryImages)
+      ? profile.galleryImages
+      : [],
+  };
+  const index = current.findIndex((item) => item.id === normalizedProfile.id);
   const next = [...current];
 
   if (index >= 0) {
-    next[index] = profile;
+    next[index] = normalizedProfile;
   } else {
-    next.unshift(profile);
+    next.unshift(normalizedProfile);
   }
 
   localStorage.setItem(ARTIST_KEY, JSON.stringify(next));
@@ -122,7 +141,15 @@ export function getStudioProfiles(): StudioProfile[] {
     return [];
   }
 
-  return safeParse<StudioProfile[]>(localStorage.getItem(STUDIO_KEY), []);
+  const parsed = safeParse<StudioProfile[]>(
+    localStorage.getItem(STUDIO_KEY),
+    [],
+  );
+  return parsed.map((item) => ({
+    ...item,
+    profileImage: item.profileImage || "",
+    galleryImages: Array.isArray(item.galleryImages) ? item.galleryImages : [],
+  }));
 }
 
 export function getStudioProfileById(id: string): StudioProfile | null {
@@ -145,13 +172,20 @@ export function upsertStudioProfile(profile: StudioProfile): StudioProfile[] {
   }
 
   const current = getStudioProfiles();
-  const index = current.findIndex((item) => item.id === profile.id);
+  const normalizedProfile: StudioProfile = {
+    ...profile,
+    profileImage: profile.profileImage || "",
+    galleryImages: Array.isArray(profile.galleryImages)
+      ? profile.galleryImages
+      : [],
+  };
+  const index = current.findIndex((item) => item.id === normalizedProfile.id);
   const next = [...current];
 
   if (index >= 0) {
-    next[index] = profile;
+    next[index] = normalizedProfile;
   } else {
-    next.unshift(profile);
+    next.unshift(normalizedProfile);
   }
 
   localStorage.setItem(STUDIO_KEY, JSON.stringify(next));
