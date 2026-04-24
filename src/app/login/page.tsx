@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import "./auth.css";
+import { getRoleHomePath } from "@/utils/roleRedirect";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,18 +30,16 @@ export default function LoginPage() {
       }
 
       const data = await res.json();
-      localStorage.setItem("token", data.token);
-      localStorage.setItem(
-        "user",
-        JSON.stringify(
-          data.user ?? {
-            name: email.split("@")[0],
-            email,
-          },
-        ),
-      );
+      const loggedInUser = data.user ?? {
+        name: email.split("@")[0],
+        email,
+        role: data.role ?? "CUSTOMER",
+      };
 
-      router.push("/dashboard");
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(loggedInUser));
+
+      router.push(getRoleHomePath(loggedInUser.role ?? data.role));
     } catch (err: unknown) {
       setError(
         err instanceof Error ? err.message : "An error occurred during login",

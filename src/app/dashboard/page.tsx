@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { getRoleHomePath } from "@/utils/roleRedirect";
 
 type DashboardUser = {
   name?: string;
+  role?: string;
 };
 
 export default function Dashboard() {
@@ -27,6 +29,12 @@ export default function Dashboard() {
 
     if (!token) {
       router.push("/login");
+      return;
+    }
+
+    const roleHomePath = getRoleHomePath(user?.role);
+    if (roleHomePath !== "/dashboard") {
+      router.replace(roleHomePath);
     }
   }, [router]);
 

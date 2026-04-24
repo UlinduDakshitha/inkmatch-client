@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import "../login/auth.css";
+import { getRoleHomePath } from "@/utils/roleRedirect";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -42,19 +43,16 @@ export default function RegisterPage() {
         throw new Error(data.message || "Registration failed");
       }
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem(
-        "user",
-        JSON.stringify(
-          data.user ?? {
-            name: formData.fullName,
-            email: formData.email,
-            role: formData.role,
-          },
-        ),
-      );
+      const registeredUser = data.user ?? {
+        name: formData.fullName,
+        email: formData.email,
+        role: formData.role,
+      };
 
-      router.push("/dashboard");
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(registeredUser));
+
+      router.push(getRoleHomePath(registeredUser.role ?? formData.role));
     } catch (err: unknown) {
       setError(
         err instanceof Error
