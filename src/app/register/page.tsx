@@ -9,7 +9,7 @@ export default function RegisterPage() {
   const router = useRouter();
 
   const [formData, setFormData] = useState({
-    name: "",
+    fullName: "",
     email: "",
     password: "",
     role: "CUSTOMER",
@@ -31,6 +31,7 @@ export default function RegisterPage() {
         },
         body: JSON.stringify({
           ...formData,
+          name: formData.fullName,
           role: formData.role.toUpperCase(),
         }),
       });
@@ -46,7 +47,7 @@ export default function RegisterPage() {
         "user",
         JSON.stringify(
           data.user ?? {
-            name: formData.name,
+            name: formData.fullName,
             email: formData.email,
             role: formData.role,
           },
@@ -84,9 +85,9 @@ export default function RegisterPage() {
               type="text"
               id="name"
               className="input-field"
-              value={formData.name}
+              value={formData.fullName}
               onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
+                setFormData({ ...formData, fullName: e.target.value })
               }
               required
             />
