@@ -144,15 +144,15 @@ export default function Navbar() {
               {settingsOpen && (
                 <div className="navbar-settings-menu">
                   <div className="navbar-settings-section">
-                    <p className="navbar-settings-label">Theme</p>
-                    <ThemeToggle />
+                    <p className="navbar-settings-label">Settings</p>
+                    <ThemeToggle compact />
                   </div>
                   <button
                     type="button"
                     onClick={handleLogout}
                     className="navbar-settings-action"
                   >
-                    Log Out
+                    Logout
                   </button>
                 </div>
               )}

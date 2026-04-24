@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 
 type Theme = "dark" | "light";
 
+type ThemeToggleProps = {
+  compact?: boolean;
+};
+
 const STORAGE_KEY = "inkmatch-theme";
 
 function getPreferredTheme(): Theme {
@@ -21,7 +25,7 @@ function getPreferredTheme(): Theme {
     : "dark";
 }
 
-export default function ThemeToggle() {
+export default function ThemeToggle({ compact = false }: ThemeToggleProps) {
   const [theme, setTheme] = useState<Theme>(getPreferredTheme);
 
   useEffect(() => {
@@ -38,12 +42,18 @@ export default function ThemeToggle() {
   return (
     <button
       type="button"
-      className="theme-toggle-btn"
+      className={`theme-toggle-btn${compact ? " theme-toggle-btn-compact" : ""}`}
       onClick={toggleTheme}
       aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
       title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
     >
-      {theme === "dark" ? "Light" : "Dark"}
+      {compact
+        ? theme === "dark"
+          ? "Light mode"
+          : "Dark mode"
+        : theme === "dark"
+          ? "Light"
+          : "Dark"}
     </button>
   );
 }
