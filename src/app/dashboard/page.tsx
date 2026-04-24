@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getRoleHomePath } from "@/utils/roleRedirect";
-import UserProfileBanner from "@/components/UserProfileBanner";
 import {
   type AppUser,
   getCurrentUser,
@@ -73,7 +72,6 @@ export default function Dashboard() {
 
   return (
     <div className="page-container container" style={{ paddingTop: "120px" }}>
-      <UserProfileBanner />
       <h1 className="heading-2">
         Welcome Back,
         <span className="text-gradient"> {user?.name ?? "Customer"}</span>

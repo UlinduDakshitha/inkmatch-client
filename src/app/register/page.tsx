@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import "../login/auth.css";
-import { getRoleHomePath } from "@/utils/roleRedirect";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -17,12 +16,14 @@ export default function RegisterPage() {
   });
 
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setSuccess("");
 
     try {
       const res = await fetch("http://localhost:8080/api/auth/register", {
@@ -43,16 +44,8 @@ export default function RegisterPage() {
         throw new Error(data.message || "Registration failed");
       }
 
-      const registeredUser = data.user ?? {
-        name: formData.fullName,
-        email: formData.email,
-        role: formData.role,
-      };
-
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(registeredUser));
-
-      router.push(getRoleHomePath(registeredUser.role ?? formData.role));
+      setSuccess("Registration successful. Please log in.");
+      router.push("/login");
     } catch (err: unknown) {
       setError(
         err instanceof Error
@@ -73,6 +66,7 @@ export default function RegisterPage() {
         </p>
 
         {error && <div className="error-message">{error}</div>}
+        {success && <div className="success-message">{success}</div>}
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group pb-2">
