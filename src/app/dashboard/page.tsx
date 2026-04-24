@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { getRoleHomePath } from "@/utils/roleRedirect";
 import {
   type AppUser,
+  deleteCustomerProfileByOwner,
   getCurrentUser,
   getCustomerProfileByOwner,
   normalizeRole,
@@ -68,6 +69,23 @@ export default function Dashboard() {
     }
 
     setNotice("Customer profile saved successfully.");
+  };
+
+  const deleteCustomerProfile = () => {
+    if (!user?.email) {
+      return;
+    }
+
+    deleteCustomerProfileByOwner(user.email);
+    setCustomerProfile({
+      id: `local-customer-${encodeURIComponent(user.email)}`,
+      ownerEmail: user.email,
+      ownerName: user.name || "Customer",
+      phone: "",
+      city: "",
+      bio: "",
+    });
+    setNotice("Customer profile deleted.");
   };
 
   return (
@@ -172,6 +190,14 @@ export default function Dashboard() {
               style={{ marginTop: "1rem" }}
             >
               Save Profile
+            </button>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={deleteCustomerProfile}
+              style={{ marginTop: "1rem", marginLeft: "0.75rem" }}
+            >
+              Delete Profile
             </button>
           </form>
         )}

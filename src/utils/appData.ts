@@ -146,6 +146,20 @@ export function upsertArtistProfile(profile: ArtistProfile): ArtistProfile[] {
   return next;
 }
 
+export function deleteArtistProfileByOwner(
+  ownerEmail: string,
+): ArtistProfile[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const next = getArtistProfiles().filter(
+    (item) => item.ownerEmail !== ownerEmail,
+  );
+  localStorage.setItem(ARTIST_KEY, JSON.stringify(next));
+  return next;
+}
+
 export function getStudioProfiles(): StudioProfile[] {
   if (typeof window === "undefined") {
     return [];
@@ -198,6 +212,20 @@ export function upsertStudioProfile(profile: StudioProfile): StudioProfile[] {
     next.unshift(normalizedProfile);
   }
 
+  localStorage.setItem(STUDIO_KEY, JSON.stringify(next));
+  return next;
+}
+
+export function deleteStudioProfileByOwner(
+  ownerEmail: string,
+): StudioProfile[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const next = getStudioProfiles().filter(
+    (item) => item.ownerEmail !== ownerEmail,
+  );
   localStorage.setItem(STUDIO_KEY, JSON.stringify(next));
   return next;
 }
@@ -258,6 +286,20 @@ export function upsertCustomerProfile(
     next.unshift(profile);
   }
 
+  localStorage.setItem(CUSTOMER_KEY, JSON.stringify(next));
+  return next;
+}
+
+export function deleteCustomerProfileByOwner(
+  ownerEmail: string,
+): CustomerProfile[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const next = getCustomerProfiles().filter(
+    (item) => item.ownerEmail !== ownerEmail,
+  );
   localStorage.setItem(CUSTOMER_KEY, JSON.stringify(next));
   return next;
 }

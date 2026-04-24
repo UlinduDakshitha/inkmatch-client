@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import "../artists/shared.css"; // sharing same layout logic
 import {
+  deleteStudioProfileByOwner,
   getCurrentUser,
   getStudioProfileByOwner,
   getStudioProfiles,
@@ -131,6 +132,37 @@ export default function StudiosPage() {
     }
     setSaving(true);
     upsertStudioProfile(myStudio);
+    const localCards: StudioCard[] = getStudioProfiles().map((studio) => ({
+      id: studio.id,
+      name: studio.name || "Studio",
+      address: studio.address || "Address not listed",
+      profileImage: studio.profileImage,
+      source: "local",
+    }));
+    setStudios((prev) => {
+      const backendOnly = prev.filter((item) => item.source === "backend");
+      return [...localCards, ...backendOnly];
+    });
+    setSaving(false);
+  };
+
+  const deleteStudio = () => {
+    if (!currentUser?.email) {
+      return;
+    }
+
+    deleteStudioProfileByOwner(currentUser.email);
+    setMyStudio({
+      id: `local-studio-${encodeURIComponent(currentUser.email)}`,
+      ownerEmail: currentUser.email,
+      ownerName: currentUser.name || "Studio Owner",
+      name: "",
+      address: "",
+      description: "",
+      profileImage: "",
+      galleryImages: [],
+    });
+
     const localCards: StudioCard[] = getStudioProfiles().map((studio) => ({
       id: studio.id,
       name: studio.name || "Studio",
@@ -275,6 +307,14 @@ export default function StudiosPage() {
               style={{ marginTop: "1rem" }}
             >
               {saving ? "Saving..." : "Save Studio"}
+            </button>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={deleteStudio}
+              style={{ marginTop: "1rem", marginLeft: "0.75rem" }}
+            >
+              Delete Studio
             </button>
           </form>
         </div>

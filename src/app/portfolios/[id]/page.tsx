@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import "../../artists/shared.css";
 import {
   addBooking,
+  deleteArtistProfileByOwner,
   getArtistProfileById,
   getArtistProfileByOwner,
   getCustomerProfileByOwner,
@@ -33,6 +34,7 @@ async function fileToDataUrl(file: File): Promise<string> {
 
 export default function PortfolioPage() {
   const params = useParams();
+  const router = useRouter();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const requestedId = id ?? "";
   const currentUser = getCurrentUser();
@@ -126,6 +128,33 @@ export default function PortfolioPage() {
     }
     upsertArtistProfile(localPortfolio);
     setNotice("Portfolio updated successfully.");
+  };
+
+  const deletePortfolio = () => {
+    if (!currentUser?.email) {
+      return;
+    }
+
+    deleteArtistProfileByOwner(currentUser.email);
+
+    if (requestedId === "me" && currentUser.email) {
+      setLocalPortfolio({
+        id: `local-artist-${encodeURIComponent(currentUser.email)}`,
+        ownerEmail: currentUser.email,
+        ownerName: currentUser.name || "Tattoo Artist",
+        style: "",
+        bio: "",
+        location: "",
+        rateRange: "",
+        profileImage: "",
+        galleryImages: [],
+      });
+      setNotice("Portfolio deleted. You can create a new one now.");
+      return;
+    }
+
+    setNotice("Portfolio deleted.");
+    router.push("/artists");
   };
 
   const createBooking = (e: React.FormEvent) => {
@@ -398,6 +427,14 @@ export default function PortfolioPage() {
                 style={{ marginTop: "1rem" }}
               >
                 Save Changes
+              </button>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={deletePortfolio}
+                style={{ marginTop: "1rem", marginLeft: "0.75rem" }}
+              >
+                Delete Portfolio
               </button>
             </form>
           )}

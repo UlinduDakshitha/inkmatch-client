@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import "./Navbar.css";
@@ -25,7 +25,9 @@ export default function Navbar() {
     roleLabel: "Guest",
     profileImage: "",
   });
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const router = useRouter();
+  const settingsRef = useRef<HTMLDivElement | null>(null);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -34,6 +36,7 @@ export default function Navbar() {
       roleLabel: "Guest",
       profileImage: "",
     });
+    setSettingsOpen(false);
     router.push("/");
   };
 
@@ -73,8 +76,19 @@ export default function Navbar() {
 
     loadNavbarUser();
     window.addEventListener("storage", loadNavbarUser);
+    const handleDocumentClick = (event: MouseEvent) => {
+      if (
+        settingsRef.current &&
+        !settingsRef.current.contains(event.target as Node)
+      ) {
+        setSettingsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleDocumentClick);
     return () => {
       window.removeEventListener("storage", loadNavbarUser);
+      document.removeEventListener("mousedown", handleDocumentClick);
     };
   }, []);
 
@@ -96,7 +110,7 @@ export default function Navbar() {
         </div>
         <div className="navbar-actions">
           {navbarUser.user && (
-            <>
+            <div className="navbar-user-wrapper" ref={settingsRef}>
               <div className="navbar-user-pill" aria-label="Logged-in user">
                 {navbarUser.profileImage ? (
                   <img
@@ -116,12 +130,34 @@ export default function Navbar() {
                   <span className="navbar-user-name">{displayName}</span>
                 </div>
               </div>
-              <button onClick={handleLogout} className="btn-secondary">
-                Log Out
+              <button
+                type="button"
+                className="navbar-settings-btn"
+                onClick={() => setSettingsOpen((current) => !current)}
+                aria-label="Open settings"
+                title="Settings"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.63l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.1 7.1 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.58.23-1.13.54-1.63.94l-2.39-.96a.5.5 0 0 0-.61.22L2.7 8.85a.5.5 0 0 0 .12.63l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.63l1.92 3.32c.13.22.39.31.61.22l2.39-.96c.5.4 1.05.71 1.63.94l.36 2.54c.04.24.25.42.5.42h3.84c.25 0 .46-.18.5-.42l.36-2.54c.58-.23 1.13-.54 1.63-.94l2.39.96c.22.09.48 0 .61-.22l1.92-3.32a.5.5 0 0 0-.12-.63l-2.03-1.58ZM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2Z" />
+                </svg>
               </button>
-            </>
+              {settingsOpen && (
+                <div className="navbar-settings-menu">
+                  <div className="navbar-settings-section">
+                    <p className="navbar-settings-label">Theme</p>
+                    <ThemeToggle />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="navbar-settings-action"
+                  >
+                    Log Out
+                  </button>
+                </div>
+              )}
+            </div>
           )}
-          <ThemeToggle />
           {!navbarUser.user && (
             <>
               <Link href="/login" className="btn-secondary">
