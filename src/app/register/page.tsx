@@ -4,6 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import "../login/auth.css";
+import { normalizeRole } from "@/utils/appData";
+
+const ROLE_BY_EMAIL_KEY = "inkmatch.roleByEmail";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -43,6 +46,12 @@ export default function RegisterPage() {
       if (!res.ok) {
         throw new Error(data.message || "Registration failed");
       }
+
+      const roleByEmail = JSON.parse(
+        localStorage.getItem(ROLE_BY_EMAIL_KEY) || "{}",
+      ) as Record<string, string>;
+      roleByEmail[formData.email.toLowerCase()] = normalizeRole(formData.role);
+      localStorage.setItem(ROLE_BY_EMAIL_KEY, JSON.stringify(roleByEmail));
 
       setSuccess("Registration successful. Please log in.");
       router.push("/login");

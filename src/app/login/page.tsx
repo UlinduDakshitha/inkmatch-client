@@ -7,6 +7,50 @@ import "./auth.css";
 import { getRoleHomePath } from "@/utils/roleRedirect";
 import { normalizeRole } from "@/utils/appData";
 
+const ROLE_BY_EMAIL_KEY = "inkmatch.roleByEmail";
+
+function extractRoleFromLoginResponse(data: unknown): string | undefined {
+  if (!data || typeof data !== "object") {
+    return undefined;
+  }
+
+  const payload = data as Record<string, unknown>;
+  const user =
+    payload.user && typeof payload.user === "object"
+      ? (payload.user as Record<string, unknown>)
+      : undefined;
+
+  const authorityFromArray = (value: unknown): string | undefined => {
+    if (!Array.isArray(value) || value.length === 0) {
+      return undefined;
+    }
+    const first = value[0];
+    if (typeof first === "string") {
+      return first;
+    }
+    if (first && typeof first === "object") {
+      const obj = first as Record<string, unknown>;
+      const candidate = obj.authority ?? obj.role ?? obj.name;
+      return typeof candidate === "string" ? candidate : undefined;
+    }
+    return undefined;
+  };
+
+  const candidates = [
+    payload.role,
+    payload.userRole,
+    user?.role,
+    user?.userRole,
+    user?.userType,
+    user?.accountType,
+    authorityFromArray(payload.authorities),
+    authorityFromArray(user?.authorities),
+    authorityFromArray(user?.roles),
+  ];
+
+  return candidates.find((item): item is string => typeof item === "string");
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -31,7 +75,20 @@ export default function LoginPage() {
       }
 
       const data = await res.json();
-      const resolvedRole = normalizeRole(data?.user?.role ?? data?.role);
+      const backendRole = extractRoleFromLoginResponse(data);
+      let resolvedRole = normalizeRole(backendRole);
+
+      const roleByEmail = JSON.parse(
+        localStorage.getItem(ROLE_BY_EMAIL_KEY) || "{}",
+      ) as Record<string, string>;
+      const mappedRole = roleByEmail[email.toLowerCase()];
+      const normalizedMappedRole = normalizeRole(mappedRole);
+
+      // Fallback to the role chosen at registration if backend role arrives as generic CUSTOMER.
+      if (resolvedRole === "CUSTOMER" && normalizedMappedRole !== "CUSTOMER") {
+        resolvedRole = normalizedMappedRole;
+      }
+
       const loggedInUser = {
         ...(data.user ?? {}),
         name: data?.user?.name || email.split("@")[0],
@@ -41,6 +98,8 @@ export default function LoginPage() {
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(loggedInUser));
+      roleByEmail[email.toLowerCase()] = resolvedRole;
+      localStorage.setItem(ROLE_BY_EMAIL_KEY, JSON.stringify(roleByEmail));
 
       router.push(getRoleHomePath(resolvedRole));
     } catch (err: unknown) {
