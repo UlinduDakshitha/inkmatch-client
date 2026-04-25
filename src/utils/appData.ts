@@ -69,7 +69,7 @@ function safeParse<T>(value: string | null, fallback: T): T {
 }
 
 export function normalizeRole(role?: string): AppRole {
-  const normalized = role?.toUpperCase();
+  const normalized = role?.toUpperCase().replace(/^ROLE_/, "");
   if (normalized === "ARTIST" || normalized === "TATTOO_ARTIST") {
     return "ARTIST";
   }
