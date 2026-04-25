@@ -125,9 +125,15 @@ export default function Navbar() {
     <nav className="navbar navbar-light">
       <div className="navbar-container container">
         <Link href="/" className="navbar-logo">
-          <span className="navbar-logo-mark">IM</span>
+          <span className="navbar-logo-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48" focusable="false">
+              <path d="M8 26c0-8.3 6.7-15 15-15 3.7 0 7.3 1.4 10 3.8l2.8-2.8C32.3 8.9 27.8 7 23 7 12.5 7 4 15.5 4 26s8.5 19 19 19c6.1 0 11.6-2.9 15.1-7.4l-3-2.4C32.4 38.8 27.9 41 23 41c-8.3 0-15-6.7-15-15Z" />
+              <path d="M24.5 18.5h4v16h-4zM17.5 18.5h4v16h-4zM31.5 22h4v12h-4z" />
+            </svg>
+          </span>
           <span className="navbar-logo-copy">
-            Find, Book, and Connect with Sri Lanka&apos;s Tattoo Professionals
+            <strong>InkMatch</strong>
+            <span>Book trusted tattoo artists and studios in Sri Lanka</span>
           </span>
         </Link>
         <div className="navbar-links">
@@ -136,6 +142,9 @@ export default function Navbar() {
           </Link>
           <Link href="/studios" className="nav-link">
             Studios
+          </Link>
+          <Link href="/contact-us" className="nav-link">
+            Contact Us
           </Link>
         </div>
         <div className="navbar-actions">
@@ -191,10 +200,13 @@ export default function Navbar() {
           </div>
           {!navbarUser.user && (
             <>
-              <Link href="/login" className="btn-secondary">
+              <Link href="/login" className="btn-secondary navbar-auth-login">
                 Log In
               </Link>
-              <Link href="/register" className="btn-primary">
+              <Link
+                href="/register"
+                className="btn-primary navbar-auth-register"
+              >
                 Sign Up
               </Link>
             </>

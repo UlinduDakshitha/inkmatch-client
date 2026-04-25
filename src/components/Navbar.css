@@ -46,15 +46,35 @@
   letter-spacing: 0.02em;
 }
 
+.navbar-logo-mark svg {
+  width: 34px;
+  height: 34px;
+  fill: #ffffff;
+}
+
 .navbar-logo-copy {
   color: #0f172a;
   font-size: 1.08rem;
   font-weight: 700;
   line-height: 1.1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 760px;
+}
+
+.navbar-logo-copy strong {
+  font-size: 1.12rem;
+  letter-spacing: 0.01em;
+}
+
+.navbar-logo-copy span {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #475569;
 }
 
 .navbar-links {
@@ -260,9 +280,24 @@
   border-radius: 12px;
 }
 
+.navbar-auth-login {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid rgba(15, 23, 42, 0.28);
+}
+
+.navbar-auth-login:hover {
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.45);
+}
+
+.navbar-auth-register {
+  box-shadow: 0 8px 18px rgba(255, 51, 102, 0.26);
+}
+
 @media (max-width: 1260px) {
   .navbar-logo-copy {
-    font-size: 1.05rem;
+    font-size: 1.02rem;
     max-width: 420px;
   }
 
