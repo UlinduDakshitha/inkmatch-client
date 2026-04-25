@@ -356,18 +356,7 @@
 
 .footer-section {
   margin-top: 2rem;
-  background:
-    radial-gradient(
-      circle at 10% 10%,
-      rgba(255, 51, 102, 0.08),
-      transparent 28%
-    ),
-    radial-gradient(
-      circle at 90% 12%,
-      rgba(255, 153, 51, 0.06),
-      transparent 24%
-    ),
-    linear-gradient(180deg, #0d2741 0%, #0a2238 100%);
+  background: linear-gradient(180deg, #102845 0%, #0b2238 100%);
   color: #eef4ff;
 }
 
@@ -458,7 +447,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  background: #f3f1ef;
+  background: #f6f2ee;
   color: #162b45;
   font-weight: 800;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
@@ -473,7 +462,7 @@
 .footer-links-column h3,
 .footer-contact-column h3 {
   margin: 0 0 1rem;
-  color: #ff3f58;
+  color: #ff4258;
   font-size: 1.7rem;
   line-height: 1.1;
 }
@@ -499,7 +488,7 @@
   position: absolute;
   left: 0;
   top: 0;
-  color: #ff4c63;
+  color: #ff3d54;
 }
 
 .footer-links-column a,
@@ -521,7 +510,7 @@
 }
 
 .footer-bottom-strip {
-  background: #ef233c;
+  background: #ef1e3d;
   color: #fff;
   text-align: center;
   padding: 1.25rem 1rem;
