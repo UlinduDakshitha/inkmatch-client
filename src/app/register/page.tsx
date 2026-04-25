@@ -7,6 +7,7 @@ import "../login/auth.css";
 import { normalizeRole } from "@/utils/appData";
 
 const ROLE_BY_EMAIL_KEY = "inkmatch.roleByEmail";
+const NAME_BY_EMAIL_KEY = "inkmatch.nameByEmail";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -52,6 +53,12 @@ export default function RegisterPage() {
       ) as Record<string, string>;
       roleByEmail[formData.email.toLowerCase()] = normalizeRole(formData.role);
       localStorage.setItem(ROLE_BY_EMAIL_KEY, JSON.stringify(roleByEmail));
+
+      const nameByEmail = JSON.parse(
+        localStorage.getItem(NAME_BY_EMAIL_KEY) || "{}",
+      ) as Record<string, string>;
+      nameByEmail[formData.email.toLowerCase()] = formData.fullName.trim();
+      localStorage.setItem(NAME_BY_EMAIL_KEY, JSON.stringify(nameByEmail));
 
       setSuccess("Registration successful. Please log in.");
       router.push("/login");

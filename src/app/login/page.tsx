@@ -8,6 +8,30 @@ import { getRoleHomePath } from "@/utils/roleRedirect";
 import { normalizeRole } from "@/utils/appData";
 
 const ROLE_BY_EMAIL_KEY = "inkmatch.roleByEmail";
+const NAME_BY_EMAIL_KEY = "inkmatch.nameByEmail";
+
+function extractNameFromLoginResponse(data: unknown): string | undefined {
+  if (!data || typeof data !== "object") {
+    return undefined;
+  }
+
+  const payload = data as Record<string, unknown>;
+  const user =
+    payload.user && typeof payload.user === "object"
+      ? (payload.user as Record<string, unknown>)
+      : undefined;
+
+  const candidates = [
+    user?.fullName,
+    user?.displayName,
+    user?.name,
+    payload.fullName,
+    payload.displayName,
+    payload.name,
+  ];
+
+  return candidates.find((item): item is string => typeof item === "string");
+}
 
 function extractRoleFromLoginResponse(data: unknown): string | undefined {
   if (!data || typeof data !== "object") {
@@ -89,9 +113,16 @@ export default function LoginPage() {
         resolvedRole = normalizedMappedRole;
       }
 
+      const nameByEmail = JSON.parse(
+        localStorage.getItem(NAME_BY_EMAIL_KEY) || "{}",
+      ) as Record<string, string>;
+      const mappedName = nameByEmail[email.toLowerCase()];
+      const backendName = extractNameFromLoginResponse(data);
+      const resolvedName = backendName || mappedName || email.split("@")[0];
+
       const loggedInUser = {
         ...(data.user ?? {}),
-        name: data?.user?.name || email.split("@")[0],
+        name: resolvedName,
         email: data?.user?.email || email,
         role: resolvedRole,
       };
@@ -100,6 +131,8 @@ export default function LoginPage() {
       localStorage.setItem("user", JSON.stringify(loggedInUser));
       roleByEmail[email.toLowerCase()] = resolvedRole;
       localStorage.setItem(ROLE_BY_EMAIL_KEY, JSON.stringify(roleByEmail));
+      nameByEmail[email.toLowerCase()] = resolvedName;
+      localStorage.setItem(NAME_BY_EMAIL_KEY, JSON.stringify(nameByEmail));
 
       router.push(getRoleHomePath(resolvedRole));
     } catch (err: unknown) {

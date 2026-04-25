@@ -6,7 +6,9 @@ import Link from "next/link";
 import "./Navbar.css";
 import ThemeToggle from "./ThemeToggle";
 import {
+  APP_DATA_UPDATED_EVENT,
   getArtistProfileByOwner,
+  getCustomerProfileByOwner,
   getCurrentUser,
   getStudioProfileByOwner,
   normalizeRole,
@@ -17,6 +19,7 @@ type NavbarUserState = {
   user: AppUser | null;
   roleLabel: string;
   profileImage: string;
+  displayName: string;
 };
 
 export default function Navbar() {
@@ -24,6 +27,7 @@ export default function Navbar() {
     user: null,
     roleLabel: "Guest",
     profileImage: "",
+    displayName: "Guest",
   });
   const [settingsOpen, setSettingsOpen] = useState(false);
   const router = useRouter();
@@ -35,6 +39,7 @@ export default function Navbar() {
       user: null,
       roleLabel: "Guest",
       profileImage: "",
+      displayName: "Guest",
     });
     setSettingsOpen(false);
     router.push("/");
@@ -49,6 +54,7 @@ export default function Navbar() {
           user: null,
           roleLabel: "Guest",
           profileImage: "",
+          displayName: "Guest",
         });
         return;
       }
@@ -64,18 +70,38 @@ export default function Navbar() {
               : "Customer";
 
       let profileImage = "";
+      let displayName = user.name || "Customer";
       if (user.email && role === "ARTIST") {
-        profileImage = getArtistProfileByOwner(user.email)?.profileImage || "";
+        const artistProfile = getArtistProfileByOwner(user.email);
+        profileImage = artistProfile?.profileImage || "";
+        displayName = artistProfile?.ownerName || displayName;
       }
       if (user.email && role === "STUDIO_OWNER") {
-        profileImage = getStudioProfileByOwner(user.email)?.profileImage || "";
+        const studioProfile = getStudioProfileByOwner(user.email);
+        profileImage = studioProfile?.profileImage || "";
+        displayName = studioProfile?.ownerName || displayName;
+      }
+      if (user.email && role === "CUSTOMER") {
+        const customerProfile = getCustomerProfileByOwner(user.email);
+        displayName = customerProfile?.ownerName || displayName;
       }
 
-      setNavbarUser({ user, roleLabel, profileImage });
+      if (user.email && displayName === user.email.split("@")[0]) {
+        const nameByEmail = JSON.parse(
+          localStorage.getItem("inkmatch.nameByEmail") || "{}",
+        ) as Record<string, string>;
+        const mappedName = nameByEmail[user.email.toLowerCase()];
+        if (mappedName) {
+          displayName = mappedName;
+        }
+      }
+
+      setNavbarUser({ user, roleLabel, profileImage, displayName });
     }
 
     loadNavbarUser();
     window.addEventListener("storage", loadNavbarUser);
+    window.addEventListener(APP_DATA_UPDATED_EVENT, loadNavbarUser);
     const handleDocumentClick = (event: MouseEvent) => {
       if (
         settingsRef.current &&
@@ -88,11 +114,12 @@ export default function Navbar() {
     document.addEventListener("mousedown", handleDocumentClick);
     return () => {
       window.removeEventListener("storage", loadNavbarUser);
+      window.removeEventListener(APP_DATA_UPDATED_EVENT, loadNavbarUser);
       document.removeEventListener("mousedown", handleDocumentClick);
     };
   }, []);
 
-  const displayName = navbarUser.user?.name || "Customer";
+  const displayName = navbarUser.displayName || "Customer";
 
   return (
     <nav className="navbar glass">

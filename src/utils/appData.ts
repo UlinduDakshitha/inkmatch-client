@@ -55,6 +55,14 @@ const ARTIST_KEY = "inkmatch.artistProfiles";
 const STUDIO_KEY = "inkmatch.studioProfiles";
 const BOOKINGS_KEY = "inkmatch.bookings";
 const CUSTOMER_KEY = "inkmatch.customerProfiles";
+export const APP_DATA_UPDATED_EVENT = "inkmatch:data-updated";
+
+function notifyAppDataUpdated() {
+  if (typeof window === "undefined") {
+    return;
+  }
+  window.dispatchEvent(new Event(APP_DATA_UPDATED_EVENT));
+}
 
 function safeParse<T>(value: string | null, fallback: T): T {
   if (!value) {
@@ -158,6 +166,7 @@ export function upsertArtistProfile(profile: ArtistProfile): ArtistProfile[] {
   }
 
   localStorage.setItem(ARTIST_KEY, JSON.stringify(next));
+  notifyAppDataUpdated();
   return next;
 }
 
@@ -172,6 +181,7 @@ export function deleteArtistProfileByOwner(
     (item) => item.ownerEmail !== ownerEmail,
   );
   localStorage.setItem(ARTIST_KEY, JSON.stringify(next));
+  notifyAppDataUpdated();
   return next;
 }
 
@@ -228,6 +238,7 @@ export function upsertStudioProfile(profile: StudioProfile): StudioProfile[] {
   }
 
   localStorage.setItem(STUDIO_KEY, JSON.stringify(next));
+  notifyAppDataUpdated();
   return next;
 }
 
@@ -242,6 +253,7 @@ export function deleteStudioProfileByOwner(
     (item) => item.ownerEmail !== ownerEmail,
   );
   localStorage.setItem(STUDIO_KEY, JSON.stringify(next));
+  notifyAppDataUpdated();
   return next;
 }
 
@@ -302,6 +314,7 @@ export function upsertCustomerProfile(
   }
 
   localStorage.setItem(CUSTOMER_KEY, JSON.stringify(next));
+  notifyAppDataUpdated();
   return next;
 }
 
@@ -316,5 +329,6 @@ export function deleteCustomerProfileByOwner(
     (item) => item.ownerEmail !== ownerEmail,
   );
   localStorage.setItem(CUSTOMER_KEY, JSON.stringify(next));
+  notifyAppDataUpdated();
   return next;
 }
