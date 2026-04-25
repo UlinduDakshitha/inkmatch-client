@@ -122,10 +122,13 @@ export default function Navbar() {
   const displayName = navbarUser.displayName || "Customer";
 
   return (
-    <nav className="navbar glass">
+    <nav className="navbar navbar-light">
       <div className="navbar-container container">
         <Link href="/" className="navbar-logo">
-          <span className="text-gradient heading-3">InkMatch</span>
+          <span className="navbar-logo-mark">IM</span>
+          <span className="navbar-logo-copy">
+            Find, Book, and Connect with Sri Lanka&apos;s Tattoo Professionals
+          </span>
         </Link>
         <div className="navbar-links">
           <Link href="/artists" className="nav-link">
