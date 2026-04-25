@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180" role="img" aria-label="InkMatch apple touch icon">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff315c" />
+      <stop offset="100%" stop-color="#ff7a18" />
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="180" height="180" rx="38" fill="url(#g)" />
+  <path fill="#fff" d="M31.2 98.1c0-31.7 25.7-57.3 57.3-57.3 14.2 0 27.9 5.3 38.3 14.6l10.7-10.7c-13.6-11.4-30.8-17.6-49-17.6-40.4 0-73.1 32.7-73.1 73.1s32.7 73.1 73.1 73.1c23.6 0 44.9-11.2 58.4-28.9l-11.1-8.8c-10.2 12.8-24.5 20.2-40.8 20.2-31.7 0-57.3-25.6-57.3-57.7z" />
+  <path fill="#fff" d="M93.7 65.2h15v58.7h-15zM67.5 65.2h15v58.7h-15zM120 77.2h15v46.7h-15z" />
+</svg>

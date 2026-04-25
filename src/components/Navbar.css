@@ -46,10 +46,10 @@
   letter-spacing: 0.02em;
 }
 
-.navbar-logo-mark svg {
+.navbar-logo-mark img {
   width: 34px;
   height: 34px;
-  fill: #ffffff;
+  display: block;
 }
 
 .navbar-logo-copy {

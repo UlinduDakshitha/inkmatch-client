@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192" role="img" aria-label="InkMatch app icon 192">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff315c" />
+      <stop offset="100%" stop-color="#ff7a18" />
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="192" height="192" rx="42" fill="url(#g)" />
+  <path fill="#fff" d="M33.8 104.2c0-33.6 27.2-60.8 60.8-60.8 15 0 29.7 5.6 40.6 15.5l11.3-11.3c-14.5-12.2-33-18.8-52.4-18.8-43 0-77.9 34.9-77.9 77.9s34.9 77.9 77.9 77.9c25.1 0 47.8-11.9 62.2-30.8l-11.9-9.5c-10.9 13.7-26.3 21.7-43.6 21.7-33.6 0-60.8-27.2-60.8-61.8z" />
+  <path fill="#fff" d="M100.4 68.7h15.6v68.9h-15.6zM73.2 68.7h15.6v68.9H73.2zM127.6 82.8h15.6v54.8h-15.6z" />
+</svg>
