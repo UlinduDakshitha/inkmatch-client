@@ -1,6 +1,17 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import "./page.css";
 import HeroSlideshow from "@/components/HeroSlideshow";
+
+function SocialIcon({ name, children }: { name: string; children: ReactNode }) {
+  return (
+    <span className="footer-social" aria-label={name} role="img">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        {children}
+      </svg>
+    </span>
+  );
+}
 
 export default function Home() {
   return (
@@ -87,11 +98,21 @@ export default function Home() {
               </div>
 
               <div className="footer-socials" aria-label="Social links">
-                <span className="footer-social">f</span>
-                <span className="footer-social">x</span>
-                <span className="footer-social">t</span>
-                <span className="footer-social">▶</span>
-                <span className="footer-social">◎</span>
+                <SocialIcon name="Facebook">
+                  <path d="M14 8.5V7.1c0-.7.5-1.1 1.1-1.1H16V3h-1.4C12.1 3 11 4.2 11 6.1v2.4H9v2.8h2V21h3.1v-9.7h2.3l.4-2.8H14z" />
+                </SocialIcon>
+                <SocialIcon name="X">
+                  <path d="M4 4h3.5l4.7 6.2L17.2 4H20l-6 7.6L20.5 20H17l-5-6.7L6.9 20H4l6.4-8.2L4 4z" />
+                </SocialIcon>
+                <SocialIcon name="TikTok">
+                  <path d="M14.5 4c.7 2.6 2.2 4.3 4.5 4.8v3c-1.7.1-3.2-.3-4.5-1.1V15c0 3-2.3 5-5.3 5S4 17.9 4 15.2c0-3 2.4-5.1 5.7-5.1.4 0 .7 0 1 .1v3c-.3-.1-.6-.1-.9-.1-1.5 0-2.5.9-2.5 2.1s.9 2 2.2 2c1.5 0 2.5-1 2.5-2.6V4h2.5z" />
+                </SocialIcon>
+                <SocialIcon name="YouTube">
+                  <path d="M21.6 7.4c-.2-.9-.9-1.6-1.8-1.8C18.2 5.2 12 5.2 12 5.2s-6.2 0-7.8.4c-.9.2-1.6.9-1.8 1.8C2 9 2 12 2 12s0 3 .4 4.6c.2.9.9 1.6 1.8 1.8 1.6.4 7.8.4 7.8.4s6.2 0 7.8-.4c.9-.2 1.6-.9 1.8-1.8.4-1.6.4-4.6.4-4.6s0-3-.4-4.6zM10 15.2V8.8L15.5 12 10 15.2z" />
+                </SocialIcon>
+                <SocialIcon name="Instagram">
+                  <path d="M7.5 3h9C18.9 3 21 5.1 21 7.5v9c0 2.4-2.1 4.5-4.5 4.5h-9C5.1 21 3 18.9 3 16.5v-9C3 5.1 5.1 3 7.5 3zm0 2C6.2 5 5 6.2 5 7.5v9C5 17.8 6.2 19 7.5 19h9c1.3 0 2.5-1.2 2.5-2.5v-9C19 6.2 17.8 5 16.5 5h-9zM12 7.2A4.8 4.8 0 1 1 12 17a4.8 4.8 0 0 1 0-9.8zm0 2A2.8 2.8 0 1 0 12 15a2.8 2.8 0 0 0 0-5.8zm5.4-.9a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+                </SocialIcon>
               </div>
             </div>
 
