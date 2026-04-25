@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import "../../artists/shared.css";
+import CustomerLoginRequiredModal from "@/components/CustomerLoginRequiredModal";
 import {
   addBooking,
   deleteArtistProfileByOwner,
@@ -93,6 +94,7 @@ export default function PortfolioPage() {
   const [notice, setNotice] = useState("");
   const [appointmentDate, setAppointmentDate] = useState("");
   const [bookingNote, setBookingNote] = useState("");
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     if (!portfolioId || initialLocalPortfolio || requestedId === "me") {
@@ -161,7 +163,7 @@ export default function PortfolioPage() {
     e.preventDefault();
 
     if (role !== "CUSTOMER" || !currentUser?.email) {
-      window.alert("Please log in as a customer to continue with the booking.");
+      setShowLoginModal(true);
       setNotice("Login as a customer account to place a booking.");
       return;
     }
@@ -194,6 +196,11 @@ export default function PortfolioPage() {
 
   return (
     <div className="page-container container">
+      <CustomerLoginRequiredModal
+        open={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onGoLogin={() => router.push("/login")}
+      />
       <h1 className="heading-2">
         Artist <span className="text-gradient">Portfolio</span>
       </h1>
