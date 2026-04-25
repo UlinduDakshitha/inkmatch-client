@@ -54,13 +54,9 @@ export default function StudioDetailsPage() {
   const createBooking = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (role !== "CUSTOMER") {
-      setNotice("Bookings can only be created from customer accounts.");
-      return;
-    }
-
-    if (!currentUser?.email) {
-      setNotice("Please login again to continue.");
+    if (role !== "CUSTOMER" || !currentUser?.email) {
+      window.alert("Please log in as a customer to continue with the booking.");
+      setNotice("Login as a customer account to place a booking.");
       return;
     }
 
@@ -132,31 +128,32 @@ export default function StudioDetailsPage() {
             <p className="text-secondary mt-2">{localStudio.description}</p>
           )}
 
-          {role === "CUSTOMER" && (
-            <form onSubmit={createBooking} style={{ marginTop: "1.5rem" }}>
-              <div
-                style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}
-              >
-                <input
-                  type="date"
-                  className="input-field"
-                  value={appointmentDate}
-                  onChange={(e) => setAppointmentDate(e.target.value)}
-                  required
-                />
-                <input
-                  type="text"
-                  className="input-field"
-                  placeholder="Tattoo plan or note"
-                  value={bookingNote}
-                  onChange={(e) => setBookingNote(e.target.value)}
-                />
-                <button type="submit" className="btn-primary">
-                  Book Studio
-                </button>
-              </div>
-            </form>
-          )}
+          <form onSubmit={createBooking} style={{ marginTop: "1.5rem" }}>
+            <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+              <input
+                type="date"
+                className="input-field"
+                value={appointmentDate}
+                onChange={(e) => setAppointmentDate(e.target.value)}
+                required
+              />
+              <input
+                type="text"
+                className="input-field"
+                placeholder="Tattoo plan or note"
+                value={bookingNote}
+                onChange={(e) => setBookingNote(e.target.value)}
+              />
+              <button type="submit" className="btn-primary">
+                Book Studio
+              </button>
+            </div>
+            {(!currentUser?.email || role !== "CUSTOMER") && (
+              <p className="text-secondary mt-2">
+                To confirm booking, please log in as a customer.
+              </p>
+            )}
+          </form>
 
           {localStudio?.galleryImages?.length ? (
             <>
