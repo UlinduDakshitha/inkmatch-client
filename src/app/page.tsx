@@ -28,7 +28,6 @@ export default function Home() {
           <HeroSlideshow />
         </div>
       </section>
-
       <section className="features-section container">
         <h2 className="heading-2 feature-title">Why choose InkMatch?</h2>
         <div className="features-grid">
