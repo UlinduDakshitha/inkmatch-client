@@ -66,6 +66,50 @@ export default function Home() {
         </div>
       </section>
 
+      <section
+        className="support-section container"
+        aria-labelledby="support-title"
+      >
+        <div className="support-shell">
+          <h2 className="heading-2 support-title" id="support-title">
+            More <span className="text-gradient">Support</span>
+          </h2>
+          <p className="support-copy">
+            Need help or have questions? Our customer support team is ready to
+            assist with bookings, accounts, and any issue you run into.
+          </p>
+
+          <div className="support-meta">
+            <a href="tel:+94777748300" className="support-contact-pill">
+              0777 748 300
+            </a>
+            <a
+              href="mailto:support@inkmatch.lk"
+              className="support-contact-pill"
+            >
+              support@inkmatch.lk
+            </a>
+          </div>
+
+          <form className="support-form" action="/contact-us" method="get">
+            <label htmlFor="support-email" className="sr-only">
+              Email
+            </label>
+            <input
+              id="support-email"
+              name="email"
+              type="email"
+              required
+              placeholder="Enter your email"
+              className="support-input"
+            />
+            <button type="submit" className="support-submit">
+              Submit
+            </button>
+          </form>
+        </div>
+      </section>
+
       <section className="footer-section" aria-labelledby="footer-title">
         <div className="footer-shell container">
           <div className="footer-grid">
