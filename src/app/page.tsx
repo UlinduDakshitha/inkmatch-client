@@ -55,47 +55,118 @@ export default function Home() {
         </div>
       </section>
 
-      <section
-        className="support-section container"
-        aria-labelledby="support-title"
-      >
-        <div className="support-shell">
-          <h2 className="heading-2 support-title" id="support-title">
-            More <span className="text-gradient">Support</span>
-          </h2>
-          <p className="support-copy">
-            Need help or have questions? Our customer support team is ready to
-            assist with bookings, accounts, and any issue you run into.
-          </p>
+      <section className="footer-section" aria-labelledby="footer-title">
+        <div className="footer-shell container">
+          <div className="footer-grid">
+            <div className="footer-brand-block">
+              <Link
+                href="/"
+                className="footer-brand"
+                aria-label="InkMatch home"
+              >
+                <span className="footer-brand-mark" aria-hidden="true">
+                  <img src="/brand/inkmatch-mark.svg" alt="" />
+                </span>
+                <span className="footer-brand-copy">
+                  <strong id="footer-title">InkMatch</strong>
+                  <span>
+                    Book trusted tattoo artists and studios in Sri Lanka
+                  </span>
+                </span>
+              </Link>
 
-          <div
-            className="support-contacts"
-            aria-label="Support contact details"
-          >
-            <a href="tel:+94777748300" className="support-link">
-              0777 748 300
-            </a>
-            <a href="mailto:support@inkmatch.lk" className="support-link">
-              support@inkmatch.lk
-            </a>
+              <p className="footer-blurb">
+                InkMatch helps you discover verified artists, compare
+                portfolios, and book with confidence. Built for customers,
+                artists, and studio owners.
+              </p>
+
+              <div className="footer-contact-lines" aria-label="Quick contact">
+                <a href="tel:+94777748300">0777 748 300</a>
+                <a href="mailto:support@inkmatch.lk">support@inkmatch.lk</a>
+              </div>
+
+              <div className="footer-socials" aria-label="Social links">
+                <span className="footer-social">f</span>
+                <span className="footer-social">x</span>
+                <span className="footer-social">t</span>
+                <span className="footer-social">▶</span>
+                <span className="footer-social">◎</span>
+              </div>
+            </div>
+
+            <div className="footer-links-column">
+              <h3>InkMatch</h3>
+              <ul>
+                <li>
+                  <Link href="/artists">How InkMatch Works</Link>
+                </li>
+                <li>
+                  <Link href="/artists">About Us</Link>
+                </li>
+                <li>
+                  <Link href="/register">How Do I Sell?</Link>
+                </li>
+                <li>
+                  <Link href="/artists">How Do I Buy?</Link>
+                </li>
+              </ul>
+            </div>
+
+            <div className="footer-links-column">
+              <h3>Help</h3>
+              <ul>
+                <li>
+                  <Link href="/studios">Listing Rules</Link>
+                </li>
+                <li>
+                  <Link href="/artists">Community Guidelines</Link>
+                </li>
+                <li>
+                  <Link href="/studios">Shipping Guide</Link>
+                </li>
+                <li>
+                  <Link href="/contact-us">Listing of Prohibited Content</Link>
+                </li>
+                <li>
+                  <Link href="/contact-us">Packaging and Delivery</Link>
+                </li>
+                <li>
+                  <Link href="/contact-us">Contact Us</Link>
+                </li>
+                <li>
+                  <Link href="/contact-us">FAQs</Link>
+                </li>
+              </ul>
+            </div>
+
+            <div className="footer-contact-column">
+              <h3>Contact</h3>
+              <p>Mammaskin (Private) Limited</p>
+              <p>PV 00237973</p>
+              <p>Level 1, 53 Dharmapala Mawatha, Colombo 00300</p>
+              <p>9am - 5pm | Monday to Friday</p>
+              <p>0777 748 300</p>
+              <p>support@inkmatch.lk</p>
+
+              <h3 className="footer-legal-title">Legal</h3>
+              <ul>
+                <li>
+                  <Link href="/contact-us">Refund Policy</Link>
+                </li>
+                <li>
+                  <Link href="/contact-us">Terms and Conditions</Link>
+                </li>
+                <li>
+                  <Link href="/contact-us">Privacy Policy</Link>
+                </li>
+              </ul>
+            </div>
           </div>
+        </div>
 
-          <form className="support-form" action="/contact-us" method="get">
-            <label htmlFor="support-email" className="sr-only">
-              Email
-            </label>
-            <input
-              id="support-email"
-              name="email"
-              type="email"
-              required
-              placeholder="Enter your email"
-              className="support-input"
-            />
-            <button type="submit" className="support-submit">
-              Submit
-            </button>
-          </form>
+        <div className="footer-bottom-strip">
+          <span>2026 InkMatch. All Rights Reserved.</span>
         </div>
       </section>
     </div>

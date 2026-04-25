@@ -219,144 +219,173 @@
   line-height: 1.6;
 }
 
-.support-section {
-  padding: 1rem 0 6.5rem;
-}
-
-.support-shell {
-  max-width: 860px;
-  margin: 0 auto;
-  text-align: center;
-  padding: clamp(1.8rem, 2.8vw, 2.8rem);
-  border-radius: 26px;
-  border: 1px solid color-mix(in srgb, var(--accent-primary) 20%, white 80%);
+.footer-section {
+  margin-top: 2rem;
   background:
-    linear-gradient(
-      145deg,
-      color-mix(in srgb, white 83%, var(--accent-secondary) 17%) 0%,
-      color-mix(in srgb, white 90%, var(--accent-primary) 10%) 100%
+    radial-gradient(
+      circle at 10% 10%,
+      rgba(255, 51, 102, 0.08),
+      transparent 28%
     ),
     radial-gradient(
-      circle at 12% 15%,
-      rgba(255, 255, 255, 0.68) 0%,
-      transparent 46%
-    );
-  box-shadow:
-    0 22px 45px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  color: #14213d;
+      circle at 90% 12%,
+      rgba(255, 153, 51, 0.06),
+      transparent 24%
+    ),
+    linear-gradient(180deg, #0d2741 0%, #0a2238 100%);
+  color: #eef4ff;
 }
 
-.support-title {
-  margin-bottom: 1rem;
-  color: #14213d;
+.footer-shell {
+  padding-top: 4rem;
+  padding-bottom: 0;
 }
 
-.support-copy {
-  margin: 0 auto;
-  max-width: 620px;
-  font-size: 1.1rem;
-  line-height: 1.7;
-  color: #5b667c;
-}
-
-.support-contacts {
-  margin-top: 1.8rem;
+.footer-grid {
   display: grid;
-  gap: 0.8rem;
+  grid-template-columns: 1.4fr 1fr 1.1fr 1.2fr;
+  gap: 2.2rem;
+  align-items: start;
+  padding-bottom: 3rem;
 }
 
-.support-link {
-  display: block;
-  width: fit-content;
-  margin: 0 auto;
-  padding: 0.7rem 1rem;
-  border-radius: 999px;
-  color: #14213d;
-  font-size: clamp(1.2rem, 2.3vw, 1.7rem);
-  font-weight: 700;
+.footer-brand-block {
+  max-width: 360px;
+}
+
+.footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  color: #ffffff;
   text-decoration: none;
-  letter-spacing: 0.01em;
-  background: rgba(255, 255, 255, 0.58);
-  border: 1px solid rgba(20, 33, 61, 0.08);
-  box-shadow: 0 10px 20px rgba(20, 33, 61, 0.06);
 }
 
-.support-link:hover {
-  color: #e11d48;
-  border-color: rgba(225, 29, 72, 0.22);
+.footer-brand-mark {
+  width: 74px;
+  height: 74px;
+  flex-shrink: 0;
 }
 
-.support-form {
-  margin: 1.8rem auto 0;
-  max-width: 640px;
-  display: grid;
-  gap: 0.85rem;
-}
-
-.support-input {
+.footer-brand-mark img {
   width: 100%;
-  border: 1px solid rgba(225, 29, 72, 0.18);
-  border-radius: 14px;
-  padding: 0.95rem 1.05rem;
+  height: 100%;
+  object-fit: contain;
+}
+
+.footer-brand-copy {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.footer-brand-copy strong {
+  font-size: 1.9rem;
+  line-height: 1;
+  color: #ff3f58;
+}
+
+.footer-brand-copy span {
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: rgba(238, 244, 255, 0.8);
+}
+
+.footer-blurb {
+  margin: 1.3rem 0 1.6rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: rgba(238, 244, 255, 0.86);
+}
+
+.footer-contact-lines {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.footer-contact-lines a {
+  color: #ffffff;
+  text-decoration: none;
   font-size: 1rem;
-  background: rgba(255, 255, 255, 0.8);
-  color: #14213d;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  font-weight: 600;
 }
 
-.support-input::placeholder {
-  color: #8893a9;
+.footer-socials {
+  margin-top: 1.8rem;
+  display: flex;
+  gap: 0.7rem;
+  flex-wrap: wrap;
 }
 
-.support-input:focus-visible {
-  outline: 3px solid rgba(225, 29, 72, 0.22);
-  outline-offset: 1px;
-}
-
-.support-submit {
-  justify-self: center;
-  min-width: 170px;
-  border: none;
+.footer-social {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 999px;
-  padding: 0.85rem 1.4rem;
-  font-size: 1rem;
-  font-weight: 700;
-  color: #fff;
-  cursor: pointer;
-  background: linear-gradient(
-    120deg,
-    color-mix(in srgb, var(--accent-primary) 88%, white 12%) 0%,
-    color-mix(in srgb, #e11d48 82%, var(--accent-primary) 18%) 100%
-  );
-  box-shadow: 0 12px 24px rgba(225, 29, 72, 0.27);
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    filter 0.2s ease;
+  background: #f3f1ef;
+  color: #162b45;
+  font-weight: 800;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
-.support-submit:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 16px 28px rgba(225, 29, 72, 0.32);
-  filter: saturate(1.06);
+.footer-links-column h3,
+.footer-contact-column h3 {
+  margin: 0 0 1rem;
+  color: #ff3f58;
+  font-size: 1.9rem;
+  line-height: 1.1;
 }
 
-.support-submit:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--accent-primary) 34%, white 66%);
-  outline-offset: 2px;
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
+.footer-links-column ul,
+.footer-contact-column ul {
+  list-style: none;
+  margin: 0;
   padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+  display: grid;
+  gap: 0.95rem;
+}
+
+.footer-links-column li,
+.footer-contact-column li {
+  position: relative;
+  padding-left: 1rem;
+}
+
+.footer-links-column li::before,
+.footer-contact-column li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #ff4c63;
+}
+
+.footer-links-column a,
+.footer-contact-column a,
+.footer-contact-column p {
+  color: #f7f8fc;
+  text-decoration: none;
+  font-size: 1rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.footer-contact-column p {
+  margin-bottom: 0.2rem;
+}
+
+.footer-legal-title {
+  margin-top: 1.9rem;
+}
+
+.footer-bottom-strip {
+  background: #ef233c;
+  color: #fff;
+  text-align: center;
+  padding: 1.45rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 @media (max-width: 900px) {
@@ -404,29 +433,28 @@
     background-size: 30px 30px;
   }
 
-  .support-section {
-    padding: 0.2rem 0 4.6rem;
+  .footer-shell {
+    padding-top: 3rem;
   }
 
-  .support-shell {
-    border-radius: 22px;
-    padding: 1.5rem 1rem 1.8rem;
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem 1.4rem;
+    padding-bottom: 2.2rem;
   }
 
-  .support-title {
-    font-size: clamp(2rem, 7vw, 2.7rem);
+  .footer-brand-block {
+    max-width: none;
+    grid-column: 1 / -1;
   }
 
-  .support-copy {
-    font-size: 1rem;
+  .footer-links-column h3,
+  .footer-contact-column h3 {
+    font-size: 1.55rem;
   }
 
-  .support-link {
-    font-size: clamp(1.2rem, 6.8vw, 1.6rem);
-  }
-
-  .support-form {
-    margin-top: 1.4rem;
+  .footer-bottom-strip {
+    font-size: 0.95rem;
   }
 }
 
