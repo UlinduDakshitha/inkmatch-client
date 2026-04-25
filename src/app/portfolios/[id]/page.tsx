@@ -122,6 +122,7 @@ export default function PortfolioPage() {
     Boolean(
       currentUser?.email && localPortfolio?.ownerEmail === currentUser.email,
     );
+  const canSeeBookingSection = !currentUser?.email || role === "CUSTOMER";
 
   const savePortfolio = (e: React.FormEvent) => {
     e.preventDefault();
@@ -278,38 +279,40 @@ export default function PortfolioPage() {
                 <p className="text-secondary mt-2">{localPortfolio.bio}</p>
               )}
 
-              <form onSubmit={createBooking} style={{ marginTop: "1rem" }}>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "0.75rem",
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <input
-                    type="date"
-                    className="input-field"
-                    value={appointmentDate}
-                    onChange={(e) => setAppointmentDate(e.target.value)}
-                    required
-                  />
-                  <input
-                    type="text"
-                    className="input-field"
-                    placeholder="Short note for artist"
-                    value={bookingNote}
-                    onChange={(e) => setBookingNote(e.target.value)}
-                  />
-                  <button className="btn-primary" type="submit">
-                    Book Artist
-                  </button>
-                </div>
-                {(!currentUser?.email || role !== "CUSTOMER") && (
-                  <p className="text-secondary mt-2">
-                    To confirm booking, please log in as a customer.
-                  </p>
-                )}
-              </form>
+              {canSeeBookingSection && (
+                <form onSubmit={createBooking} style={{ marginTop: "1rem" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "0.75rem",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <input
+                      type="date"
+                      className="input-field"
+                      value={appointmentDate}
+                      onChange={(e) => setAppointmentDate(e.target.value)}
+                      required
+                    />
+                    <input
+                      type="text"
+                      className="input-field"
+                      placeholder="Short note for artist"
+                      value={bookingNote}
+                      onChange={(e) => setBookingNote(e.target.value)}
+                    />
+                    <button className="btn-primary" type="submit">
+                      Book Artist
+                    </button>
+                  </div>
+                  {!currentUser?.email && (
+                    <p className="text-secondary mt-2">
+                      To confirm booking, please log in as a customer.
+                    </p>
+                  )}
+                </form>
+              )}
             </div>
           </div>
 
