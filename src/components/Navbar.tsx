@@ -129,6 +129,7 @@ export default function Navbar() {
   }, []);
 
   const displayName = navbarUser.displayName || "Customer";
+  const isAdmin = normalizeRole(navbarUser.user?.role) === "ADMIN";
 
   return (
     <nav className="navbar navbar-light">
@@ -149,6 +150,11 @@ export default function Navbar() {
           <Link href="/studios" className="nav-link">
             Studios
           </Link>
+          {isAdmin && (
+            <Link href="/admin" className="nav-link">
+              Admin
+            </Link>
+          )}
           <Link href="/contact-us" className="nav-link">
             Contact Us
           </Link>
