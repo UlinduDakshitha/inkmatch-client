@@ -153,27 +153,25 @@ export default function ArtistsPage() {
       ) : (
         <div className="grid-list">
           {artists.map((artist) => (
-            <div key={artist.id} className="glass-card item-card">
-              {artist.profileImage ? (
-                <img
-                  src={artist.profileImage}
-                  alt={artist.name}
-                  style={{
-                    width: "80px",
-                    height: "80px",
-                    borderRadius: "50%",
-                    objectFit: "cover",
-                    margin: "0 auto",
-                  }}
-                />
-              ) : (
-                <div className="item-avatar">
-                  {/* Fallback initials if no distinct image */}
-                  {artist.name.charAt(0) || "A"}
+            <div key={artist.id} className="glass-card item-card artist-card">
+              <div className="artist-media">
+                {artist.profileImage ? (
+                  <img
+                    src={artist.profileImage}
+                    alt={artist.name}
+                    className="artist-thumb"
+                  />
+                ) : (
+                  <div className="artist-thumb artist-thumb-fallback">
+                    {artist.name.charAt(0) || "A"}
+                  </div>
+                )}
+                <div className="artist-media-overlay" aria-hidden="true" />
+                <div className="artist-media-meta">
+                  <h3 className="artist-name">{artist.name}</h3>
+                  <p className="artist-style">{artist.style}</p>
                 </div>
-              )}
-              <h3 className="item-title mt-4">{artist.name}</h3>
-              <p className="item-subtitle text-secondary">{artist.style}</p>
+              </div>
               <div className="mt-4">
                 <Link
                   href={`/portfolios/${artist.id}`}
