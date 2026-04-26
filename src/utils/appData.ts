@@ -51,10 +51,21 @@ export type CustomerProfile = {
   bio: string;
 };
 
+export type AppNotification = {
+  id: string;
+  userEmail: string;
+  title: string;
+  message: string;
+  createdAt: string;
+  isRead: boolean;
+  category: "SYSTEM" | "BOOKING" | "PROMOTION";
+};
+
 const ARTIST_KEY = "inkmatch.artistProfiles";
 const STUDIO_KEY = "inkmatch.studioProfiles";
 const BOOKINGS_KEY = "inkmatch.bookings";
 const CUSTOMER_KEY = "inkmatch.customerProfiles";
+const NOTIFICATIONS_KEY = "inkmatch.notifications";
 export const APP_DATA_UPDATED_EVENT = "inkmatch:data-updated";
 
 function notifyAppDataUpdated() {
@@ -331,4 +342,158 @@ export function deleteCustomerProfileByOwner(
   localStorage.setItem(CUSTOMER_KEY, JSON.stringify(next));
   notifyAppDataUpdated();
   return next;
+}
+
+export function getNotifications(): AppNotification[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  return safeParse<AppNotification[]>(
+    localStorage.getItem(NOTIFICATIONS_KEY),
+    [],
+  );
+}
+
+export function getNotificationsByUser(userEmail: string): AppNotification[] {
+  const normalizedEmail = userEmail.toLowerCase();
+  return getNotifications()
+    .filter((item) => item.userEmail.toLowerCase() === normalizedEmail)
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+}
+
+export function getUnreadNotificationsCount(userEmail: string): number {
+  return getNotificationsByUser(userEmail).filter((item) => !item.isRead)
+    .length;
+}
+
+export function addNotification(
+  notification: Omit<AppNotification, "id" | "createdAt">,
+): AppNotification[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const nextItem: AppNotification = {
+    ...notification,
+    id: `notif-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+    createdAt: new Date().toISOString(),
+  };
+
+  const next = [nextItem, ...getNotifications()];
+  localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(next));
+  notifyAppDataUpdated();
+  return next;
+}
+
+export function markNotificationAsRead(
+  userEmail: string,
+  notificationId: string,
+): AppNotification[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const normalizedEmail = userEmail.toLowerCase();
+  const next = getNotifications().map((item) => {
+    if (
+      item.id === notificationId &&
+      item.userEmail.toLowerCase() === normalizedEmail
+    ) {
+      return { ...item, isRead: true };
+    }
+    return item;
+  });
+
+  localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(next));
+  notifyAppDataUpdated();
+  return next;
+}
+
+export function markAllNotificationsAsRead(
+  userEmail: string,
+): AppNotification[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const normalizedEmail = userEmail.toLowerCase();
+  const next = getNotifications().map((item) => {
+    if (item.userEmail.toLowerCase() === normalizedEmail) {
+      return { ...item, isRead: true };
+    }
+    return item;
+  });
+
+  localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(next));
+  notifyAppDataUpdated();
+  return next;
+}
+
+export function deleteNotification(
+  userEmail: string,
+  notificationId: string,
+): AppNotification[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const normalizedEmail = userEmail.toLowerCase();
+  const next = getNotifications().filter(
+    (item) =>
+      !(
+        item.id === notificationId &&
+        item.userEmail.toLowerCase() === normalizedEmail
+      ),
+  );
+
+  localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(next));
+  notifyAppDataUpdated();
+  return next;
+}
+
+export function clearReadNotifications(userEmail: string): AppNotification[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const normalizedEmail = userEmail.toLowerCase();
+  const next = getNotifications().filter(
+    (item) =>
+      !(item.userEmail.toLowerCase() === normalizedEmail && item.isRead),
+  );
+
+  localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(next));
+  notifyAppDataUpdated();
+  return next;
+}
+
+export function ensureWelcomeNotification(user: AppUser): AppNotification[] {
+  if (typeof window === "undefined" || !user.email) {
+    return [];
+  }
+
+  const normalizedEmail = user.email.toLowerCase();
+  const existing = getNotifications().some(
+    (item) =>
+      item.userEmail.toLowerCase() === normalizedEmail &&
+      item.category === "SYSTEM" &&
+      item.title === "Welcome to InkMatch",
+  );
+
+  if (existing) {
+    return getNotifications();
+  }
+
+  return addNotification({
+    userEmail: normalizedEmail,
+    title: "Welcome to InkMatch",
+    message:
+      "Manage your alerts here. New bookings and updates will appear in this feed.",
+    isRead: false,
+    category: "SYSTEM",
+  });
 }

@@ -7,9 +7,11 @@ import "./Navbar.css";
 import ThemeToggle from "./ThemeToggle";
 import {
   APP_DATA_UPDATED_EVENT,
+  ensureWelcomeNotification,
   getArtistProfileByOwner,
   getCustomerProfileByOwner,
   getCurrentUser,
+  getUnreadNotificationsCount,
   getStudioProfileByOwner,
   normalizeRole,
   type AppUser,
@@ -30,6 +32,7 @@ export default function Navbar() {
     displayName: "Guest",
   });
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const router = useRouter();
   const settingsRef = useRef<HTMLDivElement | null>(null);
 
@@ -56,8 +59,11 @@ export default function Navbar() {
           profileImage: "",
           displayName: "Guest",
         });
+        setUnreadCount(0);
         return;
       }
+
+      ensureWelcomeNotification(user);
 
       const role = normalizeRole(user.role);
       const roleLabel =
@@ -97,6 +103,9 @@ export default function Navbar() {
       }
 
       setNavbarUser({ user, roleLabel, profileImage, displayName });
+      if (user.email) {
+        setUnreadCount(getUnreadNotificationsCount(user.email));
+      }
     }
 
     loadNavbarUser();
@@ -145,6 +154,23 @@ export default function Navbar() {
           </Link>
         </div>
         <div className="navbar-actions">
+          {navbarUser.user && (
+            <Link
+              href="/notifications"
+              className="navbar-notification-btn"
+              aria-label="Open notifications"
+              title="Notifications"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 2a6 6 0 0 0-6 6v3.13c0 .84-.3 1.66-.85 2.3l-1.02 1.2A1 1 0 0 0 4.9 16h14.2a1 1 0 0 0 .77-1.64l-1.02-1.2a3.54 3.54 0 0 1-.85-2.3V8a6 6 0 0 0-6-6Zm0 20a3.01 3.01 0 0 0 2.83-2h-5.66A3.01 3.01 0 0 0 12 22Z" />
+              </svg>
+              {unreadCount > 0 && (
+                <span className="navbar-notification-badge">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </Link>
+          )}
           {navbarUser.user && (
             <div className="navbar-user-pill" aria-label="Logged-in user">
               {navbarUser.profileImage ? (
