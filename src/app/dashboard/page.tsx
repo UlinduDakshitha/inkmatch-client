@@ -75,6 +75,15 @@ const EMPTY_STATS: DashboardStats = {
   recentNotifications: [],
 };
 
+async function fileToDataUrl(file: File): Promise<string> {
+  return await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("Image read failed"));
+    reader.readAsDataURL(file);
+  });
+}
+
 function formatDate(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
@@ -110,6 +119,7 @@ export default function Dashboard() {
           phone: "",
           city: "",
           bio: "",
+          profileImage: "",
         }
       );
     });
@@ -177,6 +187,7 @@ export default function Dashboard() {
           phone: "",
           city: "",
           bio: "",
+          profileImage: "",
         },
       );
     }
@@ -222,9 +233,29 @@ export default function Dashboard() {
       phone: "",
       city: "",
       bio: "",
+      profileImage: "",
     });
     setNotice("Customer profile deleted.");
     refreshDashboardData();
+  };
+
+  const handleCustomerProfileImageChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    if (!customerProfile) {
+      return;
+    }
+
+    const file = e.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    const imageData = await fileToDataUrl(file);
+    setCustomerProfile({
+      ...customerProfile,
+      profileImage: imageData,
+    });
   };
 
   const profileCompletion = customerProfile
@@ -233,9 +264,10 @@ export default function Dashboard() {
         customerProfile.phone,
         customerProfile.city,
         customerProfile.bio,
+        customerProfile.profileImage,
       ].filter((value) => value.trim().length > 0).length
     : 0;
-  const profileCompletionPercent = Math.round((profileCompletion / 4) * 100);
+  const profileCompletionPercent = Math.round((profileCompletion / 5) * 100);
 
   return (
     <div className="page-container container" style={{ paddingTop: "120px" }}>
@@ -446,6 +478,47 @@ export default function Dashboard() {
                 })
               }
             />
+            <div style={{ marginTop: "1rem", display: "grid", gap: "0.65rem" }}>
+              <label className="text-secondary">Profile Picture</label>
+              <input
+                type="file"
+                accept="image/*"
+                className="input-field"
+                onChange={handleCustomerProfileImageChange}
+              />
+              {customerProfile.profileImage && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.8rem",
+                  }}
+                >
+                  <img
+                    src={customerProfile.profileImage}
+                    alt="Customer profile"
+                    style={{
+                      width: "80px",
+                      height: "80px",
+                      objectFit: "cover",
+                      borderRadius: "50%",
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() =>
+                      setCustomerProfile({
+                        ...customerProfile,
+                        profileImage: "",
+                      })
+                    }
+                  >
+                    Remove Picture
+                  </button>
+                </div>
+              )}
+            </div>
             <button
               type="submit"
               className="btn-primary"

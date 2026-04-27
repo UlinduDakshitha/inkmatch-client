@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import "./Navbar.css";
-import ThemeToggle from "./ThemeToggle";
 import {
   APP_DATA_UPDATED_EVENT,
   ensureWelcomeNotification,
@@ -141,9 +140,10 @@ function createProfileStatus(user: AppUser, role: AppRole): ProfileStatusState {
         customerProfile.phone,
         customerProfile.city,
         customerProfile.bio,
+        customerProfile.profileImage,
       ])
     : 0;
-  const completion = customerProfile ? Math.round((filled / 4) * 100) : 0;
+  const completion = customerProfile ? Math.round((filled / 5) * 100) : 0;
 
   return {
     stateLabel: customerProfile
@@ -155,6 +155,7 @@ function createProfileStatus(user: AppUser, role: AppRole): ProfileStatusState {
           `Phone: ${customerProfile.phone || "Missing"}`,
           `City: ${customerProfile.city || "Missing"}`,
           `Bio: ${customerProfile.bio ? "Added" : "Missing"}`,
+          `Photo: ${customerProfile.profileImage ? "Added" : "Missing"}`,
         ]
       : ["Create your customer profile from dashboard."],
     ctaLabel: "Open Dashboard",
@@ -176,7 +177,6 @@ export default function Navbar() {
     ctaLabel: "Go Home",
     ctaHref: "/",
   });
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [profileStatusOpen, setProfileStatusOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const router = useRouter();
@@ -190,7 +190,6 @@ export default function Navbar() {
       profileImage: "",
       displayName: "Guest",
     });
-    setSettingsOpen(false);
     setProfileStatusOpen(false);
     router.push("/");
   };
@@ -243,6 +242,7 @@ export default function Navbar() {
       }
       if (user.email && role === "CUSTOMER") {
         const customerProfile = getCustomerProfileByOwner(user.email);
+        profileImage = customerProfile?.profileImage || "";
         displayName = customerProfile?.ownerName || displayName;
       }
       if (user.email && role === "ADMIN") {
@@ -275,7 +275,6 @@ export default function Navbar() {
         settingsRef.current &&
         !settingsRef.current.contains(event.target as Node)
       ) {
-        setSettingsOpen(false);
         setProfileStatusOpen(false);
       }
     };
@@ -346,7 +345,6 @@ export default function Navbar() {
                 aria-expanded={profileStatusOpen}
                 onClick={() => {
                   setProfileStatusOpen((current) => !current);
-                  setSettingsOpen(false);
                 }}
               >
                 {navbarUser.profileImage ? (
@@ -390,39 +388,13 @@ export default function Navbar() {
                 >
                   {profileStatus.ctaLabel}
                 </Link>
-              </div>
-            )}
-
-            <button
-              type="button"
-              className="navbar-settings-btn"
-              onClick={() => {
-                setSettingsOpen((current) => !current);
-                setProfileStatusOpen(false);
-              }}
-              aria-label="Open settings"
-              title="Settings"
-              aria-expanded={settingsOpen}
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.63l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.1 7.1 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.58.23-1.13.54-1.63.94l-2.39-.96a.5.5 0 0 0-.61.22L2.7 8.85a.5.5 0 0 0 .12.63l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.63l1.92 3.32c.13.22.39.31.61.22l2.39-.96c.5.4 1.05.71 1.63.94l.36 2.54c.04.24.25.42.5.42h3.84c.25 0 .46-.18.5-.42l.36-2.54c.58-.23 1.13-.54 1.63-.94l2.39.96c.22.09.48 0 .61-.22l1.92-3.32a.5.5 0 0 0-.12-.63l-2.03-1.58ZM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2Z" />
-              </svg>
-            </button>
-            {settingsOpen && (
-              <div className="navbar-settings-menu">
-                <div className="navbar-settings-section">
-                  <p className="navbar-settings-label">Settings</p>
-                  <ThemeToggle compact />
-                </div>
-                {navbarUser.user && (
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="navbar-settings-action"
-                  >
-                    Logout
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="navbar-settings-action"
+                >
+                  Logout
+                </button>
               </div>
             )}
           </div>

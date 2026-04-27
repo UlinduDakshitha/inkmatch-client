@@ -57,6 +57,7 @@ export type CustomerProfile = {
   phone: string;
   city: string;
   bio: string;
+  profileImage?: string;
 };
 
 export type AppNotification = {
@@ -330,7 +331,14 @@ export function getCustomerProfiles(): CustomerProfile[] {
     return [];
   }
 
-  return safeParse<CustomerProfile[]>(localStorage.getItem(CUSTOMER_KEY), []);
+  const parsed = safeParse<CustomerProfile[]>(
+    localStorage.getItem(CUSTOMER_KEY),
+    [],
+  );
+  return parsed.map((item) => ({
+    ...item,
+    profileImage: item.profileImage || "",
+  }));
 }
 
 export function getCustomerProfileByOwner(
@@ -350,13 +358,17 @@ export function upsertCustomerProfile(
   }
 
   const current = getCustomerProfiles();
-  const index = current.findIndex((item) => item.id === profile.id);
+  const normalizedProfile: CustomerProfile = {
+    ...profile,
+    profileImage: profile.profileImage || "",
+  };
+  const index = current.findIndex((item) => item.id === normalizedProfile.id);
   const next = [...current];
 
   if (index >= 0) {
-    next[index] = profile;
+    next[index] = normalizedProfile;
   } else {
-    next.unshift(profile);
+    next.unshift(normalizedProfile);
   }
 
   localStorage.setItem(CUSTOMER_KEY, JSON.stringify(next));
