@@ -6,6 +6,14 @@ export type AppUser = {
   role?: string;
 };
 
+export type AdminProfile = {
+  id: string;
+  ownerEmail: string;
+  ownerName: string;
+  phone: string;
+  accessNote: string;
+};
+
 export type ArtistProfile = {
   id: string;
   ownerEmail: string;
@@ -65,6 +73,7 @@ const ARTIST_KEY = "inkmatch.artistProfiles";
 const STUDIO_KEY = "inkmatch.studioProfiles";
 const BOOKINGS_KEY = "inkmatch.bookings";
 const CUSTOMER_KEY = "inkmatch.customerProfiles";
+const ADMIN_KEY = "inkmatch.adminProfiles";
 const NOTIFICATIONS_KEY = "inkmatch.notifications";
 export const APP_DATA_UPDATED_EVENT = "inkmatch:data-updated";
 
@@ -287,6 +296,32 @@ export function addBooking(booking: Booking): Booking[] {
 
   const next = [booking, ...getBookings()];
   localStorage.setItem(BOOKINGS_KEY, JSON.stringify(next));
+  notifyAppDataUpdated();
+  return next;
+}
+
+export function deleteBookingById(bookingId: string): Booking[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const next = getBookings().filter((item) => item.id !== bookingId);
+  localStorage.setItem(BOOKINGS_KEY, JSON.stringify(next));
+  notifyAppDataUpdated();
+  return next;
+}
+
+export function deleteBookingsByCustomer(customerEmail: string): Booking[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const normalizedEmail = customerEmail.toLowerCase();
+  const next = getBookings().filter(
+    (item) => item.customerEmail.toLowerCase() !== normalizedEmail,
+  );
+  localStorage.setItem(BOOKINGS_KEY, JSON.stringify(next));
+  notifyAppDataUpdated();
   return next;
 }
 
@@ -340,6 +375,56 @@ export function deleteCustomerProfileByOwner(
     (item) => item.ownerEmail !== ownerEmail,
   );
   localStorage.setItem(CUSTOMER_KEY, JSON.stringify(next));
+  notifyAppDataUpdated();
+  return next;
+}
+
+export function getAdminProfiles(): AdminProfile[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  return safeParse<AdminProfile[]>(localStorage.getItem(ADMIN_KEY), []);
+}
+
+export function getAdminProfileByOwner(
+  ownerEmail: string,
+): AdminProfile | null {
+  const profile = getAdminProfiles().find(
+    (item) => item.ownerEmail.toLowerCase() === ownerEmail.toLowerCase(),
+  );
+  return profile ?? null;
+}
+
+export function upsertAdminProfile(profile: AdminProfile): AdminProfile[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const current = getAdminProfiles();
+  const index = current.findIndex((item) => item.id === profile.id);
+  const next = [...current];
+
+  if (index >= 0) {
+    next[index] = profile;
+  } else {
+    next.unshift(profile);
+  }
+
+  localStorage.setItem(ADMIN_KEY, JSON.stringify(next));
+  notifyAppDataUpdated();
+  return next;
+}
+
+export function deleteAdminProfileByOwner(ownerEmail: string): AdminProfile[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const next = getAdminProfiles().filter(
+    (item) => item.ownerEmail.toLowerCase() !== ownerEmail.toLowerCase(),
+  );
+  localStorage.setItem(ADMIN_KEY, JSON.stringify(next));
   notifyAppDataUpdated();
   return next;
 }
@@ -450,6 +535,35 @@ export function deleteNotification(
       ),
   );
 
+  localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(next));
+  notifyAppDataUpdated();
+  return next;
+}
+
+export function deleteNotificationById(
+  notificationId: string,
+): AppNotification[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const next = getNotifications().filter((item) => item.id !== notificationId);
+  localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(next));
+  notifyAppDataUpdated();
+  return next;
+}
+
+export function deleteNotificationsByUser(
+  userEmail: string,
+): AppNotification[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const normalizedEmail = userEmail.toLowerCase();
+  const next = getNotifications().filter(
+    (item) => item.userEmail.toLowerCase() !== normalizedEmail,
+  );
   localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(next));
   notifyAppDataUpdated();
   return next;

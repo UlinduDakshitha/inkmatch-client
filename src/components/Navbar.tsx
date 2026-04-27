@@ -8,6 +8,7 @@ import ThemeToggle from "./ThemeToggle";
 import {
   APP_DATA_UPDATED_EVENT,
   ensureWelcomeNotification,
+  getAdminProfileByOwner,
   getArtistProfileByOwner,
   getCustomerProfileByOwner,
   getCurrentUser,
@@ -90,6 +91,10 @@ export default function Navbar() {
       if (user.email && role === "CUSTOMER") {
         const customerProfile = getCustomerProfileByOwner(user.email);
         displayName = customerProfile?.ownerName || displayName;
+      }
+      if (user.email && role === "ADMIN") {
+        const adminProfile = getAdminProfileByOwner(user.email);
+        displayName = adminProfile?.ownerName || displayName;
       }
 
       if (user.email && displayName === user.email.split("@")[0]) {

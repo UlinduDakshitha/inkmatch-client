@@ -1,61 +1,154 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
+  APP_DATA_UPDATED_EVENT,
+  deleteAdminProfileByOwner,
+  deleteArtistProfileByOwner,
+  deleteBookingById,
+  deleteBookingsByCustomer,
+  deleteCustomerProfileByOwner,
+  deleteNotificationById,
+  deleteNotificationsByUser,
+  deleteStudioProfileByOwner,
+  getAdminProfileByOwner,
+  getAdminProfiles,
   getArtistProfiles,
   getBookings,
   getCurrentUser,
-  getNotificationsByUser,
+  getCustomerProfiles,
+  getNotifications,
   getStudioProfiles,
   normalizeRole,
+  upsertAdminProfile,
+  type AdminProfile,
 } from "@/utils/appData";
+
+const ROLE_BY_EMAIL_KEY = "inkmatch.roleByEmail";
+const NAME_BY_EMAIL_KEY = "inkmatch.nameByEmail";
+
+type AccountRow = {
+  email: string;
+  role: string;
+  name: string;
+};
+
+function safeParseMap(value: string | null): Record<string, string> {
+  if (!value) {
+    return {};
+  }
+
+  try {
+    const parsed = JSON.parse(value) as Record<string, string>;
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function getRegisteredAccounts(): AccountRow[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const roleByEmail = safeParseMap(localStorage.getItem(ROLE_BY_EMAIL_KEY));
+  const nameByEmail = safeParseMap(localStorage.getItem(NAME_BY_EMAIL_KEY));
+  const emails = Array.from(
+    new Set([...Object.keys(roleByEmail), ...Object.keys(nameByEmail)]),
+  );
+
+  return emails
+    .map((email) => ({
+      email,
+      role: normalizeRole(roleByEmail[email]),
+      name: nameByEmail[email] || email.split("@")[0] || "User",
+    }))
+    .sort((a, b) => a.email.localeCompare(b.email));
+}
 
 const featureLinks = [
   {
     href: "/dashboard",
     title: "Customer Dashboard",
-    description: "Check customer widgets and profile controls.",
   },
   {
     href: "/artists",
     title: "Artists",
-    description: "Browse artists and verify portfolio listings.",
   },
   {
     href: "/studios",
     title: "Studios",
-    description: "Review studio cards and owner profile entries.",
   },
   {
     href: "/bookings",
     title: "Bookings",
-    description: "Inspect the current booking feed output.",
   },
   {
     href: "/consultations",
     title: "Consultations",
-    description: "Open consultation tracking view.",
   },
   {
     href: "/favorites",
     title: "Favorites",
-    description: "Validate saved favorites experience.",
   },
   {
     href: "/notifications",
     title: "Notifications",
-    description: "Manage notifications and read/unread status.",
   },
   {
     href: "/contact-us",
     title: "Contact Us",
-    description: "Review customer contact and support view.",
   },
 ];
 
 export default function AdminPage() {
   const user = getCurrentUser();
   const role = normalizeRole(user?.role);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [notice, setNotice] = useState("");
+  const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(() => {
+    if (!user?.email) {
+      return null;
+    }
+
+    return (
+      getAdminProfileByOwner(user.email) ?? {
+        id: `local-admin-${encodeURIComponent(user.email)}`,
+        ownerEmail: user.email,
+        ownerName: user.name || "System Admin",
+        phone: "",
+        accessNote: "",
+      }
+    );
+  });
+
+  useEffect(() => {
+    function syncData() {
+      setRefreshKey((current) => current + 1);
+      if (!user?.email) {
+        return;
+      }
+
+      const stored = getAdminProfileByOwner(user.email);
+      setAdminProfile(
+        stored ?? {
+          id: `local-admin-${encodeURIComponent(user.email)}`,
+          ownerEmail: user.email,
+          ownerName: user.name || "System Admin",
+          phone: "",
+          accessNote: "",
+        },
+      );
+    }
+
+    window.addEventListener("storage", syncData);
+    window.addEventListener(APP_DATA_UPDATED_EVENT, syncData);
+    return () => {
+      window.removeEventListener("storage", syncData);
+      window.removeEventListener(APP_DATA_UPDATED_EVENT, syncData);
+    };
+  }, [user?.email, user?.name]);
 
   if (!user?.email) {
     return (
@@ -97,19 +190,96 @@ export default function AdminPage() {
     );
   }
 
-  const artistCount = getArtistProfiles().length;
-  const studioCount = getStudioProfiles().length;
-  const bookingCount = getBookings().length;
-  const myNotificationCount = getNotificationsByUser(user.email).length;
+  const artistProfiles = getArtistProfiles();
+  const studioProfiles = getStudioProfiles();
+  const customerProfiles = getCustomerProfiles();
+  const bookingRecords = getBookings();
+  const notificationRecords = getNotifications();
+  const adminProfiles = getAdminProfiles();
+  const registeredAccounts = getRegisteredAccounts();
+
+  const saveAdminProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!adminProfile) {
+      return;
+    }
+
+    upsertAdminProfile(adminProfile);
+    const latestUser = getCurrentUser();
+    if (latestUser) {
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ ...latestUser, name: adminProfile.ownerName }),
+      );
+    }
+
+    const nameByEmail = safeParseMap(localStorage.getItem(NAME_BY_EMAIL_KEY));
+    nameByEmail[adminProfile.ownerEmail.toLowerCase()] = adminProfile.ownerName;
+    localStorage.setItem(NAME_BY_EMAIL_KEY, JSON.stringify(nameByEmail));
+
+    setNotice("Admin profile saved.");
+    setRefreshKey((current) => current + 1);
+  };
+
+  const resetAdminProfile = () => {
+    if (!user?.email) {
+      return;
+    }
+
+    deleteAdminProfileByOwner(user.email);
+    setAdminProfile({
+      id: `local-admin-${encodeURIComponent(user.email)}`,
+      ownerEmail: user.email,
+      ownerName: user.name || "System Admin",
+      phone: "",
+      accessNote: "",
+    });
+    setNotice("Admin profile removed.");
+  };
+
+  const removeRegisteredAccount = (email: string) => {
+    if (email.toLowerCase() === user.email?.toLowerCase()) {
+      setNotice("You cannot remove your own active admin account mapping.");
+      return;
+    }
+
+    const roleByEmail = safeParseMap(localStorage.getItem(ROLE_BY_EMAIL_KEY));
+    const nameByEmail = safeParseMap(localStorage.getItem(NAME_BY_EMAIL_KEY));
+
+    delete roleByEmail[email.toLowerCase()];
+    delete nameByEmail[email.toLowerCase()];
+
+    localStorage.setItem(ROLE_BY_EMAIL_KEY, JSON.stringify(roleByEmail));
+    localStorage.setItem(NAME_BY_EMAIL_KEY, JSON.stringify(nameByEmail));
+
+    deleteArtistProfileByOwner(email);
+    deleteStudioProfileByOwner(email);
+    deleteCustomerProfileByOwner(email);
+    deleteAdminProfileByOwner(email);
+    deleteBookingsByCustomer(email);
+    deleteNotificationsByUser(email);
+
+    setNotice(`${email} removed from system mappings and local records.`);
+    setRefreshKey((current) => current + 1);
+  };
+
+  void refreshKey;
 
   return (
     <div className="page-container container" style={{ paddingTop: "120px" }}>
       <h1 className="heading-2">
-        Admin <span className="text-gradient">Control Center</span>
+        Admin <span className="text-gradient">System Console</span>
       </h1>
       <p className="text-secondary mt-2 mb-4">
-        Use this page to quickly visit and verify every key InkMatch feature.
+        Create your admin profile, inspect all local system data, and delete
+        unnecessary records.
       </p>
+
+      {notice && (
+        <div className="glass-card" style={{ marginTop: "1rem" }}>
+          <p className="text-secondary">{notice}</p>
+        </div>
+      )}
 
       <div
         style={{
@@ -120,39 +290,152 @@ export default function AdminPage() {
         }}
       >
         <div className="glass-card item-card">
+          <h3 className="item-title">Admins</h3>
+          <p className="text-secondary mt-2">{adminProfiles.length} profiles</p>
+        </div>
+        <div className="glass-card item-card">
           <h3 className="item-title">Artists</h3>
           <p className="text-secondary mt-2">
-            {artistCount} local profile records
+            {artistProfiles.length} profiles
           </p>
         </div>
         <div className="glass-card item-card">
           <h3 className="item-title">Studios</h3>
           <p className="text-secondary mt-2">
-            {studioCount} local studio records
+            {studioProfiles.length} profiles
+          </p>
+        </div>
+        <div className="glass-card item-card">
+          <h3 className="item-title">Customers</h3>
+          <p className="text-secondary mt-2">
+            {customerProfiles.length} profiles
           </p>
         </div>
         <div className="glass-card item-card">
           <h3 className="item-title">Bookings</h3>
-          <p className="text-secondary mt-2">{bookingCount} booking records</p>
+          <p className="text-secondary mt-2">{bookingRecords.length} records</p>
         </div>
         <div className="glass-card item-card">
           <h3 className="item-title">Notifications</h3>
           <p className="text-secondary mt-2">
-            {myNotificationCount} admin notifications
+            {notificationRecords.length} records
           </p>
         </div>
       </div>
 
+      {adminProfile && (
+        <div className="glass-card" style={{ marginTop: "2rem" }}>
+          <h2 className="heading-3">My Admin Profile</h2>
+          <p className="text-secondary mt-2">
+            Keep your system administrator details up to date.
+          </p>
+          <form onSubmit={saveAdminProfile} style={{ marginTop: "1rem" }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                gap: "1rem",
+              }}
+            >
+              <input
+                className="input-field"
+                placeholder="Full Name"
+                value={adminProfile.ownerName}
+                onChange={(e) =>
+                  setAdminProfile({
+                    ...adminProfile,
+                    ownerName: e.target.value,
+                  })
+                }
+                required
+              />
+              <input
+                className="input-field"
+                placeholder="Phone Number"
+                value={adminProfile.phone}
+                onChange={(e) =>
+                  setAdminProfile({ ...adminProfile, phone: e.target.value })
+                }
+              />
+            </div>
+            <textarea
+              className="input-field"
+              placeholder="Access notes, responsibilities, escalation details"
+              value={adminProfile.accessNote}
+              onChange={(e) =>
+                setAdminProfile({ ...adminProfile, accessNote: e.target.value })
+              }
+              style={{
+                marginTop: "1rem",
+                minHeight: "100px",
+                resize: "vertical",
+              }}
+            />
+            <button
+              type="submit"
+              className="btn-primary"
+              style={{ marginTop: "1rem" }}
+            >
+              Save Admin Profile
+            </button>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={resetAdminProfile}
+              style={{ marginTop: "1rem", marginLeft: "0.75rem" }}
+            >
+              Delete My Profile
+            </button>
+          </form>
+        </div>
+      )}
+
+      <div className="glass-card" style={{ marginTop: "2rem" }}>
+        <h2 className="heading-3">Registered Accounts</h2>
+        <p className="text-secondary mt-2" style={{ marginBottom: "1rem" }}>
+          Remove stale account mappings and linked local records.
+        </p>
+        {registeredAccounts.length === 0 ? (
+          <p className="text-secondary">No local account mappings yet.</p>
+        ) : (
+          <div style={{ display: "grid", gap: "0.75rem" }}>
+            {registeredAccounts.map((account) => (
+              <div
+                key={account.email}
+                className="glass"
+                style={{
+                  padding: "0.9rem",
+                  borderRadius: "12px",
+                  display: "grid",
+                  gap: "0.35rem",
+                }}
+              >
+                <strong>{account.name}</strong>
+                <p className="text-secondary">{account.email}</p>
+                <p className="text-secondary">Role: {account.role}</p>
+                <div>
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => removeRegisteredAccount(account.email)}
+                  >
+                    Remove Account And Local Data
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       <div className="glass-card" style={{ marginTop: "2rem" }}>
         <h2 className="heading-3">All Feature Routes</h2>
-        <p className="text-secondary mt-2" style={{ marginBottom: "1.1rem" }}>
-          Open any module directly for testing or manual verification.
-        </p>
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
             gap: "0.9rem",
+            marginTop: "1rem",
           }}
         >
           {featureLinks.map((item) => (
@@ -166,15 +449,170 @@ export default function AdminPage() {
                 border: "1px solid var(--glass-border)",
               }}
             >
-              <h3 style={{ fontSize: "1.02rem", marginBottom: "0.35rem" }}>
-                {item.title}
-              </h3>
-              <p className="text-secondary" style={{ fontSize: "0.9rem" }}>
-                {item.description}
-              </p>
+              <h3 style={{ fontSize: "1rem" }}>{item.title}</h3>
             </Link>
           ))}
         </div>
+      </div>
+
+      <div className="glass-card" style={{ marginTop: "2rem" }}>
+        <h2 className="heading-3">Artist Profiles</h2>
+        {artistProfiles.length === 0 ? (
+          <p className="text-secondary mt-2">No artist records found.</p>
+        ) : (
+          <div className="grid-list" style={{ marginTop: "1rem" }}>
+            {artistProfiles.map((item) => (
+              <div key={item.id} className="glass-card item-card">
+                <h3 className="item-title">{item.ownerName}</h3>
+                <p className="text-secondary mt-2">{item.ownerEmail}</p>
+                <p className="text-secondary mt-2">Style: {item.style}</p>
+                <p className="text-secondary mt-2">Location: {item.location}</p>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  style={{ marginTop: "1rem" }}
+                  onClick={() => {
+                    deleteArtistProfileByOwner(item.ownerEmail);
+                    setNotice(`Artist profile removed: ${item.ownerEmail}`);
+                    setRefreshKey((current) => current + 1);
+                  }}
+                >
+                  Delete Artist Profile
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="glass-card" style={{ marginTop: "2rem" }}>
+        <h2 className="heading-3">Studio Profiles</h2>
+        {studioProfiles.length === 0 ? (
+          <p className="text-secondary mt-2">No studio records found.</p>
+        ) : (
+          <div className="grid-list" style={{ marginTop: "1rem" }}>
+            {studioProfiles.map((item) => (
+              <div key={item.id} className="glass-card item-card">
+                <h3 className="item-title">{item.name || "Studio"}</h3>
+                <p className="text-secondary mt-2">{item.ownerEmail}</p>
+                <p className="text-secondary mt-2">Address: {item.address}</p>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  style={{ marginTop: "1rem" }}
+                  onClick={() => {
+                    deleteStudioProfileByOwner(item.ownerEmail);
+                    setNotice(`Studio profile removed: ${item.ownerEmail}`);
+                    setRefreshKey((current) => current + 1);
+                  }}
+                >
+                  Delete Studio Profile
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="glass-card" style={{ marginTop: "2rem" }}>
+        <h2 className="heading-3">Customer Profiles</h2>
+        {customerProfiles.length === 0 ? (
+          <p className="text-secondary mt-2">No customer records found.</p>
+        ) : (
+          <div className="grid-list" style={{ marginTop: "1rem" }}>
+            {customerProfiles.map((item) => (
+              <div key={item.id} className="glass-card item-card">
+                <h3 className="item-title">{item.ownerName}</h3>
+                <p className="text-secondary mt-2">{item.ownerEmail}</p>
+                <p className="text-secondary mt-2">
+                  Phone: {item.phone || "-"}
+                </p>
+                <p className="text-secondary mt-2">City: {item.city || "-"}</p>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  style={{ marginTop: "1rem" }}
+                  onClick={() => {
+                    deleteCustomerProfileByOwner(item.ownerEmail);
+                    setNotice(`Customer profile removed: ${item.ownerEmail}`);
+                    setRefreshKey((current) => current + 1);
+                  }}
+                >
+                  Delete Customer Profile
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="glass-card" style={{ marginTop: "2rem" }}>
+        <h2 className="heading-3">Booking Records</h2>
+        {bookingRecords.length === 0 ? (
+          <p className="text-secondary mt-2">No booking records found.</p>
+        ) : (
+          <div className="grid-list" style={{ marginTop: "1rem" }}>
+            {bookingRecords.map((item) => (
+              <div key={item.id} className="glass-card item-card">
+                <h3 className="item-title">{item.targetName}</h3>
+                <p className="text-secondary mt-2">
+                  Customer: {item.customerEmail}
+                </p>
+                <p className="text-secondary mt-2">
+                  Date: {item.appointmentDate}
+                </p>
+                <p className="text-secondary mt-2">Status: {item.status}</p>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  style={{ marginTop: "1rem" }}
+                  onClick={() => {
+                    deleteBookingById(item.id);
+                    setNotice(`Booking deleted: ${item.id}`);
+                    setRefreshKey((current) => current + 1);
+                  }}
+                >
+                  Delete Booking
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div
+        className="glass-card"
+        style={{ marginTop: "2rem", marginBottom: "2rem" }}
+      >
+        <h2 className="heading-3">Notification Records</h2>
+        {notificationRecords.length === 0 ? (
+          <p className="text-secondary mt-2">No notification records found.</p>
+        ) : (
+          <div className="grid-list" style={{ marginTop: "1rem" }}>
+            {notificationRecords.map((item) => (
+              <div key={item.id} className="glass-card item-card">
+                <h3 className="item-title">{item.title}</h3>
+                <p className="text-secondary mt-2">User: {item.userEmail}</p>
+                <p className="text-secondary mt-2">Category: {item.category}</p>
+                <p className="text-secondary mt-2">
+                  Read: {item.isRead ? "Yes" : "No"}
+                </p>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  style={{ marginTop: "1rem" }}
+                  onClick={() => {
+                    deleteNotificationById(item.id);
+                    setNotice(`Notification deleted: ${item.id}`);
+                    setRefreshKey((current) => current + 1);
+                  }}
+                >
+                  Delete Notification
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
