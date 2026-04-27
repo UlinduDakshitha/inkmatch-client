@@ -1,17 +1,65 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getRoleHomePath } from "@/utils/roleRedirect";
 import {
+  APP_DATA_UPDATED_EVENT,
   type AppUser,
+  type Booking,
+  type AppNotification,
   deleteCustomerProfileByOwner,
+  getArtistProfiles,
+  getBookings,
+  getBookingsForCustomer,
   getCurrentUser,
   getCustomerProfileByOwner,
+  getNotificationsByUser,
+  getStudioProfiles,
   normalizeRole,
   upsertCustomerProfile,
   type CustomerProfile,
 } from "@/utils/appData";
+
+type DashboardStats = {
+  myBookings: number;
+  pendingBookings: number;
+  confirmedBookings: number;
+  cancelledBookings: number;
+  unreadNotifications: number;
+  totalArtists: number;
+  totalStudios: number;
+  totalSystemBookings: number;
+  recentBookings: Booking[];
+  recentNotifications: AppNotification[];
+};
+
+const EMPTY_STATS: DashboardStats = {
+  myBookings: 0,
+  pendingBookings: 0,
+  confirmedBookings: 0,
+  cancelledBookings: 0,
+  unreadNotifications: 0,
+  totalArtists: 0,
+  totalStudios: 0,
+  totalSystemBookings: 0,
+  recentBookings: [],
+  recentNotifications: [],
+};
+
+function formatDate(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "Not set";
+  }
+
+  return date.toLocaleDateString("en-LK", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
 
 export default function Dashboard() {
   const router = useRouter();
@@ -20,6 +68,7 @@ export default function Dashboard() {
   });
   const role = normalizeRole(user?.role);
   const [notice, setNotice] = useState("");
+  const [stats, setStats] = useState<DashboardStats>(EMPTY_STATS);
   const [customerProfile, setCustomerProfile] =
     useState<CustomerProfile | null>(() => {
       if (role !== "CUSTOMER" || !user?.email) {
@@ -38,6 +87,37 @@ export default function Dashboard() {
       );
     });
 
+  const refreshDashboardData = () => {
+    if (!user?.email || role !== "CUSTOMER") {
+      setStats(EMPTY_STATS);
+      return;
+    }
+
+    const myBookings = getBookingsForCustomer(user.email).sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+    const notifications = getNotificationsByUser(user.email);
+
+    setStats({
+      myBookings: myBookings.length,
+      pendingBookings: myBookings.filter((item) => item.status === "PENDING")
+        .length,
+      confirmedBookings: myBookings.filter(
+        (item) => item.status === "CONFIRMED",
+      ).length,
+      cancelledBookings: myBookings.filter(
+        (item) => item.status === "CANCELLED",
+      ).length,
+      unreadNotifications: notifications.filter((item) => !item.isRead).length,
+      totalArtists: getArtistProfiles().length,
+      totalStudios: getStudioProfiles().length,
+      totalSystemBookings: getBookings().length,
+      recentBookings: myBookings.slice(0, 4),
+      recentNotifications: notifications.slice(0, 4),
+    });
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -51,6 +131,36 @@ export default function Dashboard() {
       router.replace(roleHomePath);
     }
   }, [router, user?.role]);
+
+  useEffect(() => {
+    refreshDashboardData();
+
+    function syncDashboard() {
+      refreshDashboardData();
+      if (!user?.email || role !== "CUSTOMER") {
+        return;
+      }
+
+      const latestProfile = getCustomerProfileByOwner(user.email);
+      setCustomerProfile(
+        latestProfile ?? {
+          id: `local-customer-${encodeURIComponent(user.email)}`,
+          ownerEmail: user.email,
+          ownerName: user.name || "Customer",
+          phone: "",
+          city: "",
+          bio: "",
+        },
+      );
+    }
+
+    window.addEventListener("storage", syncDashboard);
+    window.addEventListener(APP_DATA_UPDATED_EVENT, syncDashboard);
+    return () => {
+      window.removeEventListener("storage", syncDashboard);
+      window.removeEventListener(APP_DATA_UPDATED_EVENT, syncDashboard);
+    };
+  }, [user?.email, user?.name, role]);
 
   const saveCustomerProfile = (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,6 +179,7 @@ export default function Dashboard() {
     }
 
     setNotice("Customer profile saved successfully.");
+    refreshDashboardData();
   };
 
   const deleteCustomerProfile = () => {
@@ -86,7 +197,18 @@ export default function Dashboard() {
       bio: "",
     });
     setNotice("Customer profile deleted.");
+    refreshDashboardData();
   };
+
+  const profileCompletion = customerProfile
+    ? [
+        customerProfile.ownerName,
+        customerProfile.phone,
+        customerProfile.city,
+        customerProfile.bio,
+      ].filter((value) => value.trim().length > 0).length
+    : 0;
+  const profileCompletionPercent = Math.round((profileCompletion / 4) * 100);
 
   return (
     <div className="page-container container" style={{ paddingTop: "120px" }}>
@@ -94,11 +216,14 @@ export default function Dashboard() {
         Welcome Back,
         <span className="text-gradient"> {user?.name ?? "Customer"}</span>
       </h1>
+      <p className="text-secondary mt-2">
+        Live dashboard powered by current data in your InkMatch system.
+      </p>
 
       <div className="glass-card mt-4" style={{ marginTop: "2rem" }}>
         <h2 className="heading-3">Your Activity</h2>
         <p className="text-secondary mt-2">
-          Manage your bookings, consultations, and favorites from here.
+          Real-time booking, notification, and profile insights.
         </p>
 
         {notice && (
@@ -107,15 +232,125 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Placeholder for real dashboard widgets */}
-        <div style={{ display: "flex", gap: "2rem", marginTop: "2rem" }}>
-          <div className="glass-card">
-            <h3>Upcoming Bookings</h3>
-            <p className="text-secondary mt-2">0 scheduled</p>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
+            gap: "1rem",
+            marginTop: "1.4rem",
+          }}
+        >
+          <div className="glass-card item-card">
+            <h3 className="item-title">My Bookings</h3>
+            <p className="text-secondary mt-2">{stats.myBookings} total</p>
           </div>
-          <div className="glass-card">
-            <h3>Saved Artists</h3>
-            <p className="text-secondary mt-2">0 liked</p>
+          <div className="glass-card item-card">
+            <h3 className="item-title">Pending</h3>
+            <p className="text-secondary mt-2">{stats.pendingBookings}</p>
+          </div>
+          <div className="glass-card item-card">
+            <h3 className="item-title">Confirmed</h3>
+            <p className="text-secondary mt-2">{stats.confirmedBookings}</p>
+          </div>
+          <div className="glass-card item-card">
+            <h3 className="item-title">Unread Alerts</h3>
+            <p className="text-secondary mt-2">{stats.unreadNotifications}</p>
+          </div>
+          <div className="glass-card item-card">
+            <h3 className="item-title">Artists</h3>
+            <p className="text-secondary mt-2">
+              {stats.totalArtists} available
+            </p>
+          </div>
+          <div className="glass-card item-card">
+            <h3 className="item-title">Studios</h3>
+            <p className="text-secondary mt-2">{stats.totalStudios} listed</p>
+          </div>
+          <div className="glass-card item-card">
+            <h3 className="item-title">System Bookings</h3>
+            <p className="text-secondary mt-2">
+              {stats.totalSystemBookings} total
+            </p>
+          </div>
+          <div className="glass-card item-card">
+            <h3 className="item-title">Profile Completion</h3>
+            <p className="text-secondary mt-2">
+              {profileCompletionPercent}% complete
+            </p>
+          </div>
+        </div>
+
+        <div
+          style={{
+            marginTop: "1.4rem",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: "1rem",
+          }}
+        >
+          <div className="glass-card item-card">
+            <h3 className="item-title">Recent Bookings</h3>
+            {stats.recentBookings.length === 0 ? (
+              <p className="text-secondary mt-2">No bookings yet.</p>
+            ) : (
+              <div
+                style={{ marginTop: "0.8rem", display: "grid", gap: "0.65rem" }}
+              >
+                {stats.recentBookings.map((item) => (
+                  <div
+                    key={item.id}
+                    className="glass"
+                    style={{ padding: "0.65rem" }}
+                  >
+                    <strong>{item.targetName}</strong>
+                    <p className="text-secondary mt-2">
+                      {formatDate(item.appointmentDate)}
+                    </p>
+                    <p className="text-secondary mt-2">Status: {item.status}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+            <Link
+              href="/bookings"
+              className="btn-secondary"
+              style={{ marginTop: "1rem" }}
+            >
+              Open Bookings
+            </Link>
+          </div>
+
+          <div className="glass-card item-card">
+            <h3 className="item-title">Recent Notifications</h3>
+            {stats.recentNotifications.length === 0 ? (
+              <p className="text-secondary mt-2">No notifications yet.</p>
+            ) : (
+              <div
+                style={{ marginTop: "0.8rem", display: "grid", gap: "0.65rem" }}
+              >
+                {stats.recentNotifications.map((item) => (
+                  <div
+                    key={item.id}
+                    className="glass"
+                    style={{ padding: "0.65rem" }}
+                  >
+                    <strong>{item.title}</strong>
+                    <p className="text-secondary mt-2">{item.message}</p>
+                    <p className="text-secondary mt-2">
+                      {formatDate(item.createdAt)} |{" "}
+                      {item.isRead ? "Read" : "Unread"}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+            <Link
+              href="/notifications"
+              className="btn-secondary"
+              style={{ marginTop: "1rem" }}
+            >
+              Open Notifications
+            </Link>
           </div>
         </div>
 
