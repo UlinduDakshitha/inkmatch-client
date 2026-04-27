@@ -15,6 +15,7 @@ import {
   getUnreadNotificationsCount,
   getStudioProfileByOwner,
   normalizeRole,
+  type AppRole,
   type AppUser,
 } from "@/utils/appData";
 
@@ -25,6 +26,140 @@ type NavbarUserState = {
   displayName: string;
 };
 
+type ProfileStatusState = {
+  stateLabel: string;
+  completionLabel: string;
+  details: string[];
+  ctaLabel: string;
+  ctaHref: string;
+};
+
+function countFilled(values: Array<string | undefined>): number {
+  return values.filter((item) => (item || "").trim().length > 0).length;
+}
+
+function createProfileStatus(user: AppUser, role: AppRole): ProfileStatusState {
+  if (!user.email) {
+    return {
+      stateLabel: "Profile unavailable",
+      completionLabel: "No account email found",
+      details: ["Please log in again to load your profile status."],
+      ctaLabel: "Go Home",
+      ctaHref: "/",
+    };
+  }
+
+  if (role === "ADMIN") {
+    const profile = getAdminProfileByOwner(normalizedEmail);
+    const filled = profile
+      ? countFilled([profile.ownerName, profile.phone, profile.accessNote])
+      : 0;
+    const completion = profile ? Math.round((filled / 3) * 100) : 0;
+
+    return {
+      stateLabel: profile
+        ? "Admin profile active"
+        : "Admin profile not created",
+      completionLabel: `${completion}% complete`,
+      details: profile
+        ? [
+            `Name: ${profile.ownerName || "-"}`,
+            `Phone: ${profile.phone || "Not added"}`,
+            `Access Note: ${profile.accessNote ? "Added" : "Missing"}`,
+          ]
+        : ["Create your admin profile to maintain role consistency."],
+      ctaLabel: "Open Admin Console",
+      ctaHref: "/admin",
+    };
+  }
+
+  if (role === "ARTIST") {
+    const profile = getArtistProfileByOwner(normalizedEmail);
+    const filled = profile
+      ? countFilled([
+          profile.ownerName,
+          profile.style,
+          profile.bio,
+          profile.location,
+          profile.rateRange,
+          profile.profileImage,
+        ])
+      : 0;
+    const completion = profile ? Math.round((filled / 6) * 100) : 0;
+
+    return {
+      stateLabel: profile ? "Portfolio available" : "Portfolio not created",
+      completionLabel: `${completion}% complete`,
+      details: profile
+        ? [
+            `Style: ${profile.style || "Missing"}`,
+            `Location: ${profile.location || "Missing"}`,
+            `Gallery images: ${profile.galleryImages.length}`,
+          ]
+        : ["Create your artist portfolio to start receiving bookings."],
+      ctaLabel: "Open Portfolio",
+      ctaHref: "/portfolios/me",
+    };
+  }
+
+  if (role === "STUDIO_OWNER") {
+    const profile = getStudioProfileByOwner(normalizedEmail);
+    const filled = profile
+      ? countFilled([
+          profile.ownerName,
+          profile.name,
+          profile.address,
+          profile.description,
+          profile.profileImage,
+        ])
+      : 0;
+    const completion = profile ? Math.round((filled / 5) * 100) : 0;
+
+    return {
+      stateLabel: profile
+        ? "Studio profile active"
+        : "Studio profile not created",
+      completionLabel: `${completion}% complete`,
+      details: profile
+        ? [
+            `Studio: ${profile.name || "Missing"}`,
+            `Address: ${profile.address || "Missing"}`,
+            `Gallery images: ${profile.galleryImages.length}`,
+          ]
+        : ["Create your studio profile to publish studio details."],
+      ctaLabel: "Open Studio Page",
+      ctaHref: "/studios",
+    };
+  }
+
+  const customerProfile = getCustomerProfileByOwner(normalizedEmail);
+  const filled = customerProfile
+    ? countFilled([
+        customerProfile.ownerName,
+        customerProfile.phone,
+        customerProfile.city,
+        customerProfile.bio,
+      ])
+    : 0;
+  const completion = customerProfile ? Math.round((filled / 4) * 100) : 0;
+
+  return {
+    stateLabel: customerProfile
+      ? "Customer profile active"
+      : "Customer profile not created",
+    completionLabel: `${completion}% complete`,
+    details: customerProfile
+      ? [
+          `Phone: ${customerProfile.phone || "Missing"}`,
+          `City: ${customerProfile.city || "Missing"}`,
+          `Bio: ${customerProfile.bio ? "Added" : "Missing"}`,
+        ]
+      : ["Create your customer profile from dashboard."],
+    ctaLabel: "Open Dashboard",
+    ctaHref: "/dashboard",
+  };
+}
+
 export default function Navbar() {
   const [navbarUser, setNavbarUser] = useState<NavbarUserState>({
     user: null,
@@ -32,7 +167,15 @@ export default function Navbar() {
     profileImage: "",
     displayName: "Guest",
   });
+  const [profileStatus, setProfileStatus] = useState<ProfileStatusState>({
+    stateLabel: "Profile unavailable",
+    completionLabel: "Sign in to see profile status",
+    details: [""],
+    ctaLabel: "Go Home",
+    ctaHref: "/",
+  });
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [profileStatusOpen, setProfileStatusOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const router = useRouter();
   const settingsRef = useRef<HTMLDivElement | null>(null);
@@ -46,6 +189,7 @@ export default function Navbar() {
       displayName: "Guest",
     });
     setSettingsOpen(false);
+    setProfileStatusOpen(false);
     router.push("/");
   };
 
@@ -60,6 +204,13 @@ export default function Navbar() {
           profileImage: "",
           displayName: "Guest",
         });
+        setProfileStatus({
+          stateLabel: "Profile unavailable",
+          completionLabel: "Sign in to see profile status",
+          details: [""],
+          ctaLabel: "Go Home",
+          ctaHref: "/",
+        });
         setUnreadCount(0);
         return;
       }
@@ -67,6 +218,7 @@ export default function Navbar() {
       ensureWelcomeNotification(user);
 
       const role = normalizeRole(user.role);
+      const roleHomePath = getRoleHomePath(role);
       const roleLabel =
         role === "ARTIST"
           ? "Artist"
@@ -108,6 +260,7 @@ export default function Navbar() {
       }
 
       setNavbarUser({ user, roleLabel, profileImage, displayName });
+      setProfileStatus(createProfileStatus(user, role));
       if (user.email) {
         setUnreadCount(getUnreadNotificationsCount(user.email));
       }
@@ -122,6 +275,7 @@ export default function Navbar() {
         !settingsRef.current.contains(event.target as Node)
       ) {
         setSettingsOpen(false);
+        setProfileStatusOpen(false);
       }
     };
 
@@ -182,30 +336,69 @@ export default function Navbar() {
               )}
             </Link>
           )}
-          {navbarUser.user && (
-            <div className="navbar-user-pill" aria-label="Logged-in user">
-              {navbarUser.profileImage ? (
-                <img
-                  src={navbarUser.profileImage}
-                  alt={displayName}
-                  className="navbar-user-avatar"
-                />
-              ) : (
-                <span className="navbar-user-avatar navbar-user-initial">
-                  {displayName.charAt(0).toUpperCase()}
-                </span>
-              )}
-              <div className="navbar-user-meta">
-                <span className="navbar-user-role">{navbarUser.roleLabel}</span>
-                <span className="navbar-user-name">{displayName}</span>
-              </div>
-            </div>
-          )}
           <div className="navbar-user-wrapper" ref={settingsRef}>
+            {navbarUser.user && (
+              <button
+                type="button"
+                className="navbar-user-pill"
+                aria-label="Open profile status"
+                aria-expanded={profileStatusOpen}
+                onClick={() => {
+                  setProfileStatusOpen((current) => !current);
+                  setSettingsOpen(false);
+                }}
+              >
+                {navbarUser.profileImage ? (
+                  <img
+                    src={navbarUser.profileImage}
+                    alt={displayName}
+                    className="navbar-user-avatar"
+                  />
+                ) : (
+                  <span className="navbar-user-avatar navbar-user-initial">
+                    {displayName.charAt(0).toUpperCase()}
+                  </span>
+                )}
+                <div className="navbar-user-meta">
+                  <span className="navbar-user-role">
+                    {navbarUser.roleLabel}
+                  </span>
+                  <span className="navbar-user-name">{displayName}</span>
+                </div>
+              </button>
+            )}
+
+            {profileStatusOpen && navbarUser.user && (
+              <div className="navbar-profile-status-menu">
+                <p className="navbar-settings-label">Profile Status</p>
+                <h4 className="navbar-profile-status-title">
+                  {profileStatus.stateLabel}
+                </h4>
+                <p className="navbar-profile-status-completion">
+                  {profileStatus.completionLabel}
+                </p>
+                <div className="navbar-profile-status-list">
+                  {profileStatus.details.map((item, index) => (
+                    <p key={`${item}-${index}`}>{item}</p>
+                  ))}
+                </div>
+                <Link
+                  href={profileStatus.ctaHref}
+                  className="navbar-settings-action"
+                  onClick={() => setProfileStatusOpen(false)}
+                >
+                  {profileStatus.ctaLabel}
+                </Link>
+              </div>
+            )}
+
             <button
               type="button"
               className="navbar-settings-btn"
-              onClick={() => setSettingsOpen((current) => !current)}
+              onClick={() => {
+                setSettingsOpen((current) => !current);
+                setProfileStatusOpen(false);
+              }}
               aria-label="Open settings"
               title="Settings"
               aria-expanded={settingsOpen}
