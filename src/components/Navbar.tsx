@@ -49,6 +49,8 @@ function createProfileStatus(user: AppUser, role: AppRole): ProfileStatusState {
     };
   }
 
+  const normalizedEmail = user.email.toLowerCase();
+
   if (role === "ADMIN") {
     const profile = getAdminProfileByOwner(normalizedEmail);
     const filled = profile
@@ -218,7 +220,6 @@ export default function Navbar() {
       ensureWelcomeNotification(user);
 
       const role = normalizeRole(user.role);
-      const roleHomePath = getRoleHomePath(role);
       const roleLabel =
         role === "ARTIST"
           ? "Artist"
