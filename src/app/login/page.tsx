@@ -118,6 +118,11 @@ export default function LoginPage() {
         resolvedRole = normalizedMappedRole;
       }
 
+      // Keep non-customer mapped roles sticky for consistent role-based routing.
+      if (normalizedMappedRole !== "CUSTOMER") {
+        resolvedRole = normalizedMappedRole;
+      }
+
       // If this email already owns the admin profile, keep it strictly as ADMIN.
       if (resolvedRole !== "ADMIN" && getAdminProfileByOwner(normalizedEmail)) {
         resolvedRole = "ADMIN";
