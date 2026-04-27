@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
+  addNotification,
   APP_DATA_UPDATED_EVENT,
   deleteAdminProfileByOwner,
   deleteArtistProfileByOwner,
@@ -21,6 +22,7 @@ import {
   getNotifications,
   getStudioProfiles,
   normalizeRole,
+  updateBookingStatus,
   upsertAdminProfile,
   type AdminProfile,
 } from "@/utils/appData";
@@ -206,6 +208,15 @@ export default function AdminPage() {
   const customerProfiles = getCustomerProfiles();
   const bookingRecords = getBookings();
   const notificationRecords = getNotifications();
+  const pendingBookings = bookingRecords.filter(
+    (item) => item.status === "PENDING",
+  ).length;
+  const confirmedBookings = bookingRecords.filter(
+    (item) => item.status === "CONFIRMED",
+  ).length;
+  const unreadNotifications = notificationRecords.filter(
+    (item) => !item.isRead,
+  ).length;
   const adminProfiles = getAdminProfiles();
   const registeredAccounts = getRegisteredAccounts();
   const systemAdminEmails = getSystemAdminEmails();
@@ -307,17 +318,84 @@ export default function AdminPage() {
     setRefreshKey((current) => current + 1);
   };
 
+  const verifyBooking = (
+    bookingId: string,
+    nextStatus: "CONFIRMED" | "CANCELLED",
+    customerEmail: string,
+    targetName: string,
+    appointmentDate: string,
+  ) => {
+    updateBookingStatus(bookingId, nextStatus);
+    addNotification({
+      userEmail: customerEmail.toLowerCase(),
+      title:
+        nextStatus === "CONFIRMED" ? "Booking Confirmed" : "Booking Cancelled",
+      message:
+        nextStatus === "CONFIRMED"
+          ? `Your booking with ${targetName} on ${appointmentDate || "the selected date"} has been approved by admin.`
+          : `Your booking with ${targetName} on ${appointmentDate || "the selected date"} has been declined by admin.`,
+      isRead: false,
+      category: "BOOKING",
+    });
+    setNotice(
+      nextStatus === "CONFIRMED"
+        ? `Booking ${bookingId} verified and confirmed.`
+        : `Booking ${bookingId} marked as cancelled.`,
+    );
+    setRefreshKey((current) => current + 1);
+  };
+
   void refreshKey;
 
   return (
     <div className="page-container container" style={{ paddingTop: "120px" }}>
       <h1 className="heading-2">
-        Admin <span className="text-gradient">System Console</span>
+        Owner <span className="text-gradient">Control Deck</span>
       </h1>
       <p className="text-secondary mt-2 mb-4">
-        Create your admin profile, inspect all local system data, and delete
-        unnecessary records.
+        This is the owner dashboard. Manage platform-level data, users, and
+        system cleanup from one place.
       </p>
+
+      <div
+        className="glass-card"
+        style={{
+          marginTop: "1rem",
+          border: "1px solid rgba(255, 51, 102, 0.25)",
+          background:
+            "linear-gradient(135deg, rgba(255, 51, 102, 0.12), rgba(255, 153, 51, 0.08))",
+        }}
+      >
+        <h2 className="heading-3">Platform Ownership Summary</h2>
+        <p className="text-secondary mt-2">
+          Admin account: <strong>{user.email}</strong>
+        </p>
+        <div
+          style={{
+            marginTop: "1rem",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+            gap: "0.8rem",
+          }}
+        >
+          <div className="glass" style={{ padding: "0.8rem" }}>
+            <strong>{registeredAccounts.length}</strong>
+            <p className="text-secondary mt-2">Registered Accounts</p>
+          </div>
+          <div className="glass" style={{ padding: "0.8rem" }}>
+            <strong>{pendingBookings}</strong>
+            <p className="text-secondary mt-2">Pending Bookings</p>
+          </div>
+          <div className="glass" style={{ padding: "0.8rem" }}>
+            <strong>{confirmedBookings}</strong>
+            <p className="text-secondary mt-2">Confirmed Bookings</p>
+          </div>
+          <div className="glass" style={{ padding: "0.8rem" }}>
+            <strong>{unreadNotifications}</strong>
+            <p className="text-secondary mt-2">Unread Notifications</p>
+          </div>
+        </div>
+      </div>
 
       <div className="glass-card" style={{ marginTop: "1rem" }}>
         <h2 className="heading-3">Admin Account Policy</h2>
@@ -494,7 +572,7 @@ export default function AdminPage() {
       </div>
 
       <div className="glass-card" style={{ marginTop: "2rem" }}>
-        <h2 className="heading-3">All Feature Routes</h2>
+        <h2 className="heading-3">Owner Quick Access</h2>
         <div
           style={{
             display: "grid",
@@ -613,6 +691,10 @@ export default function AdminPage() {
 
       <div className="glass-card" style={{ marginTop: "2rem" }}>
         <h2 className="heading-3">Booking Records</h2>
+        <p className="text-secondary mt-2">
+          Verify new bookings from customers. Pending bookings require owner
+          review.
+        </p>
         {bookingRecords.length === 0 ? (
           <p className="text-secondary mt-2">No booking records found.</p>
         ) : (
@@ -627,6 +709,46 @@ export default function AdminPage() {
                   Date: {item.appointmentDate}
                 </p>
                 <p className="text-secondary mt-2">Status: {item.status}</p>
+                {item.status === "PENDING" && (
+                  <div
+                    style={{
+                      marginTop: "1rem",
+                      display: "flex",
+                      gap: "0.6rem",
+                    }}
+                  >
+                    <button
+                      type="button"
+                      className="btn-primary"
+                      onClick={() =>
+                        verifyBooking(
+                          item.id,
+                          "CONFIRMED",
+                          item.customerEmail,
+                          item.targetName,
+                          item.appointmentDate,
+                        )
+                      }
+                    >
+                      Verify And Confirm
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={() =>
+                        verifyBooking(
+                          item.id,
+                          "CANCELLED",
+                          item.customerEmail,
+                          item.targetName,
+                          item.appointmentDate,
+                        )
+                      }
+                    >
+                      Reject Booking
+                    </button>
+                  </div>
+                )}
                 <button
                   type="button"
                   className="btn-secondary"

@@ -55,9 +55,8 @@ type DashboardStats = {
   confirmedBookings: number;
   cancelledBookings: number;
   unreadNotifications: number;
-  totalArtists: number;
-  totalStudios: number;
-  totalSystemBookings: number;
+  availableArtists: number;
+  availableStudios: number;
   recentBookings: Booking[];
   recentNotifications: AppNotification[];
 };
@@ -68,9 +67,8 @@ const EMPTY_STATS: DashboardStats = {
   confirmedBookings: 0,
   cancelledBookings: 0,
   unreadNotifications: 0,
-  totalArtists: 0,
-  totalStudios: 0,
-  totalSystemBookings: 0,
+  availableArtists: 0,
+  availableStudios: 0,
   recentBookings: [],
   recentNotifications: [],
 };
@@ -147,9 +145,8 @@ export default function Dashboard() {
         (item) => item.status === "CANCELLED",
       ).length,
       unreadNotifications: notifications.filter((item) => !item.isRead).length,
-      totalArtists: getArtistProfiles().length,
-      totalStudios: getStudioProfiles().length,
-      totalSystemBookings: getBookings().length,
+      availableArtists: getArtistProfiles().length,
+      availableStudios: getStudioProfiles().length,
       recentBookings: myBookings.slice(0, 4),
       recentNotifications: notifications.slice(0, 4),
     });
@@ -276,13 +273,15 @@ export default function Dashboard() {
         <span className="text-gradient"> {user?.name ?? "Customer"}</span>
       </h1>
       <p className="text-secondary mt-2">
-        Live dashboard powered by current data in your InkMatch system.
+        Customer dashboard for booking services, tracking progress, and managing
+        your profile.
       </p>
 
       <div className="glass-card mt-4" style={{ marginTop: "2rem" }}>
-        <h2 className="heading-3">Your Activity</h2>
+        <h2 className="heading-3">Customer Service Dashboard</h2>
         <p className="text-secondary mt-2">
-          Real-time booking, notification, and profile insights.
+          Everything you need as a customer: bookings, alerts, and profile
+          readiness.
         </p>
 
         {notice && (
@@ -318,17 +317,13 @@ export default function Dashboard() {
           <div className="glass-card item-card">
             <h3 className="item-title">Artists</h3>
             <p className="text-secondary mt-2">
-              {stats.totalArtists} available
+              {stats.availableArtists} available
             </p>
           </div>
           <div className="glass-card item-card">
             <h3 className="item-title">Studios</h3>
-            <p className="text-secondary mt-2">{stats.totalStudios} listed</p>
-          </div>
-          <div className="glass-card item-card">
-            <h3 className="item-title">System Bookings</h3>
             <p className="text-secondary mt-2">
-              {stats.totalSystemBookings} total
+              {stats.availableStudios} listed
             </p>
           </div>
           <div className="glass-card item-card">
@@ -337,6 +332,48 @@ export default function Dashboard() {
               {profileCompletionPercent}% complete
             </p>
           </div>
+        </div>
+
+        <div
+          style={{
+            marginTop: "1.2rem",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gap: "0.8rem",
+          }}
+        >
+          <Link href="/artists" className="glass" style={{ padding: "0.9rem" }}>
+            <strong>Browse Artists</strong>
+            <p className="text-secondary mt-2">
+              Find style-matched tattoo artists.
+            </p>
+          </Link>
+          <Link href="/studios" className="glass" style={{ padding: "0.9rem" }}>
+            <strong>Browse Studios</strong>
+            <p className="text-secondary mt-2">
+              Compare studios near your location.
+            </p>
+          </Link>
+          <Link
+            href="/bookings"
+            className="glass"
+            style={{ padding: "0.9rem" }}
+          >
+            <strong>Track Bookings</strong>
+            <p className="text-secondary mt-2">
+              Review and manage upcoming sessions.
+            </p>
+          </Link>
+          <Link
+            href="/notifications"
+            className="glass"
+            style={{ padding: "0.9rem" }}
+          >
+            <strong>Check Notifications</strong>
+            <p className="text-secondary mt-2">
+              Stay updated with booking alerts.
+            </p>
+          </Link>
         </div>
 
         <div

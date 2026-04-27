@@ -301,6 +301,22 @@ export function addBooking(booking: Booking): Booking[] {
   return next;
 }
 
+export function updateBookingStatus(
+  bookingId: string,
+  status: Booking["status"],
+): Booking[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const next = getBookings().map((item) =>
+    item.id === bookingId ? { ...item, status } : item,
+  );
+  localStorage.setItem(BOOKINGS_KEY, JSON.stringify(next));
+  notifyAppDataUpdated();
+  return next;
+}
+
 export function deleteBookingById(bookingId: string): Booking[] {
   if (typeof window === "undefined") {
     return [];
