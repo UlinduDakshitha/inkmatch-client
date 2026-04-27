@@ -1,13 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import "../login/auth.css";
-import { normalizeRole } from "@/utils/appData";
+import { APP_DATA_UPDATED_EVENT, normalizeRole } from "@/utils/appData";
 
 const ROLE_BY_EMAIL_KEY = "inkmatch.roleByEmail";
 const NAME_BY_EMAIL_KEY = "inkmatch.nameByEmail";
+
+function getAdminEmailFromRoleMap(): string {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  const roleByEmail = JSON.parse(
+    localStorage.getItem(ROLE_BY_EMAIL_KEY) || "{}",
+  ) as Record<string, string>;
+
+  const adminEntry = Object.entries(roleByEmail).find(
+    ([, role]) => normalizeRole(role) === "ADMIN",
+  );
+
+  return adminEntry?.[0] || "";
+}
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -22,6 +38,21 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [systemAdminEmail, setSystemAdminEmail] = useState("");
+
+  useEffect(() => {
+    function syncAdmin() {
+      setSystemAdminEmail(getAdminEmailFromRoleMap());
+    }
+
+    syncAdmin();
+    window.addEventListener("storage", syncAdmin);
+    window.addEventListener(APP_DATA_UPDATED_EVENT, syncAdmin);
+    return () => {
+      window.removeEventListener("storage", syncAdmin);
+      window.removeEventListener(APP_DATA_UPDATED_EVENT, syncAdmin);
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +61,17 @@ export default function RegisterPage() {
     setSuccess("");
 
     try {
+      const normalizedEmail = formData.email.trim().toLowerCase();
+      if (
+        formData.role === "ADMIN" &&
+        systemAdminEmail &&
+        systemAdminEmail !== normalizedEmail
+      ) {
+        throw new Error(
+          `System already has an admin account (${systemAdminEmail}).`,
+        );
+      }
+
       const res = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
         headers: {
@@ -51,14 +93,26 @@ export default function RegisterPage() {
       const roleByEmail = JSON.parse(
         localStorage.getItem(ROLE_BY_EMAIL_KEY) || "{}",
       ) as Record<string, string>;
-      roleByEmail[formData.email.toLowerCase()] = normalizeRole(formData.role);
+      if (formData.role === "ADMIN") {
+        Object.keys(roleByEmail).forEach((email) => {
+          if (
+            normalizeRole(roleByEmail[email]) === "ADMIN" &&
+            email !== normalizedEmail
+          ) {
+            delete roleByEmail[email];
+          }
+        });
+      }
+      roleByEmail[normalizedEmail] = normalizeRole(formData.role);
       localStorage.setItem(ROLE_BY_EMAIL_KEY, JSON.stringify(roleByEmail));
 
       const nameByEmail = JSON.parse(
         localStorage.getItem(NAME_BY_EMAIL_KEY) || "{}",
       ) as Record<string, string>;
-      nameByEmail[formData.email.toLowerCase()] = formData.fullName.trim();
+      nameByEmail[normalizedEmail] = formData.fullName.trim();
       localStorage.setItem(NAME_BY_EMAIL_KEY, JSON.stringify(nameByEmail));
+      window.dispatchEvent(new Event(APP_DATA_UPDATED_EVENT));
+      setSystemAdminEmail(getAdminEmailFromRoleMap());
 
       setSuccess("Registration successful. Please log in.");
       router.push("/login");
@@ -132,7 +186,17 @@ export default function RegisterPage() {
               <option value="CUSTOMER">Customer</option>
               <option value="ARTIST">Tattoo Artist</option>
               <option value="STUDIO_OWNER">Studio Owner</option>
-              <option value="ADMIN">System Admin</option>
+              <option
+                value="ADMIN"
+                disabled={
+                  Boolean(systemAdminEmail) &&
+                  systemAdminEmail !== formData.email.trim().toLowerCase()
+                }
+              >
+                {systemAdminEmail
+                  ? `System Admin (already set: ${systemAdminEmail})`
+                  : "System Admin"}
+              </option>
             </select>
           </div>
 

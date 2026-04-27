@@ -67,6 +67,17 @@ function getRegisteredAccounts(): AccountRow[] {
     .sort((a, b) => a.email.localeCompare(b.email));
 }
 
+function getSystemAdminEmails(): string[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const roleByEmail = safeParseMap(localStorage.getItem(ROLE_BY_EMAIL_KEY));
+  return Object.keys(roleByEmail).filter(
+    (email) => normalizeRole(roleByEmail[email]) === "ADMIN",
+  );
+}
+
 const featureLinks = [
   {
     href: "/dashboard",
@@ -197,6 +208,8 @@ export default function AdminPage() {
   const notificationRecords = getNotifications();
   const adminProfiles = getAdminProfiles();
   const registeredAccounts = getRegisteredAccounts();
+  const systemAdminEmails = getSystemAdminEmails();
+  const hasExtraAdminAccounts = systemAdminEmails.length > 1;
 
   const saveAdminProfile = (e: React.FormEvent) => {
     e.preventDefault();
@@ -263,6 +276,37 @@ export default function AdminPage() {
     setRefreshKey((current) => current + 1);
   };
 
+  const removeExtraAdminAccounts = () => {
+    if (!user?.email) {
+      return;
+    }
+
+    const currentAdminEmail = user.email.toLowerCase();
+    const roleByEmail = safeParseMap(localStorage.getItem(ROLE_BY_EMAIL_KEY));
+    const extraAdmins = Object.keys(roleByEmail).filter(
+      (email) =>
+        normalizeRole(roleByEmail[email]) === "ADMIN" &&
+        email.toLowerCase() !== currentAdminEmail,
+    );
+
+    if (extraAdmins.length === 0) {
+      setNotice("No extra admin accounts found.");
+      return;
+    }
+
+    extraAdmins.forEach((email) => {
+      delete roleByEmail[email];
+      deleteAdminProfileByOwner(email);
+    });
+
+    localStorage.setItem(ROLE_BY_EMAIL_KEY, JSON.stringify(roleByEmail));
+    window.dispatchEvent(new Event(APP_DATA_UPDATED_EVENT));
+    setNotice(
+      "Extra admin accounts removed. System now has one admin account.",
+    );
+    setRefreshKey((current) => current + 1);
+  };
+
   void refreshKey;
 
   return (
@@ -274,6 +318,27 @@ export default function AdminPage() {
         Create your admin profile, inspect all local system data, and delete
         unnecessary records.
       </p>
+
+      <div className="glass-card" style={{ marginTop: "1rem" }}>
+        <h2 className="heading-3">Admin Account Policy</h2>
+        <p className="text-secondary mt-2">
+          Only one system admin account is allowed.
+        </p>
+        <p className="text-secondary mt-2">
+          Active admin accounts:{" "}
+          {systemAdminEmails.join(", ") || "No admin mapped"}
+        </p>
+        {hasExtraAdminAccounts && (
+          <button
+            type="button"
+            className="btn-secondary"
+            style={{ marginTop: "1rem" }}
+            onClick={removeExtraAdminAccounts}
+          >
+            Remove Extra Admin Accounts
+          </button>
+        )}
+      </div>
 
       {notice && (
         <div className="glass-card" style={{ marginTop: "1rem" }}>

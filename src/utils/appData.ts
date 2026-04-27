@@ -384,7 +384,17 @@ export function getAdminProfiles(): AdminProfile[] {
     return [];
   }
 
-  return safeParse<AdminProfile[]>(localStorage.getItem(ADMIN_KEY), []);
+  const parsed = safeParse<AdminProfile[]>(localStorage.getItem(ADMIN_KEY), []);
+  const seenEmails = new Set<string>();
+
+  return parsed.filter((item) => {
+    const email = item.ownerEmail.toLowerCase();
+    if (seenEmails.has(email)) {
+      return false;
+    }
+    seenEmails.add(email);
+    return true;
+  });
 }
 
 export function getAdminProfileByOwner(
@@ -401,15 +411,8 @@ export function upsertAdminProfile(profile: AdminProfile): AdminProfile[] {
     return [];
   }
 
-  const current = getAdminProfiles();
-  const index = current.findIndex((item) => item.id === profile.id);
-  const next = [...current];
-
-  if (index >= 0) {
-    next[index] = profile;
-  } else {
-    next.unshift(profile);
-  }
+  // System supports a single active admin profile.
+  const next = [profile];
 
   localStorage.setItem(ADMIN_KEY, JSON.stringify(next));
   notifyAppDataUpdated();
