@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import "./Navbar.css";
+import ThemeToggle from "./ThemeToggle";
 import {
   APP_DATA_UPDATED_EVENT,
   ensureWelcomeNotification,
@@ -388,6 +389,10 @@ export default function Navbar() {
                 >
                   {profileStatus.ctaLabel}
                 </Link>
+                <div className="navbar-settings-section">
+                  <p className="navbar-settings-label">Theme</p>
+                  <ThemeToggle compact />
+                </div>
                 <button
                   type="button"
                   onClick={handleLogout}
