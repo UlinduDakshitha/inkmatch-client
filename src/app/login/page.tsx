@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import "./auth.css";
 import { getRoleHomePath } from "@/utils/roleRedirect";
-import { normalizeRole } from "@/utils/appData";
+import { APP_DATA_UPDATED_EVENT, normalizeRole } from "@/utils/appData";
 
 const ROLE_BY_EMAIL_KEY = "inkmatch.roleByEmail";
 const NAME_BY_EMAIL_KEY = "inkmatch.nameByEmail";
@@ -133,6 +133,7 @@ export default function LoginPage() {
       localStorage.setItem(ROLE_BY_EMAIL_KEY, JSON.stringify(roleByEmail));
       nameByEmail[email.toLowerCase()] = resolvedName;
       localStorage.setItem(NAME_BY_EMAIL_KEY, JSON.stringify(nameByEmail));
+      window.dispatchEvent(new Event(APP_DATA_UPDATED_EVENT));
 
       router.push(getRoleHomePath(resolvedRole));
     } catch (err: unknown) {
