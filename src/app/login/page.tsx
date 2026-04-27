@@ -5,7 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import "./auth.css";
 import { getRoleHomePath } from "@/utils/roleRedirect";
-import { APP_DATA_UPDATED_EVENT, normalizeRole } from "@/utils/appData";
+import {
+  APP_DATA_UPDATED_EVENT,
+  getAdminProfileByOwner,
+  normalizeRole,
+} from "@/utils/appData";
 
 const ROLE_BY_EMAIL_KEY = "inkmatch.roleByEmail";
 const NAME_BY_EMAIL_KEY = "inkmatch.nameByEmail";
@@ -101,11 +105,12 @@ export default function LoginPage() {
       const data = await res.json();
       const backendRole = extractRoleFromLoginResponse(data);
       let resolvedRole = normalizeRole(backendRole);
+      const normalizedEmail = email.trim().toLowerCase();
 
       const roleByEmail = JSON.parse(
         localStorage.getItem(ROLE_BY_EMAIL_KEY) || "{}",
       ) as Record<string, string>;
-      const mappedRole = roleByEmail[email.toLowerCase()];
+      const mappedRole = roleByEmail[normalizedEmail];
       const normalizedMappedRole = normalizeRole(mappedRole);
 
       // Fallback to the role chosen at registration if backend role arrives as generic CUSTOMER.
@@ -113,25 +118,30 @@ export default function LoginPage() {
         resolvedRole = normalizedMappedRole;
       }
 
+      // If this email already owns the admin profile, keep it strictly as ADMIN.
+      if (resolvedRole !== "ADMIN" && getAdminProfileByOwner(normalizedEmail)) {
+        resolvedRole = "ADMIN";
+      }
+
       const nameByEmail = JSON.parse(
         localStorage.getItem(NAME_BY_EMAIL_KEY) || "{}",
       ) as Record<string, string>;
-      const mappedName = nameByEmail[email.toLowerCase()];
+      const mappedName = nameByEmail[normalizedEmail];
       const backendName = extractNameFromLoginResponse(data);
       const resolvedName = backendName || mappedName || email.split("@")[0];
 
       const loggedInUser = {
         ...(data.user ?? {}),
         name: resolvedName,
-        email: data?.user?.email || email,
+        email: data?.user?.email || normalizedEmail,
         role: resolvedRole,
       };
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(loggedInUser));
-      roleByEmail[email.toLowerCase()] = resolvedRole;
+      roleByEmail[normalizedEmail] = resolvedRole;
       localStorage.setItem(ROLE_BY_EMAIL_KEY, JSON.stringify(roleByEmail));
-      nameByEmail[email.toLowerCase()] = resolvedName;
+      nameByEmail[normalizedEmail] = resolvedName;
       localStorage.setItem(NAME_BY_EMAIL_KEY, JSON.stringify(nameByEmail));
       window.dispatchEvent(new Event(APP_DATA_UPDATED_EVENT));
 

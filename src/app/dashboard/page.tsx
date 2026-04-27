@@ -7,9 +7,11 @@ import { getRoleHomePath } from "@/utils/roleRedirect";
 import {
   APP_DATA_UPDATED_EVENT,
   type AppUser,
+  type AppRole,
   type Booking,
   type AppNotification,
   deleteCustomerProfileByOwner,
+  getAdminProfileByOwner,
   getArtistProfiles,
   getBookings,
   getBookingsForCustomer,
@@ -21,6 +23,31 @@ import {
   upsertCustomerProfile,
   type CustomerProfile,
 } from "@/utils/appData";
+
+const ROLE_BY_EMAIL_KEY = "inkmatch.roleByEmail";
+
+function getEffectiveRole(user: AppUser | null): AppRole {
+  const normalizedRole = normalizeRole(user?.role);
+  if (!user?.email || typeof window === "undefined") {
+    return normalizedRole;
+  }
+
+  const normalizedEmail = user.email.toLowerCase();
+  const roleByEmail = JSON.parse(
+    localStorage.getItem(ROLE_BY_EMAIL_KEY) || "{}",
+  ) as Record<string, string>;
+  const mappedRole = normalizeRole(roleByEmail[normalizedEmail]);
+
+  if (mappedRole === "ADMIN") {
+    return "ADMIN";
+  }
+
+  if (getAdminProfileByOwner(normalizedEmail)) {
+    return "ADMIN";
+  }
+
+  return normalizedRole;
+}
 
 type DashboardStats = {
   myBookings: number;
@@ -66,7 +93,7 @@ export default function Dashboard() {
   const [user] = useState<AppUser | null>(() => {
     return getCurrentUser();
   });
-  const role = normalizeRole(user?.role);
+  const role = getEffectiveRole(user);
   const [notice, setNotice] = useState("");
   const [stats, setStats] = useState<DashboardStats>(EMPTY_STATS);
   const [customerProfile, setCustomerProfile] =
@@ -126,11 +153,11 @@ export default function Dashboard() {
       return;
     }
 
-    const roleHomePath = getRoleHomePath(user?.role);
+    const roleHomePath = getRoleHomePath(role);
     if (roleHomePath !== "/dashboard") {
       router.replace(roleHomePath);
     }
-  }, [router, user?.role]);
+  }, [router, role]);
 
   useEffect(() => {
     refreshDashboardData();
