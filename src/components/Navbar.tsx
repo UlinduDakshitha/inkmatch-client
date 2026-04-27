@@ -320,6 +320,7 @@ export default function Navbar() {
           </Link>
         </div>
         <div className="navbar-actions">
+          <ThemeToggle compact />
           {navbarUser.user && (
             <Link
               href="/notifications"
@@ -389,10 +390,6 @@ export default function Navbar() {
                 >
                   {profileStatus.ctaLabel}
                 </Link>
-                <div className="navbar-settings-section">
-                  <p className="navbar-settings-label">Theme</p>
-                  <ThemeToggle compact />
-                </div>
                 <button
                   type="button"
                   onClick={handleLogout}
