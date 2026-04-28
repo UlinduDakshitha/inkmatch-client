@@ -14,6 +14,12 @@ export default function Chatbot() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const quickPrompts = [
+    "Find a tattoo artist",
+    "How do bookings work?",
+    "Show studio options",
+  ];
+
   const sendMessage = async () => {
     if (!input.trim()) return;
 
@@ -57,26 +63,26 @@ export default function Chatbot() {
         gap: "0.8rem",
       }}
     >
-      {open ? (
-        <div
+              width: "min(410px, calc(100vw - 28px))",
+              height: "min(620px, calc(100vh - 92px))",
           style={{
             width: "min(380px, calc(100vw - 32px))",
             height: "min(560px, calc(100vh - 120px))",
-            display: "flex",
-            flexDirection: "column",
+              borderRadius: "30px",
+              border: "1px solid color-mix(in srgb, var(--accent-primary) 28%, rgba(255,255,255,0.12))",
             overflow: "hidden",
-            borderRadius: "28px",
+                "linear-gradient(180deg, color-mix(in srgb, var(--bg-secondary) 84%, transparent) 0%, color-mix(in srgb, var(--bg-primary) 88%, transparent) 100%)",
             border: "1px solid rgba(255, 255, 255, 0.14)",
-            background:
-              "linear-gradient(180deg, rgba(18, 18, 22, 0.92) 0%, rgba(10, 10, 14, 0.88) 100%)",
+                "0 30px 80px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(255,255,255,0.03), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
+              backdropFilter: "blur(24px)",
             boxShadow:
               "0 30px 80px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
             backdropFilter: "blur(20px)",
           }}
-        >
-          <div
+                padding: "1rem 1rem 1rem",
+                borderBottom: "1px solid color-mix(in srgb, var(--glass-border) 80%, transparent)",
             style={{
-              padding: "1rem 1rem 0.95rem",
+                  "linear-gradient(135deg, color-mix(in srgb, var(--accent-primary) 18%, transparent), color-mix(in srgb, #ff9933 12%, transparent))",
               borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
               background:
                 "linear-gradient(135deg, rgba(255, 51, 102, 0.18), rgba(255, 153, 51, 0.1))",
@@ -84,15 +90,15 @@ export default function Chatbot() {
           >
             <div
               style={{ display: "flex", alignItems: "center", gap: "0.8rem" }}
-            >
-              <div
-                style={{
+                    width: "46px",
+                    height: "46px",
+                    borderRadius: "16px",
                   width: "42px",
                   height: "42px",
-                  borderRadius: "14px",
+                    fontSize: "1.1rem",
                   display: "grid",
-                  placeItems: "center",
-                  fontSize: "1.05rem",
+                      "linear-gradient(145deg, rgba(255, 51, 102, 1), rgba(255, 153, 51, 1))",
+                    boxShadow: "0 10px 24px rgba(255, 51, 102, 0.3)",
                   background:
                     "linear-gradient(145deg, rgba(255, 51, 102, 1), rgba(255, 153, 51, 1))",
                   boxShadow: "0 10px 24px rgba(255, 51, 102, 0.28)",
@@ -116,7 +122,7 @@ export default function Chatbot() {
                     <div
                       style={{
                         fontSize: "0.8rem",
-                        color: "rgba(255,255,255,0.68)",
+                        color: "var(--text-secondary)",
                       }}
                     >
                       Ask about tattoos, artists, studios, or bookings
@@ -127,17 +133,43 @@ export default function Chatbot() {
                     onClick={() => setOpen(false)}
                     aria-label="Minimize chat"
                     style={{
-                      width: "34px",
-                      height: "34px",
+                      width: "36px",
+                      height: "36px",
                       borderRadius: "999px",
-                      border: "1px solid rgba(255,255,255,0.12)",
-                      background: "rgba(255,255,255,0.06)",
-                      color: "#fff",
+                      border: "1px solid var(--glass-border)",
+                      background: "color-mix(in srgb, var(--bg-secondary) 80%, transparent)",
+                      color: "var(--text-primary)",
                       cursor: "pointer",
                     }}
                   >
                     −
                   </button>
+                </div>
+                <div
+                  style={{
+                    marginTop: "0.7rem",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.45rem",
+                    padding: "0.3rem 0.65rem",
+                    borderRadius: "999px",
+                    background: "rgba(255,255,255,0.04)",
+                    border: "1px solid var(--glass-border)",
+                    width: "fit-content",
+                  }}
+                >
+                  <span
+                    style={{
+                      width: "8px",
+                      height: "8px",
+                      borderRadius: "50%",
+                      background: "#22c55e",
+                      boxShadow: "0 0 0 6px rgba(34,197,94,0.14)",
+                    }}
+                  />
+                  <span style={{ fontSize: "0.78rem", color: "var(--text-secondary)" }}>
+                    Online and ready to help
+                  </span>
                 </div>
               </div>
             </div>
@@ -149,11 +181,33 @@ export default function Chatbot() {
               overflowY: "auto",
               padding: "1rem",
               display: "grid",
-              gap: "0.8rem",
+              gap: "0.85rem",
               background:
-                "radial-gradient(circle at top, rgba(255, 255, 255, 0.03), transparent 34%)",
+                "radial-gradient(circle at top, color-mix(in srgb, var(--accent-primary) 8%, transparent), transparent 34%)",
             }}
           >
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+              {quickPrompts.map((prompt) => (
+                <button
+                  key={prompt}
+                  type="button"
+                  onClick={() => setInput(prompt)}
+                  style={{
+                    border: "1px solid var(--glass-border)",
+                    background: "rgba(255,255,255,0.04)",
+                    color: "var(--text-primary)",
+                    borderRadius: "999px",
+                    padding: "0.5rem 0.75rem",
+                    cursor: "pointer",
+                    fontSize: "0.78rem",
+                    transition: "var(--transition)",
+                  }}
+                >
+                  {prompt}
+                </button>
+              ))}
+            </div>
+
             {messages.map((msg, i) => (
               <div
                 key={i}
@@ -165,28 +219,29 @@ export default function Chatbot() {
               >
                 <div
                   style={{
-                    maxWidth: "82%",
-                    padding: "0.8rem 0.95rem",
+                    maxWidth: "84%",
+                    padding: "0.85rem 0.95rem",
                     borderRadius:
                       msg.role === "user"
                         ? "18px 18px 6px 18px"
                         : "18px 18px 18px 6px",
                     lineHeight: 1.5,
                     fontSize: "0.92rem",
-                    color: "#fff",
+                    color: msg.role === "user" ? "#fff" : "var(--text-primary)",
                     background:
                       msg.role === "user"
                         ? "linear-gradient(135deg, rgba(255, 51, 102, 1), rgba(255, 119, 51, 1))"
-                        : "rgba(255, 255, 255, 0.08)",
+                        : "color-mix(in srgb, var(--glass-bg) 92%, transparent)",
                     border:
                       msg.role === "user"
                         ? "none"
-                        : "1px solid rgba(255, 255, 255, 0.08)",
+                        : "1px solid var(--glass-border)",
                     boxShadow:
                       msg.role === "user"
                         ? "0 12px 24px rgba(255, 51, 102, 0.22)"
                         : "none",
                     whiteSpace: "pre-wrap",
+                    backdropFilter: "blur(16px)",
                   }}
                 >
                   {msg.content}
@@ -196,7 +251,7 @@ export default function Chatbot() {
 
             {loading && (
               <div
-                style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.9rem" }}
+                style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}
               >
                 Typing...
               </div>
@@ -215,11 +270,12 @@ export default function Chatbot() {
                 className="input-field"
                 style={{
                   flex: 1,
-                  background: "rgba(255, 255, 255, 0.06)",
-                  border: "1px solid rgba(255, 255, 255, 0.09)",
-                  color: "#fff",
+                  background: "color-mix(in srgb, var(--bg-secondary) 78%, transparent)",
+                  border: "1px solid var(--glass-border)",
+                  color: "var(--text-primary)",
                   borderRadius: "16px",
                   padding: "0.88rem 1rem",
+                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
                 }}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -260,12 +316,12 @@ export default function Chatbot() {
             display: "flex",
             alignItems: "center",
             gap: "0.75rem",
-            padding: "0.85rem 1rem",
+            padding: "0.92rem 1rem 0.92rem 0.92rem",
             borderRadius: "999px",
-            border: "1px solid rgba(255, 255, 255, 0.14)",
+            border: "1px solid var(--glass-border)",
             background:
-              "linear-gradient(135deg, rgba(18, 18, 22, 0.92), rgba(28, 28, 34, 0.9))",
-            color: "#fff",
+              "linear-gradient(135deg, color-mix(in srgb, var(--bg-secondary) 90%, transparent), color-mix(in srgb, var(--bg-primary) 88%, transparent))",
+            color: "var(--text-primary)",
             boxShadow: "0 18px 42px rgba(0, 0, 0, 0.35)",
             cursor: "pointer",
             backdropFilter: "blur(18px)",
@@ -273,8 +329,8 @@ export default function Chatbot() {
         >
           <span
             style={{
-              width: "34px",
-              height: "34px",
+              width: "36px",
+              height: "36px",
               borderRadius: "50%",
               display: "grid",
               placeItems: "center",
@@ -291,7 +347,7 @@ export default function Chatbot() {
               InkMatch AI
             </strong>
             <span
-              style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.68)" }}
+              style={{ fontSize: "0.78rem", color: "var(--text-secondary)" }}
             >
               Ask anything about tattoos
             </span>
