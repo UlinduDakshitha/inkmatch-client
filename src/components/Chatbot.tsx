@@ -67,8 +67,8 @@ export default function Chatbot() {
     <div
       style={{
         position: "fixed",
-        right: "20px",
-        bottom: "20px",
+        right: "16px",
+        bottom: "calc(16px + env(safe-area-inset-bottom, 0px))",
         zIndex: 1400,
         display: "flex",
         flexDirection: "column",
