@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import Chatbot from "@/components/Chatbot"; // ✅ ADD THIS
 
 export const metadata: Metadata = {
   title: "InkMatch | Premium Tattoo Matching",
@@ -24,9 +25,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className="bg-black text-white">
+
+        {/* 🔝 NAVBAR */}
         <Navbar />
-        <main>{children}</main>
+
+        {/* 📄 MAIN CONTENT */}
+        <main className="min-h-screen">
+          {children}
+        </main>
+
+        {/* 🤖 GLOBAL CHATBOT (appears on all pages) */}
+        <Chatbot />
+
       </body>
     </html>
   );
