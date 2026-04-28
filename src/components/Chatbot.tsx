@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 
 type Message = {
@@ -34,7 +35,7 @@ export default function Chatbot() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ message: userMsg.content }),
       });
 
       const data = await res.json();
@@ -63,45 +64,47 @@ export default function Chatbot() {
         gap: "0.8rem",
       }}
     >
-              width: "min(410px, calc(100vw - 28px))",
-              height: "min(620px, calc(100vh - 92px))",
+      {open ? (
+        <div
           style={{
-            width: "min(380px, calc(100vw - 32px))",
-            height: "min(560px, calc(100vh - 120px))",
-              borderRadius: "30px",
-              border: "1px solid color-mix(in srgb, var(--accent-primary) 28%, rgba(255,255,255,0.12))",
+            width: "min(410px, calc(100vw - 28px))",
+            height: "min(620px, calc(100vh - 92px))",
+            display: "flex",
+            flexDirection: "column",
             overflow: "hidden",
-                "linear-gradient(180deg, color-mix(in srgb, var(--bg-secondary) 84%, transparent) 0%, color-mix(in srgb, var(--bg-primary) 88%, transparent) 100%)",
-            border: "1px solid rgba(255, 255, 255, 0.14)",
-                "0 30px 80px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(255,255,255,0.03), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
-              backdropFilter: "blur(24px)",
+            borderRadius: "30px",
+            border:
+              "1px solid color-mix(in srgb, var(--accent-primary) 28%, rgba(255,255,255,0.12))",
+            background:
+              "linear-gradient(180deg, color-mix(in srgb, var(--bg-secondary) 84%, transparent) 0%, color-mix(in srgb, var(--bg-primary) 88%, transparent) 100%)",
             boxShadow:
-              "0 30px 80px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
-            backdropFilter: "blur(20px)",
+              "0 30px 80px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(255,255,255,0.03), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
+            backdropFilter: "blur(24px)",
           }}
-                padding: "1rem 1rem 1rem",
-                borderBottom: "1px solid color-mix(in srgb, var(--glass-border) 80%, transparent)",
+        >
+          <div
             style={{
-                  "linear-gradient(135deg, color-mix(in srgb, var(--accent-primary) 18%, transparent), color-mix(in srgb, #ff9933 12%, transparent))",
-              borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+              padding: "1rem 1rem 1rem",
+              borderBottom:
+                "1px solid color-mix(in srgb, var(--glass-border) 80%, transparent)",
               background:
-                "linear-gradient(135deg, rgba(255, 51, 102, 0.18), rgba(255, 153, 51, 0.1))",
+                "linear-gradient(135deg, color-mix(in srgb, var(--accent-primary) 18%, transparent), color-mix(in srgb, #ff9933 12%, transparent))",
             }}
           >
             <div
               style={{ display: "flex", alignItems: "center", gap: "0.8rem" }}
-                    width: "46px",
-                    height: "46px",
-                    borderRadius: "16px",
-                  width: "42px",
-                  height: "42px",
-                    fontSize: "1.1rem",
+            >
+              <div
+                style={{
+                  width: "46px",
+                  height: "46px",
+                  borderRadius: "16px",
                   display: "grid",
-                      "linear-gradient(145deg, rgba(255, 51, 102, 1), rgba(255, 153, 51, 1))",
-                    boxShadow: "0 10px 24px rgba(255, 51, 102, 0.3)",
+                  placeItems: "center",
+                  fontSize: "1.1rem",
                   background:
                     "linear-gradient(145deg, rgba(255, 51, 102, 1), rgba(255, 153, 51, 1))",
-                  boxShadow: "0 10px 24px rgba(255, 51, 102, 0.28)",
+                  boxShadow: "0 10px 24px rgba(255, 51, 102, 0.3)",
                 }}
               >
                 💬
@@ -137,7 +140,8 @@ export default function Chatbot() {
                       height: "36px",
                       borderRadius: "999px",
                       border: "1px solid var(--glass-border)",
-                      background: "color-mix(in srgb, var(--bg-secondary) 80%, transparent)",
+                      background:
+                        "color-mix(in srgb, var(--bg-secondary) 80%, transparent)",
                       color: "var(--text-primary)",
                       cursor: "pointer",
                     }}
@@ -167,7 +171,12 @@ export default function Chatbot() {
                       boxShadow: "0 0 0 6px rgba(34,197,94,0.14)",
                     }}
                   />
-                  <span style={{ fontSize: "0.78rem", color: "var(--text-secondary)" }}>
+                  <span
+                    style={{
+                      fontSize: "0.78rem",
+                      color: "var(--text-secondary)",
+                    }}
+                  >
                     Online and ready to help
                   </span>
                 </div>
@@ -270,7 +279,8 @@ export default function Chatbot() {
                 className="input-field"
                 style={{
                   flex: 1,
-                  background: "color-mix(in srgb, var(--bg-secondary) 78%, transparent)",
+                  background:
+                    "color-mix(in srgb, var(--bg-secondary) 78%, transparent)",
                   border: "1px solid var(--glass-border)",
                   color: "var(--text-primary)",
                   borderRadius: "16px",
