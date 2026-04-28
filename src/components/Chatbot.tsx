@@ -7,6 +7,18 @@ type Message = {
   content: string;
 };
 
+function ChatbotAvatar({ size = 36 }: { size?: number }) {
+  return (
+    <img
+      src="/chatbot-icon.svg"
+      alt="InkMatch chatbot"
+      width={size}
+      height={size}
+      style={{ display: "block", width: size, height: size }}
+    />
+  );
+}
+
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -101,13 +113,12 @@ export default function Chatbot() {
                   borderRadius: "16px",
                   display: "grid",
                   placeItems: "center",
-                  fontSize: "1.1rem",
-                  background:
-                    "linear-gradient(145deg, rgba(255, 51, 102, 1), rgba(255, 153, 51, 1))",
-                  boxShadow: "0 10px 24px rgba(255, 51, 102, 0.3)",
+                  overflow: "hidden",
+                  background: "rgba(255,255,255,0.08)",
+                  boxShadow: "0 10px 24px rgba(255, 51, 102, 0.18)",
                 }}
               >
-                💬
+                <ChatbotAvatar size={46} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div
@@ -344,13 +355,12 @@ export default function Chatbot() {
               borderRadius: "50%",
               display: "grid",
               placeItems: "center",
-              background:
-                "linear-gradient(145deg, rgba(255, 51, 102, 1), rgba(255, 153, 51, 1))",
-              boxShadow: "0 10px 22px rgba(255, 51, 102, 0.28)",
-              fontSize: "1rem",
+              overflow: "hidden",
+              background: "rgba(255,255,255,0.08)",
+              boxShadow: "0 10px 22px rgba(255, 51, 102, 0.18)",
             }}
           >
-            💬
+            <ChatbotAvatar size={36} />
           </span>
           <span style={{ textAlign: "left" }}>
             <strong style={{ display: "block", fontSize: "0.92rem" }}>
