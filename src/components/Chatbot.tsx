@@ -10,7 +10,7 @@ type Message = {
 function ChatbotAvatar({ size = 36 }: { size?: number }) {
   return (
     <img
-      src="/chatbot-icon.svg"
+      src="/chatbot-icon.jpg"
       alt="InkMatch chatbot"
       width={size}
       height={size}
