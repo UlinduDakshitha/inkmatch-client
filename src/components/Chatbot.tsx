@@ -20,6 +20,9 @@ function ChatbotAvatar({ size = 36 }: { size?: number }) {
 }
 
 export default function Chatbot() {
+  const apiBaseUrl =
+    process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
+    "http://localhost:8080";
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     { role: "bot", content: "Hi 👋 I'm your InkMatch assistant" },
@@ -42,7 +45,7 @@ export default function Chatbot() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8080/api/chat", {
+      const res = await fetch(`${apiBaseUrl}/api/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -50,13 +53,23 @@ export default function Chatbot() {
         body: JSON.stringify({ message: userMsg.content }),
       });
 
-      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(`API returned ${res.status}`);
+      }
 
-      setMessages((prev) => [...prev, { role: "bot", content: data.reply }]);
+      const data = (await res.json()) as { reply?: string; message?: string };
+      const reply =
+        data.reply || data.message || "I could not understand that.";
+
+      setMessages((prev) => [...prev, { role: "bot", content: reply }]);
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "bot", content: "Error connecting to server 😢" },
+        {
+          role: "bot",
+          content:
+            "I cannot connect to the AI server right now. Please check backend is running on port 8080 or set NEXT_PUBLIC_API_BASE_URL.",
+        },
       ]);
     }
 
