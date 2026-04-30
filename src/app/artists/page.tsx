@@ -27,6 +27,9 @@ type ArtistCard = {
 };
 
 export default function ArtistsPage() {
+  const apiBaseUrl =
+    process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
+    "http://localhost:8080";
   const [artists, setArtists] = useState<ArtistCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -39,10 +42,16 @@ export default function ArtistsPage() {
 
   useEffect(() => {
     const localProfiles = getArtistProfiles();
+    const controller = new AbortController();
 
     // Fetch from Spring Boot Backend
-    fetch("http://localhost:8080/api/artists")
-      .then((res) => res.json())
+    fetch(`${apiBaseUrl}/api/artists`, { signal: controller.signal })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`API returned ${res.status}`);
+        }
+        return res.json() as Promise<Artist[]>;
+      })
       .then((data: Artist[]) => {
         const backendCards: ArtistCard[] = data.map((artist) => ({
           id: String(artist.id),
@@ -64,8 +73,7 @@ export default function ArtistsPage() {
         setArtists(merged);
         setLoading(false);
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(() => {
         const localCards: ArtistCard[] = localProfiles.map((profile) => ({
           id: profile.id,
           name: profile.ownerName,
@@ -98,9 +106,10 @@ export default function ArtistsPage() {
 
     window.addEventListener("storage", syncLocalData);
     return () => {
+      controller.abort();
       window.removeEventListener("storage", syncLocalData);
     };
-  }, []);
+  }, [apiBaseUrl]);
 
   return (
     <div className="page-container container">
