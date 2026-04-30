@@ -21,6 +21,7 @@ export default function FavoritesPage() {
       });
   }, []);
 
+  
   return (
     <div className="page-container container">
       <h1 className="heading-2">
