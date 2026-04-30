@@ -28,6 +28,7 @@ export default function RootLayout({
       <body className="bg-black text-white">
         {/* NAVBAR */}
         <Navbar />
+        
 
         {/* MAIN CONTENT */}
         <main className="min-h-screen">{children}</main>
