@@ -20,7 +20,6 @@ export default function FavoritesPage() {
         setLoading(false);
       });
   }, []);
-
   
   return (
     <div className="page-container container">
