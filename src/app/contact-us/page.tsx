@@ -13,7 +13,6 @@ export default function ContactUsPage() {
   const [notice, setNotice] = useState("");
 
   
-  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Placeholder: This can be connected to backend support API later.
