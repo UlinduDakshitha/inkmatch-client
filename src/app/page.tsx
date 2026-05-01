@@ -173,9 +173,7 @@ export default function Home() {
             <div className="footer-links-column">
               <h3>Help</h3>
               <ul>
-                <li>
-                  <Link href="/studios">Listing Rules</Link>
-                </li>
+                
                 <li>
                   <Link href="/artists">Community Guidelines</Link>
                 </li>
