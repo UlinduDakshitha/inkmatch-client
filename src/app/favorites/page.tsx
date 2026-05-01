@@ -7,6 +7,7 @@ export default function FavoritesPage() {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  
   useEffect(() => {
     // In a real app we'd target `customer/{id}` based on session
     fetch("http://localhost:8080/api/favorites/customer/1")
