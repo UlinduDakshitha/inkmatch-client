@@ -11,7 +11,6 @@ export default function ContactUsPage() {
     message: "",
   });
   const [notice, setNotice] = useState("");
-
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
