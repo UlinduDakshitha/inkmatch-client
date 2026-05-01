@@ -195,13 +195,13 @@ export default function Home() {
               <h3 className="footer-legal-title">Legal</h3>
               <ul>
                 <li>
-                  <Link href="/contact-us">Refund Policy</Link>
+                  <Link href="/refund-policy">Refund Policy</Link>
                 </li>
                 <li>
-                  <Link href="/contact-us">Terms and Conditions</Link>
+                  <Link href="/terms-and-conditions">Terms and Conditions</Link>
                 </li>
                 <li>
-                  <Link href="/contact-us">Privacy Policy</Link>
+                  <Link href="/privacy-policy">Privacy Policy</Link>
                 </li>
               </ul>
             </div>
