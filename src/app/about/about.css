@@ -13,8 +13,13 @@
   min-height: 100vh;
 }
 
+/* offset so page content sits below fixed header */
+.about-page {
+  padding-top: 96px;
+}
+
 .about-hero {
-  padding: 64px 0;
+  padding: 24px 0 56px;
 }
 
 .about-hero-inner {
@@ -177,5 +182,11 @@
   }
   .about-hero-copy h2 {
     font-size: 24px;
+  }
+}
+
+@media (max-width: 720px) {
+  .about-page {
+    padding-top: 72px;
   }
 }
