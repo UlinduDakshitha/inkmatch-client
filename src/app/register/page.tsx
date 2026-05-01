@@ -186,17 +186,6 @@ export default function RegisterPage() {
               <option value="CUSTOMER">Customer</option>
               <option value="ARTIST">Tattoo Artist</option>
               <option value="STUDIO_OWNER">Studio Owner</option>
-              <option
-                value="ADMIN"
-                disabled={
-                  Boolean(systemAdminEmail) &&
-                  systemAdminEmail !== formData.email.trim().toLowerCase()
-                }
-              >
-                {systemAdminEmail
-                  ? `System Admin (already set: ${systemAdminEmail})`
-                  : "System Admin"}
-              </option>
             </select>
           </div>
 
