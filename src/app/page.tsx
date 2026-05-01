@@ -177,13 +177,7 @@ export default function Home() {
                 <li>
                   <Link href="/artists">Community Guidelines</Link>
                 </li>
-                <li>
-                  <Link href="/studios">Shipping Guide</Link>
-                </li>
-                
-                <li>
-                  <Link href="/contact-us">Packaging and Delivery</Link>
-                </li>
+              
                 <li>
                   <Link href="/contact-us">Contact Us</Link>
                 </li>
