@@ -384,7 +384,7 @@
 
 .navbar-auth-login {
   background: rgba(244, 248, 252, 0.95);
-  color: #0f172a;
+  color: #000000;
   border: 1px solid rgba(15, 23, 42, 0.22);
   display: inline-flex;
   align-items: center;
