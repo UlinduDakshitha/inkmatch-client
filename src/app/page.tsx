@@ -191,8 +191,6 @@ export default function Home() {
               <h3>Contact</h3>
               <p>Mammaskin (Private) Limited</p>
               <p>PV 00237973</p>
-              <p>Level 1, 53 Dharmapala Mawatha, Colombo 00300</p>
-              <p>9am - 5pm | Monday to Friday</p>
               <p>0777 748 300</p>
               <p>support@inkmatch.lk</p>
 
