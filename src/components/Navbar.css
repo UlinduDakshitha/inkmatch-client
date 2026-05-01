@@ -383,20 +383,25 @@
 }
 
 .navbar-auth-login {
-  background: rgba(244, 248, 252, 0.95);
-  color: #000000;
-  border: 1px solid rgba(15, 23, 42, 0.22);
+  background: linear-gradient(135deg, #d92f59 0%, #e45b7d 100%);
+  color: #ffffff;
+  border: 2px solid #d92f59;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 12px;
+  padding: 8px 14px;
   border-radius: 10px;
   z-index: 1200;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(217, 47, 89, 0.25);
+  transition: all 0.3s ease;
 }
 
 .navbar-auth-login:hover {
-  background: rgba(237, 243, 250, 0.95);
-  border-color: rgba(15, 23, 42, 0.38);
+  background: linear-gradient(135deg, #c41f4a 0%, #d4496d 100%);
+  border-color: #b81840;
+  box-shadow: 0 8px 20px rgba(217, 47, 89, 0.35);
+  transform: translateY(-2px);
 }
 
 .navbar-auth-register {
@@ -426,21 +431,20 @@
   box-shadow: 0 16px 40px var(--accent-glow);
 }
 
-/* Light mode: highlight Login with accent outline or gradient */
+/* Light mode: highlight Login with bold accent gradient */
 [data-theme="light"] .navbar-auth-login {
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--accent-primary) 65%, #fff),
-    color-mix(in srgb, var(--accent-secondary) 55%, #fff)
-  );
-  color: var(--text-primary);
-  border: none;
-  box-shadow: 0 6px 18px color-mix(in srgb, var(--accent-glow) 40%, transparent);
+  background: linear-gradient(135deg, #d92f59 0%, #e45b7d 100%);
+  color: #ffffff;
+  border: 2px solid #d92f59;
+  box-shadow: 0 6px 18px rgba(217, 47, 89, 0.3);
+  font-weight: 600;
 }
 
 [data-theme="light"] .navbar-auth-login:hover {
+  background: linear-gradient(135deg, #c41f4a 0%, #d4496d 100%);
+  border-color: #b81840;
+  box-shadow: 0 10px 26px rgba(217, 47, 89, 0.4);
   transform: translateY(-2px);
-  filter: brightness(0.98);
 }
 
 @media (max-width: 1260px) {
