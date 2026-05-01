@@ -405,6 +405,44 @@
   z-index: 1200;
 }
 
+/* Dark mode: make Login a subtle light pill for contrast */
+:root:not([data-theme="light"]) .navbar-auth-login {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.03)
+  );
+  color: #fff;
+  border: 1px solid
+    color-mix(in srgb, var(--accent-primary) 24%, rgba(255, 255, 255, 0.06));
+  backdrop-filter: blur(6px);
+  box-shadow: 0 10px 30px var(--accent-glow);
+  transform: translateY(0);
+}
+
+:root:not([data-theme="light"]) .navbar-auth-login:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent-primary);
+  box-shadow: 0 16px 40px var(--accent-glow);
+}
+
+/* Light mode: highlight Login with accent outline or gradient */
+[data-theme="light"] .navbar-auth-login {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent-primary) 65%, #fff),
+    color-mix(in srgb, var(--accent-secondary) 55%, #fff)
+  );
+  color: var(--text-primary);
+  border: none;
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--accent-glow) 40%, transparent);
+}
+
+[data-theme="light"] .navbar-auth-login:hover {
+  transform: translateY(-2px);
+  filter: brightness(0.98);
+}
+
 @media (max-width: 1260px) {
   .navbar-logo-copy {
     font-size: 1.02rem;
