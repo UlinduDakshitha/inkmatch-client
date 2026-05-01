@@ -6,7 +6,6 @@ import "../artists/shared.css";
 export default function FavoritesPage() {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
-
   
   useEffect(() => {
     // In a real app we'd target `customer/{id}` based on session
