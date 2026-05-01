@@ -164,20 +164,18 @@ export default function Home() {
               <h3>InkMatch</h3>
               <ul>
                 <li>
-                  <Link href="/artists">About Us</Link>
+                  <Link href="/about">About Us</Link>
                 </li>
-                
               </ul>
             </div>
 
             <div className="footer-links-column">
               <h3>Help</h3>
               <ul>
-                
                 <li>
                   <Link href="/artists">Community Guidelines</Link>
                 </li>
-              
+
                 <li>
                   <Link href="/contact-us">Contact Us</Link>
                 </li>
