@@ -180,9 +180,7 @@ export default function Home() {
                 <li>
                   <Link href="/studios">Shipping Guide</Link>
                 </li>
-                <li>
-                  <Link href="/contact-us">Listing of Prohibited Content</Link>
-                </li>
+                
                 <li>
                   <Link href="/contact-us">Packaging and Delivery</Link>
                 </li>
