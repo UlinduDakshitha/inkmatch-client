@@ -173,7 +173,7 @@ export default function Home() {
               <h3>Help</h3>
               <ul>
                 <li>
-                  <Link href="/artists">Community Guidelines</Link>
+                  <Link href="/community-guidelines">Community Guidelines</Link>
                 </li>
 
                 <li>
