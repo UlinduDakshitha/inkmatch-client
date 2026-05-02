@@ -434,7 +434,7 @@
 /* Light mode: highlight Login with bold accent gradient */
 [data-theme="light"] .navbar-auth-login {
   background: linear-gradient(135deg, #d92f59 0%, #e45b7d 100%);
-  color: #ffffff;
+  color: #000000;
   border: 2px solid #d92f59;
   box-shadow: 0 6px 18px rgba(217, 47, 89, 0.3);
   font-weight: 600;
