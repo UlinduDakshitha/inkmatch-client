@@ -44,7 +44,7 @@ export default function Home() {
 
       setEmail("");
     } catch (error) {
-      alert("Error sending request 😢");
+      alert("Error sending request ");
     }
 
     setLoading(false);
@@ -122,10 +122,10 @@ export default function Home() {
             </a>
 
             <a
-              href="mailto:support@inkmatch.lk"
+              href="mailto:ulindudakshitha001.lk"
               className="support-contact-pill"
             >
-              support@inkmatch.lk
+              ulindudakshitha001.lk
             </a>
           </div>
 
