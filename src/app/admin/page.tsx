@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   BarChart,
   Bar,
@@ -48,6 +49,17 @@ export default function AdminDashboard() {
             <Bar dataKey="value" />
           </BarChart>
         </ResponsiveContainer>
+      </div>
+
+      {/* ADMIN LINKS */}
+      <div className="grid grid-cols-2 gap-4 mt-6">
+        <Link
+          href="/admin/verification"
+          className="bg-blue-600 hover:bg-blue-700 p-4 rounded-xl text-center"
+        >
+          <h3 className="text-lg font-bold">Artist Verification</h3>
+          <p className="text-sm mt-2">Approve or reject artist profiles</p>
+        </Link>
       </div>
     </div>
   );
