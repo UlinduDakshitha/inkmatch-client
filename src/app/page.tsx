@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import type { ReactNode } from "react";
 import "./page.css";
@@ -14,8 +16,7 @@ function SocialIcon({ name, children }: { name: string; children: ReactNode }) {
   );
 }
 
-////////////////
-
+export default function Home() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -48,9 +49,7 @@ function SocialIcon({ name, children }: { name: string; children: ReactNode }) {
 
     setLoading(false);
   };
-///////////////!SECTION
 
-export default function Home() {
   return (
     <div className="home-container">
       <section className="hero-section container">
@@ -103,61 +102,56 @@ export default function Home() {
         </div>
       </section>
 
-       <section
-      className="support-section container"
-      aria-labelledby="support-title"
-    >
-      <div className="support-shell">
-        <h2 className="heading-2 support-title" id="support-title">
-          More <span className="text-gradient">Support</span>
-        </h2>
+      <section
+        className="support-section container"
+        aria-labelledby="support-title"
+      >
+        <div className="support-shell">
+          <h2 className="heading-2 support-title" id="support-title">
+            More <span className="text-gradient">Support</span>
+          </h2>
 
-        <p className="support-copy">
-          Need help or have questions? Our customer support team is ready to
-          assist with bookings, accounts, and any issue you run into.
-        </p>
+          <p className="support-copy">
+            Need help or have questions? Our customer support team is ready to
+            assist with bookings, accounts, and any issue you run into.
+          </p>
 
-        <div className="support-meta">
-          <a href="tel:+94777748300" className="support-contact-pill">
-            0777 748 300
-          </a>
+          <div className="support-meta">
+            <a href="tel:+94777748300" className="support-contact-pill">
+              0777 748 300
+            </a>
 
-          <a
-            href="mailto:support@inkmatch.lk"
-            className="support-contact-pill"
-          >
-            support@inkmatch.lk
-          </a>
+            <a
+              href="mailto:support@inkmatch.lk"
+              className="support-contact-pill"
+            >
+              support@inkmatch.lk
+            </a>
+          </div>
+
+          {/* 🔥 UPDATED FORM */}
+          <form className="support-form" onSubmit={handleSubmit}>
+            <label htmlFor="support-email" className="sr-only">
+              Email
+            </label>
+
+            <input
+              id="support-email"
+              name="email"
+              type="email"
+              required
+              placeholder="Enter your email"
+              className="support-input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+
+            <button type="submit" className="support-submit" disabled={loading}>
+              {loading ? "Sending..." : "Submit"}
+            </button>
+          </form>
         </div>
-
-        {/* 🔥 UPDATED FORM */}
-        <form className="support-form" onSubmit={handleSubmit}>
-          <label htmlFor="support-email" className="sr-only">
-            Email
-          </label>
-
-          <input
-            id="support-email"
-            name="email"
-            type="email"
-            required
-            placeholder="Enter your email"
-            className="support-input"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-
-          <button
-            type="submit"
-            className="support-submit"
-            disabled={loading}
-          >
-            {loading ? "Sending..." : "Submit"}
-          </button>
-        </form>
-      </div>
-    </section>
-
+      </section>
 
       <section className="footer-section" aria-labelledby="footer-title">
         <div className="footer-shell container">
