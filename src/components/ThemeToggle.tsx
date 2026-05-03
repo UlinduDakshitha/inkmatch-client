@@ -26,11 +26,19 @@ function getPreferredTheme(): Theme {
 }
 
 export default function ThemeToggle({ compact = false }: ThemeToggleProps) {
-  const [theme, setTheme] = useState<Theme>(getPreferredTheme);
+  const [theme, setTheme] = useState<Theme>("dark");
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [theme]);
+    setTheme(getPreferredTheme());
+    setIsHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (isHydrated) {
+      document.documentElement.setAttribute("data-theme", theme);
+    }
+  }, [theme, isHydrated]);
 
   const toggleTheme = () => {
     const nextTheme: Theme = theme === "dark" ? "light" : "dark";
@@ -38,6 +46,20 @@ export default function ThemeToggle({ compact = false }: ThemeToggleProps) {
     document.documentElement.setAttribute("data-theme", nextTheme);
     window.localStorage.setItem(STORAGE_KEY, nextTheme);
   };
+
+  if (!isHydrated) {
+    return (
+      <button
+        type="button"
+        className={`theme-toggle-btn${compact ? " theme-toggle-btn-compact" : ""}`}
+        disabled
+        aria-label="Switch to light mode"
+        title="Switch to light mode"
+      >
+        {compact ? "Light mode" : "Light"}
+      </button>
+    );
+  }
 
   return (
     <button

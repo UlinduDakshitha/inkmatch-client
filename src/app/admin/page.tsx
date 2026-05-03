@@ -11,13 +11,16 @@ import {
 } from "recharts";
 export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     fetch("http://localhost:8080/api/admin/stats")
       .then((res) => res.json())
-      .then(setStats);
+      .then(setStats)
+      .catch((err) => setError("Failed to load stats: " + err.message));
   }, []);
 
+  if (error) return <p className="text-red-500">{error}</p>;
   if (!stats) return <p>Loading...</p>;
 
   const data = [
