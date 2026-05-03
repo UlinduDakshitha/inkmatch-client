@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getMockCustomerBookings } from "@/utils/mockBookings";
 
 interface Booking {
   id: number;
@@ -30,6 +31,8 @@ export default function CustomerBookings({
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
+  const [retrying, setRetrying] = useState(false);
+  const [usingMock, setUsingMock] = useState(false);
   const [filterStatus, setFilterStatus] = useState<
     "ALL" | "PENDING" | "CONFIRMED" | "REJECTED" | "COMPLETED"
   >("ALL");
@@ -55,7 +58,21 @@ export default function CustomerBookings({
       setBookings([]);
     } finally {
       setLoading(false);
+      setRetrying(false);
     }
+  };
+
+  const handleUseMock = () => {
+    setUsingMock(true);
+    setBookings(getMockCustomerBookings());
+    setError("");
+    setLoading(false);
+  };
+
+  const handleRetry = async () => {
+    setRetrying(true);
+    setUsingMock(false);
+    await fetchBookings();
   };
 
   const getStatusColor = (status: string) => {
@@ -114,27 +131,49 @@ export default function CustomerBookings({
       : bookings.filter((b) => b.status === filterStatus);
 
   if (loading) {
-    return (
-      <div
-        className="glass-card"
-        style={{ padding: "2rem", textAlign: "center" }}
-      >
-        <p className="text-gray-400">Loading your bookings...</p>
-      </div>
-    );
-  }
+      {error && (
+        <div
+          className="glass-card"
+          style={{
+            marginBottom: "1.5rem",
+            border: "1px solid rgba(239, 68, 68, 0.5)",
+            background: "rgba(239, 68, 68, 0.08)",
+            padding: "1.5rem",
+          }}
+        >
+          <p style={{ color: "#ef4444", margin: "0 0 0.5rem 0", fontSize: "0.95rem", fontWeight: "600" }}>
+            ⚠️ Error Loading Bookings
+          </p>
+          <p style={{ color: "rgba(255, 255, 255, 0.8)", margin: 0, fontSize: "0.9rem" }}>
+            {error}
+          </p>
+          <div style={{ marginTop: "0.75rem", display: "flex", gap: "0.5rem" }}>
+            <button
+              onClick={handleRetry}
+              disabled={retrying}
+              className="btn-primary"
+              style={{ padding: "0.5rem 0.75rem" }}
+            >
+              {retrying ? "Retrying..." : "Retry"}
+            </button>
 
-  return (
-    <div style={{ maxWidth: "900px" }}>
-      {/* Summary Cards */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-          gap: "1rem",
-          marginBottom: "2rem",
-        }}
-      >
+            <button
+              onClick={handleUseMock}
+              className=""
+              style={{
+                padding: "0.5rem 0.75rem",
+                borderRadius: "6px",
+                border: "1px solid rgba(255,255,255,0.08)",
+                background: "transparent",
+                color: "#fff",
+                cursor: "pointer",
+              }}
+            >
+              Use Mock Data
+            </button>
+          </div>
+        </div>
+      )}
         <div
           className="glass-card"
           style={{

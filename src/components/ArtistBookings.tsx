@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getMockArtistBookings } from "@/utils/mockBookings";
 
 interface Booking {
   id: number;
@@ -25,6 +26,8 @@ export default function ArtistBookings({ artistId }: ArtistBookingsProps) {
   const [error, setError] = useState<string>("");
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [successMessage, setSuccessMessage] = useState<string>("");
+  const [retrying, setRetrying] = useState(false);
+  const [usingMock, setUsingMock] = useState(false);
 
   useEffect(() => {
     fetchBookings();
@@ -47,7 +50,21 @@ export default function ArtistBookings({ artistId }: ArtistBookingsProps) {
       setBookings([]);
     } finally {
       setLoading(false);
+      setRetrying(false);
     }
+  };
+
+  const handleUseMock = () => {
+    setUsingMock(true);
+    setBookings(getMockArtistBookings());
+    setError("");
+    setLoading(false);
+  };
+
+  const handleRetry = async () => {
+    setRetrying(true);
+    setUsingMock(false);
+    await fetchBookings();
   };
 
   const confirm = async (id: number) => {
@@ -257,13 +274,49 @@ export default function ArtistBookings({ artistId }: ArtistBookingsProps) {
           style={{
             marginBottom: "1.5rem",
             border: "1px solid rgba(239, 68, 68, 0.5)",
-            background: "rgba(239, 68, 68, 0.1)",
+            background: "rgba(239, 68, 68, 0.08)",
             padding: "1rem",
           }}
         >
-          <p style={{ color: "#ef4444", margin: 0, fontSize: "0.9rem" }}>
+          <p
+            style={{
+              color: "#ef4444",
+              margin: 0,
+              fontSize: "0.95rem",
+              fontWeight: 600,
+            }}
+          >
+            ⚠️ Error Loading Bookings
+          </p>
+          <p style={{ color: "rgba(255,255,255,0.8)", margin: "0.5rem 0 0 0" }}>
             {error}
           </p>
+
+          <div style={{ marginTop: "0.75rem", display: "flex", gap: "0.5rem" }}>
+            <button
+              onClick={handleRetry}
+              disabled={retrying}
+              className="btn-primary"
+              style={{ padding: "0.5rem 0.75rem" }}
+            >
+              {retrying ? "Retrying..." : "Retry"}
+            </button>
+
+            <button
+              onClick={handleUseMock}
+              className=""
+              style={{
+                padding: "0.5rem 0.75rem",
+                borderRadius: "6px",
+                border: "1px solid rgba(255,255,255,0.08)",
+                background: "transparent",
+                color: "#fff",
+                cursor: "pointer",
+              }}
+            >
+              Use Mock Data
+            </button>
+          </div>
         </div>
       )}
 

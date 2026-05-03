@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getCurrentUser } from "@/utils/appData";
+import { getMockArtists } from "@/utils/mockBookings";
 import Availability from "@/components/Availability";
 import Calendar from "@/components/Calendar";
 
@@ -30,6 +31,27 @@ export default function ScheduleConsultationPage() {
       .catch((err) => setError("Failed to load artists: " + err.message))
       .finally(() => setLoading(false));
   }, []);
+
+  const handleRetryArtists = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("http://localhost:8080/api/artists");
+      if (!res.ok) throw new Error("Failed to load artists");
+      const data = await res.json();
+      setArtists(data || []);
+    } catch (err) {
+      setError("Failed to load artists: " + (err as any).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUseMockArtists = () => {
+    setArtists(getMockArtists());
+    setError("");
+    setLoading(false);
+  };
 
   const handleSchedule = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -137,8 +159,32 @@ export default function ScheduleConsultationPage() {
       </div>
 
       {error && (
-        <div className="glass-card" style={{ marginBottom: "1.5rem" }}>
-          <p className="text-red-500">{error}</p>
+        <div
+          className="glass-card"
+          style={{ marginBottom: "1.5rem", padding: "1rem" }}
+        >
+          <p style={{ color: "#ef4444", margin: 0, fontWeight: 700 }}>
+            ⚠️ Failed to load artists
+          </p>
+          <p style={{ color: "rgba(255,255,255,0.85)", marginTop: "0.5rem" }}>
+            {error}
+          </p>
+          <div style={{ marginTop: "0.75rem", display: "flex", gap: "0.5rem" }}>
+            <button onClick={handleRetryArtists} className="btn-primary">
+              Retry
+            </button>
+            <button
+              onClick={handleUseMockArtists}
+              style={{
+                padding: "0.5rem 0.75rem",
+                background: "transparent",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: 6,
+              }}
+            >
+              Use Mock Artists
+            </button>
+          </div>
         </div>
       )}
 
