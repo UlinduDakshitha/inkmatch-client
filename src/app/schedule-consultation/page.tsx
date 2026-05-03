@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getCurrentUser } from "@/utils/appData";
 import Availability from "@/components/Availability";
+import Calendar from "@/components/Calendar";
 
 export default function ScheduleConsultationPage() {
   const user = getCurrentUser();
@@ -148,12 +149,9 @@ export default function ScheduleConsultationPage() {
           <label className="block text-white font-semibold mb-2">
             Select Date
           </label>
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="input-field"
-            required
+          <Calendar
+            selectedDate={selectedDate}
+            onDateChange={setSelectedDate}
           />
         </div>
 
