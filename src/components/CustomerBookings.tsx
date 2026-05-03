@@ -406,11 +406,37 @@ export default function CustomerBookings({
             marginBottom: "1.5rem",
             border: "1px solid rgba(239, 68, 68, 0.5)",
             background: "rgba(239, 68, 68, 0.1)",
-            padding: "1rem",
+            padding: "1.5rem",
           }}
         >
-          <p style={{ color: "#ef4444", margin: 0, fontSize: "0.9rem" }}>
+          <p
+            style={{
+              color: "#ef4444",
+              margin: "0 0 0.5rem 0",
+              fontSize: "0.9rem",
+              fontWeight: "600",
+            }}
+          >
+            ⚠️ Error Loading Bookings
+          </p>
+          <p
+            style={{
+              color: "rgba(255, 255, 255, 0.7)",
+              margin: 0,
+              fontSize: "0.85rem",
+            }}
+          >
             {error}
+          </p>
+          <p
+            style={{
+              color: "rgba(255, 255, 255, 0.5)",
+              margin: "0.5rem 0 0 0",
+              fontSize: "0.8rem",
+            }}
+          >
+            Please try refreshing the page or contact support if the issue
+            persists.
           </p>
         </div>
       )}
@@ -419,11 +445,16 @@ export default function CustomerBookings({
       {filteredBookings.length === 0 ? (
         <div
           className="glass-card"
-          style={{ textAlign: "center", padding: "2rem" }}
+          style={{
+            textAlign: "center",
+            padding: "2.5rem",
+            border: "1px solid rgba(59, 130, 246, 0.2)",
+            background: "rgba(59, 130, 246, 0.05)",
+          }}
         >
           <p
             style={{
-              fontSize: "3rem",
+              fontSize: "3.5rem",
               margin: "0 0 1rem 0",
             }}
           >
@@ -431,14 +462,57 @@ export default function CustomerBookings({
           </p>
           <p
             style={{
-              color: "rgba(255, 255, 255, 0.7)",
-              margin: 0,
+              color: "rgba(255, 255, 255, 0.8)",
+              margin: "0 0 0.5rem 0",
+              fontSize: "1.1rem",
+              fontWeight: "500",
             }}
           >
             {filterStatus === "ALL"
-              ? "No bookings yet. Schedule your first consultation!"
-              : `No ${filterStatus.toLowerCase()} bookings.`}
+              ? "No bookings found"
+              : `No ${filterStatus.toLowerCase()} bookings`}
           </p>
+          <p
+            style={{
+              color: "rgba(255, 255, 255, 0.6)",
+              margin: "0 0 1.5rem 0",
+              fontSize: "0.9rem",
+            }}
+          >
+            {filterStatus === "ALL"
+              ? "You haven't scheduled any consultations yet. Start by browsing our talented artists and studios to find your perfect match!"
+              : `There are no bookings with ${filterStatus.toLowerCase()} status. Check other status filters or schedule a new consultation.`}
+          </p>
+          <button
+            onClick={() => {
+              if (filterStatus !== "ALL") {
+                setFilterStatus("ALL");
+              }
+            }}
+            style={{
+              padding: "0.75rem 1.5rem",
+              borderRadius: "8px",
+              background: "rgba(59, 130, 246, 0.3)",
+              border: "1px solid rgba(59, 130, 246, 0.6)",
+              color: "#60a5fa",
+              cursor: "pointer",
+              fontSize: "0.9rem",
+              fontWeight: "500",
+              transition: "all 0.2s",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.background =
+                "rgba(59, 130, 246, 0.5)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.background =
+                "rgba(59, 130, 246, 0.3)";
+            }}
+          >
+            {filterStatus === "ALL"
+              ? "✨ Schedule First Booking"
+              : "View All Bookings"}
+          </button>
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>

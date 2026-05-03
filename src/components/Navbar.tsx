@@ -390,6 +390,373 @@ export default function Navbar() {
                 >
                   {profileStatus.ctaLabel}
                 </Link>
+
+                {/* Dashboard Links */}
+                {navbarUser.user && (
+                  <>
+                    {normalizeRole(navbarUser.user.role) === "ARTIST" && (
+                      <>
+                        <Link
+                          href="/artist-dashboard"
+                          className="navbar-settings-action"
+                          style={{
+                            background:
+                              "linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.08) 100%)",
+                            color: "#60a5fa",
+                            border: "1.5px solid rgba(59, 130, 246, 0.4)",
+                            borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+                            marginTop: "1rem",
+                            paddingTop: "0.875rem",
+                            paddingBottom: "0.875rem",
+                            fontWeight: "600",
+                            fontSize: "0.95rem",
+                            transition: "all 0.3s ease",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: "0.5rem",
+                            borderRadius: "8px",
+                          }}
+                          onClick={() => setProfileStatusOpen(false)}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background =
+                              "linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(59, 130, 246, 0.15) 100%)";
+                            e.currentTarget.style.borderColor =
+                              "rgba(59, 130, 246, 0.6)";
+                            e.currentTarget.style.boxShadow =
+                              "0 8px 16px rgba(59, 130, 246, 0.2)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background =
+                              "linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.08) 100%)";
+                            e.currentTarget.style.borderColor =
+                              "rgba(59, 130, 246, 0.4)";
+                            e.currentTarget.style.boxShadow = "none";
+                          }}
+                        >
+                          <span>📊</span> Artist Dashboard
+                        </Link>
+
+                        {/* Quick Links for Artist */}
+                        <div
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns: "1fr 1fr",
+                            gap: "0.5rem",
+                            marginTop: "0.5rem",
+                          }}
+                        >
+                          <Link
+                            href="/artist-dashboard"
+                            className="navbar-settings-action"
+                            style={{
+                              padding: "0.6rem 0.75rem",
+                              fontSize: "0.8rem",
+                              background: "rgba(59, 130, 246, 0.08)",
+                              color: "rgba(96, 165, 250, 0.9)",
+                              border: "1px solid rgba(59, 130, 246, 0.2)",
+                              borderRadius: "6px",
+                              transition: "all 0.2s",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background =
+                                "rgba(59, 130, 246, 0.15)";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background =
+                                "rgba(59, 130, 246, 0.08)";
+                            }}
+                            onClick={() => setProfileStatusOpen(false)}
+                          >
+                            📅 Availability
+                          </Link>
+                          <Link
+                            href="/artist-dashboard"
+                            className="navbar-settings-action"
+                            style={{
+                              padding: "0.6rem 0.75rem",
+                              fontSize: "0.8rem",
+                              background: "rgba(59, 130, 246, 0.08)",
+                              color: "rgba(96, 165, 250, 0.9)",
+                              border: "1px solid rgba(59, 130, 246, 0.2)",
+                              borderRadius: "6px",
+                              transition: "all 0.2s",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background =
+                                "rgba(59, 130, 246, 0.15)";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background =
+                                "rgba(59, 130, 246, 0.08)";
+                            }}
+                            onClick={() => setProfileStatusOpen(false)}
+                          >
+                            📋 Bookings
+                          </Link>
+                          <Link
+                            href="/artist-dashboard"
+                            className="navbar-settings-action"
+                            style={{
+                              padding: "0.6rem 0.75rem",
+                              fontSize: "0.8rem",
+                              background: "rgba(59, 130, 246, 0.08)",
+                              color: "rgba(96, 165, 250, 0.9)",
+                              border: "1px solid rgba(59, 130, 246, 0.2)",
+                              borderRadius: "6px",
+                              transition: "all 0.2s",
+                              gridColumn: "1 / -1",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background =
+                                "rgba(59, 130, 246, 0.15)";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background =
+                                "rgba(59, 130, 246, 0.08)";
+                            }}
+                            onClick={() => setProfileStatusOpen(false)}
+                          >
+                            👤 Profile
+                          </Link>
+                        </div>
+                      </>
+                    )}
+                    {normalizeRole(navbarUser.user.role) === "STUDIO_OWNER" && (
+                      <>
+                        <Link
+                          href="/studio-dashboard"
+                          className="navbar-settings-action"
+                          style={{
+                            background:
+                              "linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0.08) 100%)",
+                            color: "#c4b5fd",
+                            border: "1.5px solid rgba(139, 92, 246, 0.4)",
+                            borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+                            marginTop: "1rem",
+                            paddingTop: "0.875rem",
+                            paddingBottom: "0.875rem",
+                            fontWeight: "600",
+                            fontSize: "0.95rem",
+                            transition: "all 0.3s ease",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: "0.5rem",
+                            borderRadius: "8px",
+                          }}
+                          onClick={() => setProfileStatusOpen(false)}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background =
+                              "linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(139, 92, 246, 0.15) 100%)";
+                            e.currentTarget.style.borderColor =
+                              "rgba(139, 92, 246, 0.6)";
+                            e.currentTarget.style.boxShadow =
+                              "0 8px 16px rgba(139, 92, 246, 0.2)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background =
+                              "linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0.08) 100%)";
+                            e.currentTarget.style.borderColor =
+                              "rgba(139, 92, 246, 0.4)";
+                            e.currentTarget.style.boxShadow = "none";
+                          }}
+                        >
+                          <span>📊</span> Studio Dashboard
+                        </Link>
+
+                        {/* Quick Links for Studio */}
+                        <div
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns: "1fr 1fr",
+                            gap: "0.5rem",
+                            marginTop: "0.5rem",
+                          }}
+                        >
+                          <Link
+                            href="/studio-dashboard"
+                            className="navbar-settings-action"
+                            style={{
+                              padding: "0.6rem 0.75rem",
+                              fontSize: "0.8rem",
+                              background: "rgba(139, 92, 246, 0.08)",
+                              color: "rgba(196, 181, 253, 0.9)",
+                              border: "1px solid rgba(139, 92, 246, 0.2)",
+                              borderRadius: "6px",
+                              transition: "all 0.2s",
+                              gridColumn: "1 / -1",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background =
+                                "rgba(139, 92, 246, 0.15)";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background =
+                                "rgba(139, 92, 246, 0.08)";
+                            }}
+                            onClick={() => setProfileStatusOpen(false)}
+                          >
+                            📋 Booking Requests
+                          </Link>
+                          <Link
+                            href="/studio-dashboard"
+                            className="navbar-settings-action"
+                            style={{
+                              padding: "0.6rem 0.75rem",
+                              fontSize: "0.8rem",
+                              background: "rgba(139, 92, 246, 0.08)",
+                              color: "rgba(196, 181, 253, 0.9)",
+                              border: "1px solid rgba(139, 92, 246, 0.2)",
+                              borderRadius: "6px",
+                              transition: "all 0.2s",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background =
+                                "rgba(139, 92, 246, 0.15)";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background =
+                                "rgba(139, 92, 246, 0.08)";
+                            }}
+                            onClick={() => setProfileStatusOpen(false)}
+                          >
+                            🏢 Studio Profile
+                          </Link>
+                        </div>
+                      </>
+                    )}
+                    {normalizeRole(navbarUser.user.role) === "CUSTOMER" && (
+                      <>
+                        <Link
+                          href="/customer-dashboard"
+                          className="navbar-settings-action"
+                          style={{
+                            background:
+                              "linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.08) 100%)",
+                            color: "#86efac",
+                            border: "1.5px solid rgba(34, 197, 94, 0.4)",
+                            borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+                            marginTop: "1rem",
+                            paddingTop: "0.875rem",
+                            paddingBottom: "0.875rem",
+                            fontWeight: "600",
+                            fontSize: "0.95rem",
+                            transition: "all 0.3s ease",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: "0.5rem",
+                            borderRadius: "8px",
+                          }}
+                          onClick={() => setProfileStatusOpen(false)}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background =
+                              "linear-gradient(135deg, rgba(34, 197, 94, 0.25) 0%, rgba(34, 197, 94, 0.15) 100%)";
+                            e.currentTarget.style.borderColor =
+                              "rgba(34, 197, 94, 0.6)";
+                            e.currentTarget.style.boxShadow =
+                              "0 8px 16px rgba(34, 197, 94, 0.2)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background =
+                              "linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.08) 100%)";
+                            e.currentTarget.style.borderColor =
+                              "rgba(34, 197, 94, 0.4)";
+                            e.currentTarget.style.boxShadow = "none";
+                          }}
+                        >
+                          <span>📊</span> My Dashboard
+                        </Link>
+
+                        {/* Quick Links for Customer */}
+                        <div
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns: "1fr 1fr",
+                            gap: "0.5rem",
+                            marginTop: "0.5rem",
+                          }}
+                        >
+                          <Link
+                            href="/customer-dashboard"
+                            className="navbar-settings-action"
+                            style={{
+                              padding: "0.6rem 0.75rem",
+                              fontSize: "0.8rem",
+                              background: "rgba(34, 197, 94, 0.08)",
+                              color: "rgba(134, 239, 172, 0.9)",
+                              border: "1px solid rgba(34, 197, 94, 0.2)",
+                              borderRadius: "6px",
+                              transition: "all 0.2s",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background =
+                                "rgba(34, 197, 94, 0.15)";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background =
+                                "rgba(34, 197, 94, 0.08)";
+                            }}
+                            onClick={() => setProfileStatusOpen(false)}
+                          >
+                            📋 My Bookings
+                          </Link>
+                          <Link
+                            href="/customer-dashboard"
+                            className="navbar-settings-action"
+                            style={{
+                              padding: "0.6rem 0.75rem",
+                              fontSize: "0.8rem",
+                              background: "rgba(34, 197, 94, 0.08)",
+                              color: "rgba(134, 239, 172, 0.9)",
+                              border: "1px solid rgba(34, 197, 94, 0.2)",
+                              borderRadius: "6px",
+                              transition: "all 0.2s",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background =
+                                "rgba(34, 197, 94, 0.15)";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background =
+                                "rgba(34, 197, 94, 0.08)";
+                            }}
+                            onClick={() => setProfileStatusOpen(false)}
+                          >
+                            👤 Profile
+                          </Link>
+                          <Link
+                            href="/customer-dashboard"
+                            className="navbar-settings-action"
+                            style={{
+                              padding: "0.6rem 0.75rem",
+                              fontSize: "0.8rem",
+                              background: "rgba(34, 197, 94, 0.08)",
+                              color: "rgba(134, 239, 172, 0.9)",
+                              border: "1px solid rgba(34, 197, 94, 0.2)",
+                              borderRadius: "6px",
+                              transition: "all 0.2s",
+                              gridColumn: "1 / -1",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background =
+                                "rgba(34, 197, 94, 0.15)";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background =
+                                "rgba(34, 197, 94, 0.08)";
+                            }}
+                            onClick={() => setProfileStatusOpen(false)}
+                          >
+                            ⭐ Quick Actions
+                          </Link>
+                        </div>
+                      </>
+                    )}
+                  </>
+                )}
+
                 <button
                   type="button"
                   onClick={handleLogout}
