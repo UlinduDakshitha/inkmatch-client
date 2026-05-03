@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getCurrentUser, normalizeRole } from "@/utils/appData";
 import ArtistAvailability from "@/components/ArtistAvailability";
+import ArtistBookings from "@/components/ArtistBookings";
 import Link from "next/link";
 
 export default function ArtistDashboardPage() {
@@ -56,7 +57,7 @@ export default function ArtistDashboardPage() {
         Artist <span className="text-gradient">Dashboard</span>
       </h1>
       <p className="text-secondary mt-2 mb-4">
-        Manage your profile and availability.
+        Manage your availability, booking requests, and profile.
       </p>
 
       {/* Tab Navigation */}
@@ -91,6 +92,27 @@ export default function ArtistDashboardPage() {
           className="hover:text-white"
         >
           Manage Availability
+        </button>
+        <button
+          onClick={() => setActiveTab("bookings")}
+          style={{
+            padding: "0.75rem 1.5rem",
+            borderRadius: "8px 8px 0 0",
+            background:
+              activeTab === "bookings"
+                ? "rgba(59, 130, 246, 0.2)"
+                : "transparent",
+            color:
+              activeTab === "bookings" ? "#60a5fa" : "rgba(255, 255, 255, 0.6)",
+            border: "none",
+            cursor: "pointer",
+            fontSize: "1rem",
+            fontWeight: "500",
+            transition: "all 0.2s",
+          }}
+          className="hover:text-white"
+        >
+          Booking Requests
         </button>
         <button
           onClick={() => setActiveTab("profile")}
@@ -141,6 +163,12 @@ export default function ArtistDashboardPage() {
             </p>
           </div>
           <ArtistAvailability artistId={user.id || user.email} />
+        </div>
+      )}
+
+      {activeTab === "bookings" && (
+        <div style={{ marginBottom: "3rem" }}>
+          <ArtistBookings artistId={user.id || user.email} />
         </div>
       )}
 
