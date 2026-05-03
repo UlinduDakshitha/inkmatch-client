@@ -11,7 +11,11 @@ export default function ScheduleConsultationPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const [selectedArtist, setSelectedArtist] = useState<string | number>("");
-  const [selectedDate, setSelectedDate] = useState("2026-05-10");
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date();
+    today.setDate(today.getDate() + 1);
+    return today.toISOString().split("T")[0];
+  });
   const [selectedSlot, setSelectedSlot] = useState<{
     id: string | number;
     time: string;
@@ -109,6 +113,28 @@ export default function ScheduleConsultationPage() {
       <p className="text-secondary mt-2 mb-4">
         Book a time slot with your chosen artist.
       </p>
+
+      {/* Info Box */}
+      <div
+        className="glass-card"
+        style={{
+          marginBottom: "2rem",
+          border: "1px solid rgba(59, 130, 246, 0.3)",
+          background: "rgba(59, 130, 246, 0.05)",
+        }}
+      >
+        <p
+          style={{
+            margin: 0,
+            fontSize: "0.875rem",
+            color: "rgba(255, 255, 255, 0.8)",
+          }}
+        >
+          ℹ️ You're viewing the artist's <strong>live calendar</strong>.
+          Available times include only slots when the artist is free. All
+          bookings are in sync across the platform.
+        </p>
+      </div>
 
       {error && (
         <div className="glass-card" style={{ marginBottom: "1.5rem" }}>

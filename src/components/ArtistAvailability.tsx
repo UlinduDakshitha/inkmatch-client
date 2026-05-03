@@ -6,7 +6,8 @@ import Calendar from "./Calendar";
 interface TimeSlot {
   id?: string;
   time: string;
-  booked: boolean;
+  available: boolean;
+  bookedByCustomer?: boolean;
 }
 
 interface ArtistAvailabilityProps {
@@ -41,18 +42,54 @@ export default function ArtistAvailability({
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/availability/${artistId}/${selectedDate}`,
-      );
-      const data = await response.json();
-      setSlots(data || []);
+      // Fetch both availability and consultations for this date
+      const [availResponse, consultResponse] = await Promise.all([
+        fetch(
+          `http://localhost:8080/api/availability/${artistId}/${selectedDate}`,
+        ),
+        fetch(
+          `http://localhost:8080/api/consultations?artistId=${artistId}&date=${selectedDate}`,
+        ).catch(() => ({ ok: false })), // Consultations endpoint might not exist yet
+      ]);
+
+      const availData = await availResponse.json();
+      let consultations: any[] = [];
+
+      if (consultResponse.ok) {
+        try {
+          consultations = await consultResponse.json();
+        } catch (e) {
+          // If parsing fails, just use empty array
+          consultations = [];
+        }
+      }
+
+      // Merge availability and consultation data
+      const mergedSlots = (availData || []).map((slot: any) => ({
+        ...slot,
+        available: !slot.booked,
+        bookedByCustomer: slot.booked, // Assume booked slots are from customers
+      }));
+
+      // If no data from API, create defaults
+      if (mergedSlots.length === 0) {
+        setSlots(
+          availableHours.map((time) => ({
+            time,
+            available: true,
+            bookedByCustomer: false,
+          })),
+        );
+      } else {
+        setSlots(mergedSlots);
+      }
     } catch (err) {
       setError("Failed to load slots: " + (err as any).message);
-      // Create default slots if fetch fails
       setSlots(
         availableHours.map((time) => ({
           time,
-          booked: false,
+          available: true,
+          bookedByCustomer: false,
         })),
       );
     } finally {
@@ -62,7 +99,9 @@ export default function ArtistAvailability({
 
   const toggleSlot = async (time: string) => {
     const newSlots = slots.map((slot) =>
-      slot.time === time ? { ...slot, booked: !slot.booked } : slot,
+      slot.time === time && !slot.bookedByCustomer
+        ? { ...slot, available: !slot.available }
+        : slot,
     );
     setSlots(newSlots);
   };
@@ -78,7 +117,10 @@ export default function ArtistAvailability({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             date: selectedDate,
-            slots: slots,
+            slots: slots.map((s) => ({
+              ...s,
+              booked: !s.available || s.bookedByCustomer, // Send booked status back
+            })),
           }),
         },
       );
@@ -139,9 +181,72 @@ export default function ArtistAvailability({
         style={{ padding: "1.5rem", borderRadius: "12px" }}
       >
         <h3 className="text-white mb-4">
-          Available Times for{" "}
+          Availability for{" "}
           {new Date(selectedDate + "T00:00:00").toLocaleDateString()}
         </h3>
+
+        <div style={{ marginBottom: "1rem" }}>
+          <p
+            style={{
+              fontSize: "0.875rem",
+              color: "rgba(255, 255, 255, 0.6)",
+              margin: "0 0 0.5rem 0",
+            }}
+          >
+            <span
+              style={{
+                display: "inline-block",
+                width: "16px",
+                height: "16px",
+                backgroundColor: "rgba(34, 197, 94, 0.2)",
+                border: "1px solid #22c55e",
+                borderRadius: "4px",
+                marginRight: "0.5rem",
+              }}
+            ></span>
+            Available
+          </p>
+          <p
+            style={{
+              fontSize: "0.875rem",
+              color: "rgba(255, 255, 255, 0.6)",
+              margin: "0.5rem 0",
+            }}
+          >
+            <span
+              style={{
+                display: "inline-block",
+                width: "16px",
+                height: "16px",
+                backgroundColor: "rgba(107, 114, 128, 0.2)",
+                border: "1px solid #6b7280",
+                borderRadius: "4px",
+                marginRight: "0.5rem",
+              }}
+            ></span>
+            Blocked (by you)
+          </p>
+          <p
+            style={{
+              fontSize: "0.875rem",
+              color: "rgba(255, 255, 255, 0.6)",
+              margin: "0.5rem 0",
+            }}
+          >
+            <span
+              style={{
+                display: "inline-block",
+                width: "16px",
+                height: "16px",
+                backgroundColor: "rgba(239, 68, 68, 0.2)",
+                border: "2px solid #ef4444",
+                borderRadius: "4px",
+                marginRight: "0.5rem",
+              }}
+            ></span>
+            Booked (by customer)
+          </p>
+        </div>
 
         {loading ? (
           <p className="text-gray-400">Loading slots...</p>
@@ -163,14 +268,14 @@ export default function ArtistAvailability({
                       style={{
                         padding: "0.75rem",
                         borderRadius: "8px",
-                        border: "1px solid rgba(255, 255, 255, 0.2)",
-                        background: "transparent",
-                        color: "white",
+                        border: "1px solid rgba(34, 197, 94, 0.5)",
+                        background: "rgba(34, 197, 94, 0.1)",
+                        color: "#22c55e",
                         cursor: "pointer",
                         fontSize: "0.875rem",
+                        fontWeight: "500",
                         transition: "all 0.2s",
                       }}
-                      className="hover:bg-white/10"
                     >
                       {time}
                     </button>
@@ -179,24 +284,44 @@ export default function ArtistAvailability({
                     <button
                       key={slot.time}
                       onClick={() => toggleSlot(slot.time)}
+                      disabled={slot.bookedByCustomer}
                       style={{
                         padding: "0.75rem",
                         borderRadius: "8px",
-                        border: slot.booked
+                        border: slot.bookedByCustomer
                           ? "2px solid #ef4444"
-                          : "1px solid rgba(34, 197, 94, 0.5)",
-                        background: slot.booked
+                          : slot.available
+                            ? "1px solid rgba(34, 197, 94, 0.5)"
+                            : "1px solid #6b7280",
+                        background: slot.bookedByCustomer
                           ? "rgba(239, 68, 68, 0.2)"
-                          : "rgba(34, 197, 94, 0.1)",
-                        color: slot.booked ? "#ef4444" : "#22c55e",
-                        cursor: "pointer",
+                          : slot.available
+                            ? "rgba(34, 197, 94, 0.1)"
+                            : "rgba(107, 114, 128, 0.2)",
+                        color: slot.bookedByCustomer
+                          ? "#ef4444"
+                          : slot.available
+                            ? "#22c55e"
+                            : "#9ca3af",
+                        cursor: slot.bookedByCustomer
+                          ? "not-allowed"
+                          : "pointer",
                         fontSize: "0.875rem",
                         fontWeight: "500",
                         transition: "all 0.2s",
+                        opacity: slot.bookedByCustomer ? 0.7 : 1,
                       }}
+                      title={
+                        slot.bookedByCustomer
+                          ? "This slot is booked by a customer"
+                          : slot.available
+                            ? "Click to block this time"
+                            : "Click to make available"
+                      }
                     >
                       {slot.time}
-                      {slot.booked && " ✓"}
+                      {slot.bookedByCustomer && " 📅"}
+                      {!slot.available && !slot.bookedByCustomer && " ✓"}
                     </button>
                   ))}
             </div>
@@ -211,14 +336,39 @@ export default function ArtistAvailability({
             >
               <p
                 style={{
-                  margin: 0,
+                  margin: "0 0 0.5rem 0",
                   fontSize: "0.875rem",
                   color: "rgba(255, 255, 255, 0.7)",
                 }}
               >
                 Available slots:{" "}
-                <strong>{slots.filter((s) => !s.booked).length}</strong> /{" "}
-                {slots.length}
+                <strong>
+                  {
+                    slots.filter((s) => s.available && !s.bookedByCustomer)
+                      .length
+                  }
+                </strong>
+              </p>
+              <p
+                style={{
+                  margin: "0 0 0.5rem 0",
+                  fontSize: "0.875rem",
+                  color: "rgba(255, 255, 255, 0.7)",
+                }}
+              >
+                Booked by customers:{" "}
+                <strong>
+                  {slots.filter((s) => s.bookedByCustomer).length}
+                </strong>
+              </p>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "0.875rem",
+                  color: "rgba(255, 255, 255, 0.7)",
+                }}
+              >
+                Total: <strong>{slots.length}</strong>
               </p>
             </div>
 

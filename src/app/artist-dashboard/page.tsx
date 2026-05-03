@@ -118,6 +118,28 @@ export default function ArtistDashboardPage() {
       {/* Tab Content */}
       {activeTab === "availability" && (
         <div style={{ marginBottom: "3rem" }}>
+          {/* Info Box */}
+          <div
+            className="glass-card"
+            style={{
+              marginBottom: "2rem",
+              border: "1px solid rgba(34, 197, 94, 0.3)",
+              background: "rgba(34, 197, 94, 0.05)",
+            }}
+          >
+            <p
+              style={{
+                margin: 0,
+                fontSize: "0.875rem",
+                color: "rgba(255, 255, 255, 0.8)",
+              }}
+            >
+              ✨ <strong>Unified Calendar</strong>: Set your availability times
+              below. Slots marked with 📅 are booked by customers in real-time.
+              You can block times by toggling them, but cannot remove customer
+              bookings directly.
+            </p>
+          </div>
           <ArtistAvailability artistId={user.id || user.email} />
         </div>
       )}
