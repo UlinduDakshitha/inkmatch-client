@@ -6,9 +6,27 @@ import StudioBookings from "@/components/StudioBookings";
 import Link from "next/link";
 
 export default function StudioDashboardPage() {
-  const user = getCurrentUser();
-  const role = normalizeRole(user?.role);
+  const [user, setUser] = useState(() => ({ email: undefined }) as any);
+  const [role, setRole] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("bookings");
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const u = getCurrentUser();
+    setUser(u as any);
+    setRole(normalizeRole(u?.role));
+    setLoaded(true);
+  }, []);
+
+  if (!loaded) {
+    return (
+      <div className="page-container container" style={{ paddingTop: "120px" }}>
+        <div className="glass-card">
+          <p className="text-secondary">Loading dashboard…</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!user?.email) {
     return (
@@ -30,7 +48,7 @@ export default function StudioDashboardPage() {
     );
   }
 
-  if (role !== "STUDIO") {
+  if (role !== "STUDIO_OWNER") {
     return (
       <div className="page-container container" style={{ paddingTop: "120px" }}>
         <div className="glass-card">

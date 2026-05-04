@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getMockCustomerBookings } from "@/utils/mockBookings";
+import { getBookings } from "@/utils/appData";
 
 interface Booking {
   id: number;
@@ -32,7 +32,7 @@ export default function CustomerBookings({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const [retrying, setRetrying] = useState(false);
-  const [usingMock, setUsingMock] = useState(false);
+
   const [filterStatus, setFilterStatus] = useState<
     "ALL" | "PENDING" | "CONFIRMED" | "REJECTED" | "COMPLETED"
   >("ALL");
@@ -54,24 +54,57 @@ export default function CustomerBookings({
       const data = await response.json();
       setBookings(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError("Failed to load bookings: " + (err as any).message);
-      setBookings([]);
+      const msg = (err as any).message || String(err);
+      try {
+        const local = getBookings().filter(
+          (b) =>
+            b.customerEmail === String(customerId) ||
+            String(b.customerEmail) === String(customerId),
+        );
+
+        const mapped = local.map((b) => ({
+          id:
+            typeof b.id === "string" && !Number.isNaN(Number(b.id))
+              ? Number(b.id)
+              : b.id,
+          artistId: b.targetType === "ARTIST" ? b.targetId : undefined,
+          studioId: b.targetType === "STUDIO" ? b.targetId : undefined,
+          artist:
+            b.targetType === "ARTIST"
+              ? { fullName: b.targetName, email: undefined }
+              : undefined,
+          studio:
+            b.targetType === "STUDIO"
+              ? { name: b.targetName, email: undefined }
+              : undefined,
+          date: b.appointmentDate?.includes("T")
+            ? b.appointmentDate.split("T")[0]
+            : b.appointmentDate || "",
+          time: b.appointmentDate?.includes("T")
+            ? b.appointmentDate.split("T")[1]
+            : "",
+          status: b.status as any,
+          createdAt: b.createdAt,
+        }));
+
+        setBookings(mapped);
+        setError(
+          "Failed to load bookings from backend: " +
+            msg +
+            ". Showing local bookings.",
+        );
+      } catch (localErr) {
+        setError("Failed to load bookings: " + msg);
+        setBookings([]);
+      }
     } finally {
       setLoading(false);
       setRetrying(false);
     }
   };
 
-  const handleUseMock = () => {
-    setUsingMock(true);
-    setBookings(getMockCustomerBookings());
-    setError("");
-    setLoading(false);
-  };
-
   const handleRetry = async () => {
     setRetrying(true);
-    setUsingMock(false);
     await fetchBookings();
   };
 

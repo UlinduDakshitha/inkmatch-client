@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getMockStudioBookings } from "@/utils/mockBookings";
+import { getBookings, updateBookingStatus } from "@/utils/appData";
 
 interface Booking {
   id: number;
@@ -27,7 +27,6 @@ export default function StudioBookings({ studioId }: StudioBookingsProps) {
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [retrying, setRetrying] = useState(false);
-  const [usingMock, setUsingMock] = useState(false);
 
   useEffect(() => {
     fetchBookings();
@@ -46,24 +45,52 @@ export default function StudioBookings({ studioId }: StudioBookingsProps) {
       const data = await response.json();
       setBookings(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError("Failed to load bookings: " + (err as any).message);
-      setBookings([]);
+      const msg = (err as any).message || String(err);
+      try {
+        const local = getBookings().filter(
+          (b) =>
+            b.targetType === "STUDIO" &&
+            String(b.targetId) === String(studioId),
+        );
+
+        const mapped = local.map((b) => ({
+          id:
+            typeof b.id === "string" && !Number.isNaN(Number(b.id))
+              ? Number(b.id)
+              : b.id,
+          customerId: b.customerEmail,
+          customer: {
+            fullName: b.customerName || "",
+            email: b.customerEmail || undefined,
+          },
+          date: b.appointmentDate?.includes("T")
+            ? b.appointmentDate.split("T")[0]
+            : b.appointmentDate || "",
+          time: b.appointmentDate?.includes("T")
+            ? b.appointmentDate.split("T")[1]
+            : "",
+          status: b.status as any,
+          createdAt: b.createdAt,
+        }));
+
+        setBookings(mapped);
+        setError(
+          "Failed to load bookings from backend: " +
+            msg +
+            ". Showing local bookings.",
+        );
+      } catch (localErr) {
+        setError("Failed to load bookings: " + msg);
+        setBookings([]);
+      }
     } finally {
       setLoading(false);
       setRetrying(false);
     }
   };
 
-  const handleUseMock = () => {
-    setUsingMock(true);
-    setBookings(getMockStudioBookings());
-    setError("");
-    setLoading(false);
-  };
-
   const handleRetry = async () => {
     setRetrying(true);
-    setUsingMock(false);
     await fetchBookings();
   };
 
@@ -88,7 +115,19 @@ export default function StudioBookings({ studioId }: StudioBookingsProps) {
       setSuccessMessage("✅ Booking confirmed successfully!");
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (err) {
-      setError("Error confirming booking: " + (err as any).message);
+      // persist locally on failure
+      try {
+        updateBookingStatus(String(id), "CONFIRMED");
+        setBookings((prev) =>
+          prev.map((b) =>
+            b.id === id ? { ...b, status: "CONFIRMED" as const } : b,
+          ),
+        );
+        setSuccessMessage("✅ Booking confirmed locally (offline)");
+        setTimeout(() => setSuccessMessage(""), 3000);
+      } catch (localErr) {
+        setError("Error confirming booking: " + (err as any).message);
+      }
     } finally {
       setActionLoading(null);
     }
@@ -115,7 +154,18 @@ export default function StudioBookings({ studioId }: StudioBookingsProps) {
       setSuccessMessage("❌ Booking rejected");
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (err) {
-      setError("Error rejecting booking: " + (err as any).message);
+      try {
+        updateBookingStatus(String(id), "CANCELLED");
+        setBookings((prev) =>
+          prev.map((b) =>
+            b.id === id ? { ...b, status: "REJECTED" as const } : b,
+          ),
+        );
+        setSuccessMessage("❌ Booking rejected locally (offline)");
+        setTimeout(() => setSuccessMessage(""), 3000);
+      } catch (localErr) {
+        setError("Error rejecting booking: " + (err as any).message);
+      }
     } finally {
       setActionLoading(null);
     }
