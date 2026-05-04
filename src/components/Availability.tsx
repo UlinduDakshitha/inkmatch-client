@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { getLocalAvailabilitySlots } from "@/utils/appData";
 
 interface AvailabilityProps {
   artistId: string | number;
@@ -29,12 +30,18 @@ export default function Availability({
     process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
     "http://localhost:8080";
 
-  const fallbackSlots = (): TimeSlot[] => [
-    { id: `${artistId}-${date}-0900`, time: "9:00 AM", booked: false },
-    { id: `${artistId}-${date}-1100`, time: "11:00 AM", booked: false },
-    { id: `${artistId}-${date}-1300`, time: "1:00 PM", booked: false },
-    { id: `${artistId}-${date}-1500`, time: "3:00 PM", booked: false },
-  ];
+  const readLocalSlots = (): TimeSlot[] =>
+    getLocalAvailabilitySlots(artistId, date);
+
+  const syncSlots = (nextSlots: TimeSlot[]) => {
+    const normalized = nextSlots.map((slot, index) => ({
+      id: slot.id ?? `${artistId}-${date}-${index}`,
+      time: slot.time,
+      booked: Boolean(slot.booked),
+    }));
+    setSlots(normalized);
+    return normalized;
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -46,12 +53,20 @@ export default function Availability({
         }
         return res.json();
       })
-      .then((data) => setSlots(Array.isArray(data) ? data : fallbackSlots()))
+      .then((data) => {
+        const apiSlots = Array.isArray(data) ? data : [];
+        if (apiSlots.length > 0) {
+          syncSlots(apiSlots);
+          return;
+        }
+
+        const localSlots = readLocalSlots();
+        syncSlots(localSlots);
+      })
       .catch((err) => {
-        setSlots(fallbackSlots());
-        setError(
-          "Backend unavailable. Showing sample time slots so you can continue.",
-        );
+        const localSlots = readLocalSlots();
+        syncSlots(localSlots);
+        setError("");
         return err;
       })
       .finally(() => setLoading(false));

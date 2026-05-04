@@ -76,6 +76,7 @@ const BOOKINGS_KEY = "inkmatch.bookings";
 const CUSTOMER_KEY = "inkmatch.customerProfiles";
 const ADMIN_KEY = "inkmatch.adminProfiles";
 const NOTIFICATIONS_KEY = "inkmatch.notifications";
+const AVAILABILITY_KEY_PREFIX = "inkmatch.availability";
 export const APP_DATA_UPDATED_EVENT = "inkmatch:data-updated";
 
 function notifyAppDataUpdated() {
@@ -458,6 +459,53 @@ export function deleteAdminProfileByOwner(ownerEmail: string): AdminProfile[] {
   localStorage.setItem(ADMIN_KEY, JSON.stringify(next));
   notifyAppDataUpdated();
   return next;
+}
+
+export type AvailabilitySlot = {
+  id: string | number;
+  time: string;
+  booked?: boolean;
+};
+
+function getAvailabilityKey(artistId: string | number, date: string): string {
+  return `${AVAILABILITY_KEY_PREFIX}.${String(artistId)}.${date}`;
+}
+
+export function getLocalAvailabilitySlots(
+  artistId: string | number,
+  date: string,
+): AvailabilitySlot[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  return safeParse<AvailabilitySlot[]>(
+    localStorage.getItem(getAvailabilityKey(artistId, date)),
+    [],
+  );
+}
+
+export function upsertLocalAvailabilitySlots(
+  artistId: string | number,
+  date: string,
+  slots: AvailabilitySlot[],
+): AvailabilitySlot[] {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  const normalizedSlots = slots.map((slot) => ({
+    id: slot.id,
+    time: slot.time,
+    booked: Boolean(slot.booked),
+  }));
+
+  localStorage.setItem(
+    getAvailabilityKey(artistId, date),
+    JSON.stringify(normalizedSlots),
+  );
+  notifyAppDataUpdated();
+  return normalizedSlots;
 }
 
 export function getNotifications(): AppNotification[] {

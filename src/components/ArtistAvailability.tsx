@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Calendar from "./Calendar";
+import {
+  getLocalAvailabilitySlots,
+  upsertLocalAvailabilitySlots,
+} from "@/utils/appData";
 
 interface TimeSlot {
   id?: string;
@@ -27,12 +31,6 @@ export default function ArtistAvailability({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState(false);
-
-  // Predefined time slots
-  const availableHours = Array.from({ length: 10 }, (_, i) => {
-    const hour = 9 + i;
-    return `${String(hour).padStart(2, "0")}:00`;
-  });
 
   useEffect(() => {
     fetchSlots();
@@ -73,25 +71,36 @@ export default function ArtistAvailability({
 
       // If no data from API, create defaults
       if (mergedSlots.length === 0) {
-        setSlots(
-          availableHours.map((time) => ({
-            time,
-            available: true,
-            bookedByCustomer: false,
-          })),
-        );
+        const localSlots = getLocalAvailabilitySlots(artistId, selectedDate);
+        if (localSlots.length > 0) {
+          setSlots(
+            localSlots.map((slot) => ({
+              ...slot,
+              available: !slot.booked,
+              bookedByCustomer: Boolean(slot.booked),
+            })),
+          );
+        } else {
+          setSlots([]);
+        }
       } else {
         setSlots(mergedSlots);
       }
     } catch (err) {
-      setError("Failed to load slots: " + (err as any).message);
-      setSlots(
-        availableHours.map((time) => ({
-          time,
-          available: true,
-          bookedByCustomer: false,
-        })),
-      );
+      const localSlots = getLocalAvailabilitySlots(artistId, selectedDate);
+      if (localSlots.length > 0) {
+        setSlots(
+          localSlots.map((slot) => ({
+            ...slot,
+            available: !slot.booked,
+            bookedByCustomer: Boolean(slot.booked),
+          })),
+        );
+        setError("");
+      } else {
+        setError("Failed to load slots: " + (err as any).message);
+        setSlots([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -126,6 +135,15 @@ export default function ArtistAvailability({
       );
 
       if (response.ok) {
+        upsertLocalAvailabilitySlots(
+          artistId,
+          selectedDate,
+          slots.map((s) => ({
+            id: s.id ?? `${artistId}-${selectedDate}-${s.time}`,
+            time: s.time,
+            booked: !s.available || s.bookedByCustomer,
+          })),
+        );
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
       } else {
