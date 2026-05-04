@@ -6,8 +6,29 @@ import CustomerBookings from "@/components/CustomerBookings";
 import Link from "next/link";
 
 export default function CustomerDashboardPage() {
-  const user = getCurrentUser();
+  const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState(
+    () => null as ReturnType<typeof getCurrentUser>,
+  );
   const [activeTab, setActiveTab] = useState("bookings");
+
+  useEffect(() => {
+    setMounted(true);
+    setUser(getCurrentUser());
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="page-container container" style={{ paddingTop: "120px" }}>
+        <div className="glass-card">
+          <h1 className="heading-3">Loading your dashboard...</h1>
+          <p className="text-secondary mt-2">
+            Preparing your bookings and account details.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!user?.email) {
     return (
