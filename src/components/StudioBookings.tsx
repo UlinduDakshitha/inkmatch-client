@@ -94,6 +94,41 @@ export default function StudioBookings({ studioId }: StudioBookingsProps) {
     await fetchBookings();
   };
 
+  const handleLoadLocal = () => {
+    try {
+      const local = getBookings().filter(
+        (b) =>
+          b.targetType === "STUDIO" && String(b.targetId) === String(studioId),
+      );
+
+      const mapped = local.map((b) => ({
+        id:
+          typeof b.id === "string" && !Number.isNaN(Number(b.id))
+            ? Number(b.id)
+            : b.id,
+        customerId: b.customerEmail,
+        customer: {
+          fullName: b.customerName || "",
+          email: b.customerEmail || undefined,
+        },
+        date: b.appointmentDate?.includes("T")
+          ? b.appointmentDate.split("T")[0]
+          : b.appointmentDate || "",
+        time: b.appointmentDate?.includes("T")
+          ? b.appointmentDate.split("T")[1]
+          : "",
+        status: b.status as any,
+        createdAt: b.createdAt,
+      }));
+
+      setBookings(mapped);
+      setError("");
+      setLoading(false);
+    } catch (err) {
+      setError("Failed to load local bookings: " + (err as any).message);
+    }
+  };
+
   const confirm = async (id: number) => {
     setActionLoading(id);
     setSuccessMessage("");
@@ -353,7 +388,7 @@ export default function StudioBookings({ studioId }: StudioBookingsProps) {
             </button>
 
             <button
-              onClick={handleUseMock}
+              onClick={handleLoadLocal}
               className=""
               style={{
                 padding: "0.5rem 0.75rem",
@@ -364,7 +399,7 @@ export default function StudioBookings({ studioId }: StudioBookingsProps) {
                 cursor: "pointer",
               }}
             >
-              Use Mock Data
+              Load Local Bookings
             </button>
           </div>
         </div>
