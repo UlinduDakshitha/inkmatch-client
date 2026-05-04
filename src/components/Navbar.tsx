@@ -159,7 +159,7 @@ function createProfileStatus(user: AppUser, role: AppRole): ProfileStatusState {
           `Photo: ${customerProfile.profileImage ? "Added" : "Missing"}`,
         ]
       : ["Create your customer profile from My Dashboard."],
-    ctaLabel: "Open Dashboard",
+    ctaLabel: "My Dashboard",
     ctaHref: "/customer-dashboard",
   };
 }
@@ -383,13 +383,15 @@ export default function Navbar() {
                     <p key={`${item}-${index}`}>{item}</p>
                   ))}
                 </div>
-                <Link
-                  href={profileStatus.ctaHref}
-                  className="navbar-settings-action"
-                  onClick={() => setProfileStatusOpen(false)}
-                >
-                  {profileStatus.ctaLabel}
-                </Link>
+                {normalizeRole(navbarUser.user.role) !== "CUSTOMER" && (
+                  <Link
+                    href={profileStatus.ctaHref}
+                    className="navbar-settings-action"
+                    onClick={() => setProfileStatusOpen(false)}
+                  >
+                    {profileStatus.ctaLabel}
+                  </Link>
+                )}
 
                 {/* Dashboard Links */}
                 {navbarUser.user && (
