@@ -68,10 +68,30 @@ export default function StudiosPage() {
   useEffect(() => {
     const localStudios = getStudioProfiles();
 
-    // Fetch from Spring Boot Backend
-    fetch("http://localhost:8080/api/studios")
-      .then((res) => res.json())
-      .then((data: Studio[]) => {
+    async function loadStudios() {
+      const apiBase =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+      const url = `${apiBase.replace(/\/$/, "")}/api/studios`;
+
+      try {
+        const res = await fetch(url);
+        if (!res.ok) {
+          const localCards: StudioCard[] = localStudios.map((studio) => ({
+            id: studio.id,
+            name: studio.name || "Studio",
+            address: studio.address || "Address not listed",
+            profileImage: studio.profileImage,
+            source: "local",
+          }));
+          setStudios(localCards);
+          if (localCards.length === 0) {
+            setError("Unable to load backend studios right now.");
+          }
+          setLoading(false);
+          return;
+        }
+
+        const data = (await res.json()) as Studio[];
         const backendCards: StudioCard[] = data.map((studio) => ({
           id: String(studio.id),
           name: studio.name || "Unknown Studio",
@@ -87,10 +107,7 @@ export default function StudiosPage() {
           source: "local",
         }));
         setStudios([...localCards, ...backendCards]);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
+      } catch (err) {
         const localCards: StudioCard[] = localStudios.map((studio) => ({
           id: studio.id,
           name: studio.name || "Studio",
@@ -102,8 +119,12 @@ export default function StudiosPage() {
         if (localCards.length === 0) {
           setError("Unable to load backend studios right now.");
         }
+      } finally {
         setLoading(false);
-      });
+      }
+    }
+
+    loadStudios();
 
     function syncLocalData() {
       const localCards: StudioCard[] = getStudioProfiles().map((studio) => ({
