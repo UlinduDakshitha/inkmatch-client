@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getMockArtistBookings } from "@/utils/mockBookings";
+import { getBookings, updateBookingStatus } from "@/utils/appData";
 
 interface Booking {
   id: number;
@@ -46,8 +47,58 @@ export default function ArtistBookings({ artistId }: ArtistBookingsProps) {
       const data = await response.json();
       setBookings(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError("Failed to load bookings: " + (err as any).message);
-      setBookings([]);
+      const msg = (err as any).message || String(err);
+      // Attempt to load local bookings as a fallback
+      try {
+        const local = getBookings().filter(
+          (b) =>
+            b.targetType === "ARTIST" &&
+            String(b.targetId) === String(artistId),
+        );
+
+        const mapped = local.map((b) => {
+          let date = "";
+          let time = "";
+          if (b.appointmentDate) {
+            if (b.appointmentDate.includes("T")) {
+              const parts = b.appointmentDate.split("T");
+              date = parts[0];
+              time = parts[1];
+            } else {
+              date = b.appointmentDate;
+            }
+          }
+
+          return {
+            id:
+              typeof b.id === "string" && !Number.isNaN(Number(b.id))
+                ? Number(b.id)
+                : b.id,
+            customerId: b.customerEmail || b.customerName,
+            customer: {
+              fullName: b.customerName || "",
+              email: b.customerEmail || undefined,
+            },
+            date,
+            time,
+            status:
+              (b.status as any) === "CANCELLED"
+                ? "REJECTED"
+                : (b.status as any),
+            createdAt: b.createdAt,
+          } as Booking;
+        });
+
+        setBookings(mapped);
+        setError(
+          "Failed to load bookings from backend: " +
+            msg +
+            ". Showing local bookings.",
+        );
+      } catch (localErr) {
+        setError("Failed to load bookings: " + msg);
+        setBookings([]);
+      }
     } finally {
       setLoading(false);
       setRetrying(false);
@@ -88,7 +139,19 @@ export default function ArtistBookings({ artistId }: ArtistBookingsProps) {
       setSuccessMessage("✅ Booking confirmed successfully!");
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (err) {
-      setError("Error confirming booking: " + (err as any).message);
+      // Try to persist confirmation locally
+      try {
+        updateBookingStatus(String(id), "CONFIRMED");
+        setBookings((prev) =>
+          prev.map((b) =>
+            b.id === id ? { ...b, status: "CONFIRMED" as const } : b,
+          ),
+        );
+        setSuccessMessage("✅ Booking confirmed locally (offline)");
+        setTimeout(() => setSuccessMessage(""), 3000);
+      } catch (localErr) {
+        setError("Error confirming booking: " + (err as any).message);
+      }
     } finally {
       setActionLoading(null);
     }
@@ -115,7 +178,19 @@ export default function ArtistBookings({ artistId }: ArtistBookingsProps) {
       setSuccessMessage("❌ Booking rejected");
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (err) {
-      setError("Error rejecting booking: " + (err as any).message);
+      // Try to persist rejection locally (map to CANCELLED in storage)
+      try {
+        updateBookingStatus(String(id), "CANCELLED");
+        setBookings((prev) =>
+          prev.map((b) =>
+            b.id === id ? { ...b, status: "REJECTED" as const } : b,
+          ),
+        );
+        setSuccessMessage("❌ Booking rejected locally (offline)");
+        setTimeout(() => setSuccessMessage(""), 3000);
+      } catch (localErr) {
+        setError("Error rejecting booking: " + (err as any).message);
+      }
     } finally {
       setActionLoading(null);
     }
