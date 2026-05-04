@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import "../../artists/shared.css";
 import CustomerLoginRequiredModal from "@/components/CustomerLoginRequiredModal";
+import Availability from "@/components/Availability";
 import {
   addBooking,
   getCustomerProfileByOwner,
@@ -33,6 +34,7 @@ export default function StudioDetailsPage() {
   const [loading, setLoading] = useState(!initialLocalStudio);
   const [notice, setNotice] = useState("");
   const [appointmentDate, setAppointmentDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [bookingNote, setBookingNote] = useState("");
   const [showLoginModal, setShowLoginModal] = useState(false);
 
@@ -62,11 +64,14 @@ export default function StudioDetailsPage() {
       setNotice("Login as a customer account to place a booking.");
       return;
     }
-
     const targetName = localStudio?.name || studio?.name || "Studio";
     const customerProfile = currentUser.email
       ? getCustomerProfileByOwner(currentUser.email)
       : null;
+
+    const finalAppointment = selectedTime
+      ? `${appointmentDate}T${selectedTime}`
+      : appointmentDate;
 
     addBooking({
       id: `bk-${Date.now()}`,
@@ -76,7 +81,7 @@ export default function StudioDetailsPage() {
       targetType: "STUDIO",
       targetId: String(studioId),
       targetName,
-      appointmentDate,
+      appointmentDate: finalAppointment,
       notes: bookingNote,
       status: "PENDING",
       createdAt: new Date().toISOString(),
@@ -145,6 +150,21 @@ export default function StudioDetailsPage() {
                 onChange={(e) => setAppointmentDate(e.target.value)}
                 required
               />
+              <div style={{ minWidth: 160 }}>
+                <Availability
+                  artistId={studioId}
+                  date={appointmentDate}
+                  onSelectSlot={(slotId, time) => {
+                    setSelectedTime(time);
+                    // ensure date is set if user clicked a slot when date input was empty
+                    if (!appointmentDate) {
+                      const tomorrow = new Date();
+                      tomorrow.setDate(tomorrow.getDate() + 1);
+                      setAppointmentDate(tomorrow.toISOString().split("T")[0]);
+                    }
+                  }}
+                />
+              </div>
               <input
                 type="text"
                 className="input-field"

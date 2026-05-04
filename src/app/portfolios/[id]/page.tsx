@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import "../../artists/shared.css";
 import CustomerLoginRequiredModal from "@/components/CustomerLoginRequiredModal";
+import Availability from "@/components/Availability";
 import {
   addBooking,
   deleteArtistProfileByOwner,
@@ -94,6 +95,7 @@ export default function PortfolioPage() {
   const [notice, setNotice] = useState("");
   const [appointmentDate, setAppointmentDate] = useState("");
   const [bookingNote, setBookingNote] = useState("");
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
@@ -176,6 +178,10 @@ export default function PortfolioPage() {
     const targetName =
       localPortfolio?.ownerName || portfolio?.userId?.name || "Artist";
 
+    const finalAppointment = selectedTime
+      ? `${appointmentDate}T${selectedTime}`
+      : appointmentDate;
+
     addBooking({
       id: `bk-${Date.now()}`,
       customerEmail: currentUser.email,
@@ -184,7 +190,7 @@ export default function PortfolioPage() {
       targetType: "ARTIST",
       targetId: String(portfolioId),
       targetName,
-      appointmentDate,
+      appointmentDate: finalAppointment,
       notes: bookingNote,
       status: "PENDING",
       createdAt: new Date().toISOString(),
@@ -295,6 +301,22 @@ export default function PortfolioPage() {
                       onChange={(e) => setAppointmentDate(e.target.value)}
                       required
                     />
+                    <div style={{ minWidth: 160 }}>
+                      <Availability
+                        artistId={portfolioId}
+                        date={appointmentDate}
+                        onSelectSlot={(slotId, time) => {
+                          setSelectedTime(time);
+                          if (!appointmentDate) {
+                            const tomorrow = new Date();
+                            tomorrow.setDate(tomorrow.getDate() + 1);
+                            setAppointmentDate(
+                              tomorrow.toISOString().split("T")[0],
+                            );
+                          }
+                        }}
+                      />
+                    </div>
                     <input
                       type="text"
                       className="input-field"
