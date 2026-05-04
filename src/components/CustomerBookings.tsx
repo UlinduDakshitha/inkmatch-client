@@ -131,80 +131,18 @@ export default function CustomerBookings({
       : bookings.filter((b) => b.status === filterStatus);
 
   if (loading) {
-      {error && (
-        <div
-          className="glass-card"
-          style={{
-            marginBottom: "1.5rem",
-            border: "1px solid rgba(239, 68, 68, 0.5)",
-            background: "rgba(239, 68, 68, 0.08)",
-            padding: "1.5rem",
-          }}
-        >
-          <p style={{ color: "#ef4444", margin: "0 0 0.5rem 0", fontSize: "0.95rem", fontWeight: "600" }}>
-            ⚠️ Error Loading Bookings
-          </p>
-          <p style={{ color: "rgba(255, 255, 255, 0.8)", margin: 0, fontSize: "0.9rem" }}>
-            {error}
-          </p>
-          <div style={{ marginTop: "0.75rem", display: "flex", gap: "0.5rem" }}>
-            <button
-              onClick={handleRetry}
-              disabled={retrying}
-              className="btn-primary"
-              style={{ padding: "0.5rem 0.75rem" }}
-            >
-              {retrying ? "Retrying..." : "Retry"}
-            </button>
+    return (
+      <div
+        className="glass-card"
+        style={{ padding: "2rem", textAlign: "center" }}
+      >
+        <p className="text-gray-400">Loading bookings...</p>
+      </div>
+    );
+  }
 
-            <button
-              onClick={handleUseMock}
-              className=""
-              style={{
-                padding: "0.5rem 0.75rem",
-                borderRadius: "6px",
-                border: "1px solid rgba(255,255,255,0.08)",
-                background: "transparent",
-                color: "#fff",
-                cursor: "pointer",
-              }}
-            >
-              Use Mock Data
-            </button>
-          </div>
-        </div>
-      )}
-        <div
-          className="glass-card"
-          style={{
-            textAlign: "center",
-            borderLeft: "4px solid #f59e0b",
-            padding: "1.5rem",
-            cursor: "pointer",
-            transition: "all 0.2s",
-          }}
-          onClick={() => setFilterStatus("PENDING")}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLElement).style.background =
-              "rgba(245, 158, 11, 0.05)";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLElement).style.background = "";
-          }}
-        >
-          <p style={{ fontSize: "2rem", margin: "0 0 0.5rem 0" }}>
-            {pendingBookings.length}
-          </p>
-          <p
-            style={{
-              margin: 0,
-              fontSize: "0.875rem",
-              color: "rgba(255, 255, 255, 0.7)",
-            }}
-          >
-            Pending
-          </p>
-        </div>
+  return (
+    <div style={{ maxWidth: "900px" }}>
 
         <div
           className="glass-card"
