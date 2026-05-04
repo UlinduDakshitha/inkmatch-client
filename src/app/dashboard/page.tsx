@@ -97,9 +97,8 @@ function formatDate(value: string): string {
 
 export default function Dashboard() {
   const router = useRouter();
-  const [user] = useState<AppUser | null>(() => {
-    return getCurrentUser();
-  });
+  const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState<AppUser | null>(null);
   const role = getEffectiveRole(user);
   const [notice, setNotice] = useState("");
   const [stats, setStats] = useState<DashboardStats>(EMPTY_STATS);
@@ -151,6 +150,11 @@ export default function Dashboard() {
       recentNotifications: notifications.slice(0, 4),
     });
   }, [user, role]);
+
+  useEffect(() => {
+    setMounted(true);
+    setUser(getCurrentUser());
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -265,6 +269,17 @@ export default function Dashboard() {
       ].filter((value) => String(value || "").trim().length > 0).length
     : 0;
   const profileCompletionPercent = Math.round((profileCompletion / 5) * 100);
+
+  if (!mounted) {
+    return (
+      <div className="page-container container" style={{ paddingTop: "120px" }}>
+        <div className="glass-card">
+          <h1 className="heading-3">Loading dashboard...</h1>
+          <p className="text-secondary mt-2">Preparing your dashboard.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="page-container container" style={{ paddingTop: "120px" }}>
