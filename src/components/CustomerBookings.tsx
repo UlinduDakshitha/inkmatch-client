@@ -143,7 +143,14 @@ export default function CustomerBookings({
 
   return (
     <div style={{ maxWidth: "900px" }}>
-
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+          gap: "1rem",
+          marginBottom: "2rem",
+        }}
+      >
         <div
           className="glass-card"
           style={{
