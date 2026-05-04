@@ -12,24 +12,50 @@ export default function Availability({
   date = "2026-05-10",
   onSelectSlot,
 }: AvailabilityProps) {
-  const [slots, setSlots] = useState<any[]>([]);
+  type TimeSlot = {
+    id: string | number;
+    time: string;
+    booked?: boolean;
+  };
+
+  const [slots, setSlots] = useState<TimeSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const [selectedSlot, setSelectedSlot] = useState<string | number | null>(
     null,
   );
 
+  const apiBaseUrl =
+    process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
+    "http://localhost:8080";
+
+  const fallbackSlots = (): TimeSlot[] => [
+    { id: `${artistId}-${date}-0900`, time: "9:00 AM", booked: false },
+    { id: `${artistId}-${date}-1100`, time: "11:00 AM", booked: false },
+    { id: `${artistId}-${date}-1300`, time: "1:00 PM", booked: false },
+    { id: `${artistId}-${date}-1500`, time: "3:00 PM", booked: false },
+  ];
+
   useEffect(() => {
     setLoading(true);
     setError("");
-    fetch(`http://localhost:8080/api/availability/${artistId}/${date}`)
-      .then((res) => res.json())
-      .then(setSlots)
-      .catch((err) =>
-        setError("Failed to load available slots: " + err.message),
-      )
+    fetch(`${apiBaseUrl}/api/availability/${artistId}/${date}`)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`API returned ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((data) => setSlots(Array.isArray(data) ? data : fallbackSlots()))
+      .catch((err) => {
+        setSlots(fallbackSlots());
+        setError(
+          "Backend unavailable. Showing sample time slots so you can continue.",
+        );
+        return err;
+      })
       .finally(() => setLoading(false));
-  }, [artistId, date]);
+  }, [apiBaseUrl, artistId, date]);
 
   const handleSelectSlot = (slotId: string | number, time: string) => {
     setSelectedSlot(slotId);
@@ -47,7 +73,7 @@ export default function Availability({
       <h2 className="text-lg font-semibold mb-4">Select Time Slot</h2>
 
       <div className="grid grid-cols-3 gap-3">
-        {slots.map((s: any) => (
+        {slots.map((s) => (
           <button
             key={s.id}
             onClick={() => handleSelectSlot(s.id, s.time)}

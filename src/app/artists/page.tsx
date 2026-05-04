@@ -9,6 +9,7 @@ import {
   getCurrentUser,
   normalizeRole,
 } from "@/utils/appData";
+import { getMockArtists } from "@/utils/mockBookings";
 
 type Artist = {
   id: number | string;
@@ -42,6 +43,7 @@ export default function ArtistsPage() {
 
   useEffect(() => {
     const localProfiles = getArtistProfiles();
+    const mockArtists = getMockArtists();
     const controller = new AbortController();
 
     // Fetch from Spring Boot Backend
@@ -69,7 +71,15 @@ export default function ArtistsPage() {
           source: "local",
         }));
 
-        const merged = [...localCards, ...backendCards];
+        const mockCards: ArtistCard[] = mockArtists.map((artist) => ({
+          id: String(artist.id),
+          name: artist.ownerName,
+          style: artist.style,
+          profileImage: "",
+          source: "local",
+        }));
+
+        const merged = [...localCards, ...backendCards, ...mockCards];
         setArtists(merged);
         setLoading(false);
       })
@@ -81,10 +91,15 @@ export default function ArtistsPage() {
           profileImage: profile.profileImage,
           source: "local",
         }));
-        setArtists(localCards);
-        if (localCards.length === 0) {
-          setError("Unable to load backend artists right now.");
-        }
+        const mockCards: ArtistCard[] = mockArtists.map((artist) => ({
+          id: String(artist.id),
+          name: artist.ownerName,
+          style: artist.style,
+          profileImage: "",
+          source: "local",
+        }));
+        setArtists([...localCards, ...mockCards]);
+        setError("Backend unavailable. Showing sample artists.");
         setLoading(false);
       });
 

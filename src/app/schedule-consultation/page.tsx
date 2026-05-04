@@ -1,14 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getCurrentUser } from "@/utils/appData";
+import { addBooking, getArtistProfiles, getCurrentUser } from "@/utils/appData";
 import { getMockArtists } from "@/utils/mockBookings";
 import Availability from "@/components/Availability";
 import Calendar from "@/components/Calendar";
 
+type Artist = {
+  id: string | number;
+  ownerName?: string;
+  name?: string;
+  style?: string;
+  userId?: {
+    name?: string;
+  };
+};
+
 export default function ScheduleConsultationPage() {
   const user = getCurrentUser();
-  const [artists, setArtists] = useState<any[]>([]);
+  const [artists, setArtists] = useState<Artist[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const [selectedArtist, setSelectedArtist] = useState<string | number>("");
@@ -23,25 +33,102 @@ export default function ScheduleConsultationPage() {
   } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const apiBaseUrl =
+    process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
+    "http://localhost:8080";
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/artists")
-      .then((res) => res.json())
-      .then(setArtists)
-      .catch((err) => setError("Failed to load artists: " + err.message))
+    const localArtists: Artist[] = getArtistProfiles().map((profile) => ({
+      id: profile.id,
+      ownerName: profile.ownerName,
+      style: profile.style || "Custom Style",
+    }));
+
+    const mockArtists: Artist[] = getMockArtists().map((artist) => ({
+      id: artist.id,
+      ownerName: artist.ownerName,
+      style: artist.style,
+    }));
+
+    const controller = new AbortController();
+
+    fetch(`${apiBaseUrl}/api/artists`, { signal: controller.signal })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`API returned ${res.status}`);
+        }
+        return res.json() as Promise<Artist[]>;
+      })
+      .then((data) => {
+        const backendArtists = Array.isArray(data) ? data : [];
+        const merged = [...localArtists, ...backendArtists, ...mockArtists];
+        const uniqueById = merged.filter(
+          (artist, index, array) =>
+            index ===
+            array.findIndex((item) => String(item.id) === String(artist.id)),
+        );
+
+        setArtists(uniqueById);
+        setError("");
+      })
+      .catch((err: unknown) => {
+        const message = err instanceof Error ? err.message : String(err);
+        const fallbackArtists = [...localArtists, ...mockArtists];
+        setArtists(fallbackArtists);
+        setError(
+          fallbackArtists.length > 0
+            ? "Backend unavailable. Showing sample artists so you can continue booking."
+            : "Failed to load artists: " + message,
+        );
+      })
       .finally(() => setLoading(false));
-  }, []);
+
+    return () => controller.abort();
+  }, [apiBaseUrl]);
 
   const handleRetryArtists = async () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("http://localhost:8080/api/artists");
+      const res = await fetch(`${apiBaseUrl}/api/artists`);
       if (!res.ok) throw new Error("Failed to load artists");
       const data = await res.json();
-      setArtists(data || []);
+      const localArtists: Artist[] = getArtistProfiles().map((profile) => ({
+        id: profile.id,
+        ownerName: profile.ownerName,
+        style: profile.style || "Custom Style",
+      }));
+      const mockArtists: Artist[] = getMockArtists().map((artist) => ({
+        id: artist.id,
+        ownerName: artist.ownerName,
+        style: artist.style,
+      }));
+      const backendArtists = Array.isArray(data) ? data : [];
+      const merged = [...localArtists, ...backendArtists, ...mockArtists];
+      setArtists(
+        merged.filter(
+          (artist, index, array) =>
+            index ===
+            array.findIndex((item) => String(item.id) === String(artist.id)),
+        ),
+      );
     } catch (err) {
-      setError("Failed to load artists: " + (err as any).message);
+      const fallbackArtists = [
+        ...getArtistProfiles().map((profile) => ({
+          id: profile.id,
+          ownerName: profile.ownerName,
+          style: profile.style || "Custom Style",
+        })),
+        ...getMockArtists().map((artist) => ({
+          id: artist.id,
+          ownerName: artist.ownerName,
+          style: artist.style,
+        })),
+      ];
+      setArtists(fallbackArtists);
+      setError(
+        "Backend unavailable. Showing sample artists so you can continue booking.",
+      );
     } finally {
       setLoading(false);
     }
@@ -68,7 +155,11 @@ export default function ScheduleConsultationPage() {
 
     setSubmitting(true);
     try {
-      const response = await fetch("http://localhost:8080/api/consultations", {
+      const selectedArtistRecord = artists.find(
+        (artist) => String(artist.id) === String(selectedArtist),
+      );
+
+      const response = await fetch(`${apiBaseUrl}/api/consultations`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -86,10 +177,31 @@ export default function ScheduleConsultationPage() {
           window.location.href = "/consultations";
         }, 2000);
       } else {
-        alert("Failed to schedule consultation");
+        throw new Error("Failed to schedule consultation");
       }
     } catch (err) {
-      alert("Error scheduling consultation: " + (err as any).message);
+      const selectedArtistRecord = artists.find(
+        (artist) => String(artist.id) === String(selectedArtist),
+      );
+      addBooking({
+        id: `local-booking-${Date.now()}`,
+        customerEmail: user.email,
+        customerName: user.name || "Customer",
+        targetType: "ARTIST",
+        targetId: String(selectedArtist),
+        targetName:
+          selectedArtistRecord?.ownerName ||
+          selectedArtistRecord?.name ||
+          "Selected Artist",
+        appointmentDate: selectedDate,
+        notes: `Consultation at ${selectedSlot.time}`,
+        status: "PENDING",
+        createdAt: new Date().toISOString(),
+      });
+      setSuccess(true);
+      setTimeout(() => {
+        window.location.href = "/consultations";
+      }, 2000);
     } finally {
       setSubmitting(false);
     }
@@ -210,7 +322,7 @@ export default function ScheduleConsultationPage() {
             </option>
             {artists.map((artist) => (
               <option key={artist.id} value={artist.id}>
-                {artist.ownerName || "Artist"} - {artist.style}
+                {artist.ownerName || artist.name || "Artist"} - {artist.style}
               </option>
             ))}
           </select>
