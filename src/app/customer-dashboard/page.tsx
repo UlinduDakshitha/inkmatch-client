@@ -70,19 +70,6 @@ export default function CustomerDashboardPage() {
     };
   }, [mounted, user?.email]);
 
-  if (!mounted) {
-    return (
-      <div className="page-container container" style={{ paddingTop: "120px" }}>
-        <div className="glass-card">
-          <h1 className="heading-3">Loading your dashboard...</h1>
-          <p className="text-secondary mt-2">
-            Preparing your bookings and account details.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   if (!user?.email) {
     return (
       <div className="page-container container" style={{ paddingTop: "120px" }}>

@@ -214,22 +214,6 @@ export default function ScheduleConsultationPage() {
   };
 
   if (!user?.email) {
-    if (!mounted) {
-      return (
-        <div
-          className="page-container container"
-          style={{ paddingTop: "120px" }}
-        >
-          <div className="glass-card">
-            <h1 className="heading-3">Loading consultation page...</h1>
-            <p className="text-secondary mt-2">
-              Preparing your booking screen.
-            </p>
-          </div>
-        </div>
-      );
-    }
-
     return (
       <div className="page-container container" style={{ paddingTop: "120px" }}>
         <div className="glass-card">
@@ -237,17 +221,6 @@ export default function ScheduleConsultationPage() {
           <p className="text-secondary mt-2">
             You need to be logged in to schedule a consultation.
           </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!mounted) {
-    return (
-      <div className="page-container container" style={{ paddingTop: "120px" }}>
-        <div className="glass-card">
-          <h1 className="heading-3">Loading consultation page...</h1>
-          <p className="text-secondary mt-2">Preparing your booking screen.</p>
         </div>
       </div>
     );

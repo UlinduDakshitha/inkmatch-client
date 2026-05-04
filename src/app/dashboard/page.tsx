@@ -270,22 +270,13 @@ export default function Dashboard() {
     : 0;
   const profileCompletionPercent = Math.round((profileCompletion / 5) * 100);
 
-  if (!mounted) {
-    return (
-      <div className="page-container container" style={{ paddingTop: "120px" }}>
-        <div className="glass-card">
-          <h1 className="heading-3">Loading dashboard...</h1>
-          <p className="text-secondary mt-2">Preparing your dashboard.</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="page-container container" style={{ paddingTop: "120px" }}>
       <h1 className="heading-2">
         Welcome Back,
-        <span className="text-gradient"> {user?.name ?? "Customer"}</span>
+        <span className="text-gradient" suppressHydrationWarning>
+          {mounted ? (user?.name ?? "Customer") : "Customer"}
+        </span>
       </h1>
       <p className="text-secondary mt-2">
         Customer dashboard for booking services, tracking progress, and managing
