@@ -491,7 +491,7 @@ export default function ArtistBookings({ artistId }: ArtistBookingsProps) {
                   >
                     {actionLoading === booking.id
                       ? "Confirming..."
-                      : "✅ Accept"}
+                      : "✅ Accept Request"}
                   </button>
 
                   <button
@@ -513,7 +513,7 @@ export default function ArtistBookings({ artistId }: ArtistBookingsProps) {
                   >
                     {actionLoading === booking.id
                       ? "Rejecting..."
-                      : "❌ Reject"}
+                      : "❌ Reject Request"}
                   </button>
                 </div>
               )}

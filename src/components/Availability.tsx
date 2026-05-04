@@ -10,7 +10,7 @@ interface AvailabilityProps {
 
 export default function Availability({
   artistId,
-  date = "2026-05-10",
+  date,
   onSelectSlot,
 }: AvailabilityProps) {
   type TimeSlot = {
@@ -29,9 +29,16 @@ export default function Availability({
   const apiBaseUrl =
     process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
     "http://localhost:8080";
+  const resolvedDate =
+    date ||
+    (() => {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      return tomorrow.toISOString().split("T")[0];
+    })();
 
   const readLocalSlots = (): TimeSlot[] =>
-    getLocalAvailabilitySlots(artistId, date);
+    getLocalAvailabilitySlots(artistId, resolvedDate);
 
   const syncSlots = (nextSlots: TimeSlot[]) => {
     const normalized = nextSlots.map((slot, index) => ({
@@ -46,7 +53,7 @@ export default function Availability({
   useEffect(() => {
     setLoading(true);
     setError("");
-    fetch(`${apiBaseUrl}/api/availability/${artistId}/${date}`)
+    fetch(`${apiBaseUrl}/api/availability/${artistId}/${resolvedDate}`)
       .then((res) => {
         if (!res.ok) {
           throw new Error(`API returned ${res.status}`);
@@ -70,7 +77,7 @@ export default function Availability({
         return err;
       })
       .finally(() => setLoading(false));
-  }, [apiBaseUrl, artistId, date]);
+  }, [apiBaseUrl, artistId, resolvedDate]);
 
   const handleSelectSlot = (slotId: string | number, time: string) => {
     setSelectedSlot(slotId);
@@ -87,6 +94,11 @@ export default function Availability({
     <div>
       <h2 className="text-lg font-semibold mb-4">Select Time Slot</h2>
 
+      <div className="mb-4 text-sm text-white/70 flex flex-wrap gap-3">
+        <span>✓ Available</span>
+        <span>📅 Booked</span>
+      </div>
+
       <div className="grid grid-cols-3 gap-3">
         {slots.map((s) => (
           <button
@@ -102,7 +114,9 @@ export default function Availability({
             }`}
           >
             <span className="block">{s.time}</span>
-            {s.booked && <span className="text-xs">(Booked)</span>}
+            <span className="block text-xs">
+              {s.booked ? "📅 Booked" : "✓ Available"}
+            </span>
           </button>
         ))}
       </div>

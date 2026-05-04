@@ -31,6 +31,7 @@ export default function ArtistAvailability({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState(false);
+  const [newSlotTime, setNewSlotTime] = useState("09:00");
 
   useEffect(() => {
     fetchSlots();
@@ -113,6 +114,34 @@ export default function ArtistAvailability({
         : slot,
     );
     setSlots(newSlots);
+  };
+
+  const addSlot = () => {
+    const normalizedTime = newSlotTime.trim();
+
+    if (!normalizedTime) {
+      setError("Please choose a time for the new slot.");
+      return;
+    }
+
+    if (slots.some((slot) => slot.time === normalizedTime)) {
+      setError("This time slot already exists.");
+      return;
+    }
+
+    const nextSlots = [
+      ...slots,
+      {
+        id: `${artistId}-${selectedDate}-${normalizedTime}`,
+        time: normalizedTime,
+        available: true,
+        bookedByCustomer: false,
+      },
+    ].sort((a, b) => a.time.localeCompare(b.time));
+
+    setSlots(nextSlots);
+    setError("");
+    persistLocalSlots(nextSlots);
   };
 
   const persistLocalSlots = (nextSlots: TimeSlot[]) => {
@@ -217,7 +246,14 @@ export default function ArtistAvailability({
           {new Date(selectedDate + "T00:00:00").toLocaleDateString()}
         </h3>
 
-        <div style={{ marginBottom: "1rem" }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+            gap: "0.75rem",
+            marginBottom: "1rem",
+          }}
+        >
           <p
             style={{
               fontSize: "0.875rem",
@@ -280,6 +316,47 @@ export default function ArtistAvailability({
           </p>
         </div>
 
+        <div
+          style={{
+            display: "flex",
+            gap: "0.75rem",
+            alignItems: "end",
+            flexWrap: "wrap",
+            marginBottom: "1.5rem",
+          }}
+        >
+          <div>
+            <label
+              htmlFor="new-slot-time"
+              style={{
+                display: "block",
+                fontSize: "0.875rem",
+                color: "rgba(255, 255, 255, 0.75)",
+                marginBottom: "0.5rem",
+              }}
+            >
+              Add a time slot
+            </label>
+            <input
+              id="new-slot-time"
+              type="time"
+              value={newSlotTime}
+              onChange={(e) => setNewSlotTime(e.target.value)}
+              className="input-field"
+              style={{ minWidth: "180px" }}
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={addSlot}
+            className="btn-primary"
+            style={{ height: "fit-content" }}
+          >
+            Add Slot
+          </button>
+        </div>
+
         {loading ? (
           <p className="text-gray-400">Loading slots...</p>
         ) : (
@@ -293,9 +370,9 @@ export default function ArtistAvailability({
               }}
             >
               {slots.length === 0 ? (
-                <p style={{ color: "rgba(255, 255, 255, 0.6)" }}>
-                  No slots available. Save some from the backend or load from
-                  your previous settings.
+                <p style={{ color: "rgba(255, 255, 255, 0.6)", margin: 0 }}>
+                  No slots added yet. Use the time picker above to create your
+                  first availability slot.
                 </p>
               ) : (
                 slots.map((slot) => (
@@ -335,9 +412,14 @@ export default function ArtistAvailability({
                           : "Click to make available"
                     }
                   >
-                    {slot.time}
-                    {slot.bookedByCustomer && " 📅"}
-                    {!slot.available && !slot.bookedByCustomer && " ✓"}
+                    <span style={{ display: "block" }}>{slot.time}</span>
+                    <span style={{ display: "block", fontSize: "0.75rem" }}>
+                      {slot.bookedByCustomer
+                        ? "📅 Booked"
+                        : slot.available
+                          ? "✓ Available"
+                          : "⛔ Blocked"}
+                    </span>
                   </button>
                 ))
               )}
