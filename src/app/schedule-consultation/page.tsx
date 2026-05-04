@@ -16,6 +16,15 @@ type Artist = {
   };
 };
 
+function mergeArtists(...groups: Artist[][]): Artist[] {
+  const merged = groups.flat();
+  return merged.filter(
+    (artist, index, array) =>
+      index ===
+      array.findIndex((item) => String(item.id) === String(artist.id)),
+  );
+}
+
 export default function ScheduleConsultationPage() {
   const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState(
@@ -46,6 +55,12 @@ export default function ScheduleConsultationPage() {
   }, []);
 
   useEffect(() => {
+    if (artists.length > 0 && !selectedArtist) {
+      setSelectedArtist(artists[0].id);
+    }
+  }, [artists, selectedArtist]);
+
+  useEffect(() => {
     const localArtists: Artist[] = getArtistProfiles().map((profile) => ({
       id: profile.id,
       ownerName: profile.ownerName,
@@ -69,23 +84,17 @@ export default function ScheduleConsultationPage() {
       })
       .then((data) => {
         const backendArtists = Array.isArray(data) ? data : [];
-        const merged = [...localArtists, ...backendArtists, ...mockArtists];
-        const uniqueById = merged.filter(
-          (artist, index, array) =>
-            index ===
-            array.findIndex((item) => String(item.id) === String(artist.id)),
-        );
-
-        setArtists(uniqueById);
-        setError("");
+        const merged = mergeArtists(localArtists, backendArtists, mockArtists);
+        setArtists(merged);
+        setError(merged.length > 0 ? "" : "No registered artists found.");
       })
       .catch((err: unknown) => {
         const message = err instanceof Error ? err.message : String(err);
-        const fallbackArtists = [...localArtists, ...mockArtists];
+        const fallbackArtists = mergeArtists(localArtists, mockArtists);
         setArtists(fallbackArtists);
         setError(
           fallbackArtists.length > 0
-            ? "Backend unavailable. Showing sample artists so you can continue booking."
+            ? ""
             : "Failed to load artists: " + message,
         );
       })
@@ -112,16 +121,9 @@ export default function ScheduleConsultationPage() {
         style: artist.style,
       }));
       const backendArtists = Array.isArray(data) ? data : [];
-      const merged = [...localArtists, ...backendArtists, ...mockArtists];
-      setArtists(
-        merged.filter(
-          (artist, index, array) =>
-            index ===
-            array.findIndex((item) => String(item.id) === String(artist.id)),
-        ),
-      );
+      setArtists(mergeArtists(localArtists, backendArtists, mockArtists));
     } catch (err) {
-      const fallbackArtists = [
+      const fallbackArtists = mergeArtists(
         ...getArtistProfiles().map((profile) => ({
           id: profile.id,
           ownerName: profile.ownerName,
@@ -132,20 +134,16 @@ export default function ScheduleConsultationPage() {
           ownerName: artist.ownerName,
           style: artist.style,
         })),
-      ];
+      );
       setArtists(fallbackArtists);
       setError(
-        "Backend unavailable. Showing sample artists so you can continue booking.",
+        fallbackArtists.length > 0
+          ? ""
+          : "Failed to load artists. Please try again.",
       );
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleUseMockArtists = () => {
-    setArtists(getMockArtists());
-    setError("");
-    setLoading(false);
   };
 
   const handleSchedule = async (e: React.FormEvent) => {
@@ -305,31 +303,21 @@ export default function ScheduleConsultationPage() {
         </p>
       </div>
 
-      {error && (
+      {!loading && artists.length === 0 && (
         <div
           className="glass-card"
           style={{ marginBottom: "1.5rem", padding: "1rem" }}
         >
           <p style={{ color: "#ef4444", margin: 0, fontWeight: 700 }}>
-            ⚠️ Failed to load artists
+            No registered artists found
           </p>
           <p style={{ color: "rgba(255,255,255,0.85)", marginTop: "0.5rem" }}>
-            {error}
+            Create an artist profile first, or try reloading if the backend is
+            temporarily unavailable.
           </p>
           <div style={{ marginTop: "0.75rem", display: "flex", gap: "0.5rem" }}>
             <button onClick={handleRetryArtists} className="btn-primary">
               Retry
-            </button>
-            <button
-              onClick={handleUseMockArtists}
-              style={{
-                padding: "0.5rem 0.75rem",
-                background: "transparent",
-                border: "1px solid rgba(255,255,255,0.08)",
-                borderRadius: 6,
-              }}
-            >
-              Use Mock Artists
             </button>
           </div>
         </div>
