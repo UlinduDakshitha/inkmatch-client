@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { addBooking, getArtistProfiles, getCurrentUser } from "@/utils/appData";
-import { getMockArtists } from "@/utils/mockBookings";
 import Availability from "@/components/Availability";
 import Calendar from "@/components/Calendar";
 
@@ -67,12 +66,6 @@ export default function ScheduleConsultationPage() {
       style: profile.style || "Custom Style",
     }));
 
-    const mockArtists: Artist[] = getMockArtists().map((artist) => ({
-      id: artist.id,
-      ownerName: artist.ownerName,
-      style: artist.style,
-    }));
-
     const controller = new AbortController();
 
     fetch(`${apiBaseUrl}/api/artists`, { signal: controller.signal })
@@ -84,13 +77,13 @@ export default function ScheduleConsultationPage() {
       })
       .then((data) => {
         const backendArtists = Array.isArray(data) ? data : [];
-        const merged = mergeArtists(localArtists, backendArtists, mockArtists);
+        const merged = mergeArtists(localArtists, backendArtists);
         setArtists(merged);
         setError(merged.length > 0 ? "" : "No registered artists found.");
       })
       .catch((err: unknown) => {
         const message = err instanceof Error ? err.message : String(err);
-        const fallbackArtists = mergeArtists(localArtists, mockArtists);
+        const fallbackArtists = mergeArtists(localArtists);
         setArtists(fallbackArtists);
         setError(
           fallbackArtists.length > 0
@@ -115,24 +108,14 @@ export default function ScheduleConsultationPage() {
         ownerName: profile.ownerName,
         style: profile.style || "Custom Style",
       }));
-      const mockArtists: Artist[] = getMockArtists().map((artist) => ({
-        id: artist.id,
-        ownerName: artist.ownerName,
-        style: artist.style,
-      }));
       const backendArtists = Array.isArray(data) ? data : [];
-      setArtists(mergeArtists(localArtists, backendArtists, mockArtists));
+      setArtists(mergeArtists(localArtists, backendArtists));
     } catch (err) {
       const fallbackArtists = mergeArtists(
         ...getArtistProfiles().map((profile) => ({
           id: profile.id,
           ownerName: profile.ownerName,
           style: profile.style || "Custom Style",
-        })),
-        ...getMockArtists().map((artist) => ({
-          id: artist.id,
-          ownerName: artist.ownerName,
-          style: artist.style,
         })),
       );
       setArtists(fallbackArtists);

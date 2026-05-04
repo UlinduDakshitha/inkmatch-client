@@ -62,10 +62,3 @@ export function getMockCustomerBookings(): MockBooking[] {
     },
   ];
 }
-
-export function getMockArtists() {
-  return [
-    { id: "artist-1", ownerName: "Ravi Tattoo", style: "Realism" },
-    { id: "artist-2", ownerName: "Saman Arts", style: "Neo-Traditional" },
-  ];
-}

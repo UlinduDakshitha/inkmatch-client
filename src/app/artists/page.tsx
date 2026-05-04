@@ -9,7 +9,6 @@ import {
   getCurrentUser,
   normalizeRole,
 } from "@/utils/appData";
-import { getMockArtists } from "@/utils/mockBookings";
 
 type Artist = {
   id: number | string;
@@ -33,7 +32,6 @@ export default function ArtistsPage() {
     "http://localhost:8080";
   const [artists, setArtists] = useState<ArtistCard[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const currentUser = getCurrentUser();
   const role = normalizeRole(currentUser?.role);
   const myPortfolio =
@@ -43,7 +41,6 @@ export default function ArtistsPage() {
 
   useEffect(() => {
     const localProfiles = getArtistProfiles();
-    const mockArtists = getMockArtists();
     const controller = new AbortController();
 
     // Fetch from Spring Boot Backend
@@ -71,15 +68,7 @@ export default function ArtistsPage() {
           source: "local",
         }));
 
-        const mockCards: ArtistCard[] = mockArtists.map((artist) => ({
-          id: String(artist.id),
-          name: artist.ownerName,
-          style: artist.style,
-          profileImage: "",
-          source: "local",
-        }));
-
-        const merged = [...localCards, ...backendCards, ...mockCards];
+        const merged = [...localCards, ...backendCards];
         setArtists(merged);
         setLoading(false);
       })
@@ -91,15 +80,7 @@ export default function ArtistsPage() {
           profileImage: profile.profileImage,
           source: "local",
         }));
-        const mockCards: ArtistCard[] = mockArtists.map((artist) => ({
-          id: String(artist.id),
-          name: artist.ownerName,
-          style: artist.style,
-          profileImage: "",
-          source: "local",
-        }));
-        setArtists([...localCards, ...mockCards]);
-        setError("Backend unavailable. Showing sample artists.");
+        setArtists(localCards);
         setLoading(false);
       });
 
@@ -148,12 +129,6 @@ export default function ArtistsPage() {
           <Link href="/portfolios/me" className="btn-primary">
             {myPortfolio ? "Edit Portfolio" : "Create Portfolio"}
           </Link>
-        </div>
-      )}
-
-      {error && (
-        <div className="empty-state glass" style={{ marginBottom: "2rem" }}>
-          <p>{error}</p>
         </div>
       )}
 

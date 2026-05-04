@@ -158,7 +158,7 @@ function createProfileStatus(user: AppUser, role: AppRole): ProfileStatusState {
           `Bio: ${customerProfile.bio ? "Added" : "Missing"}`,
           `Photo: ${customerProfile.profileImage ? "Added" : "Missing"}`,
         ]
-      : ["Create your customer profile from dashboard."],
+      : ["Create your customer profile from My Dashboard."],
     ctaLabel: "Open Dashboard",
     ctaHref: "/customer-dashboard",
   };
