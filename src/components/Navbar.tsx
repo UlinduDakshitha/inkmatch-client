@@ -160,7 +160,7 @@ function createProfileStatus(user: AppUser, role: AppRole): ProfileStatusState {
         ]
       : ["Create your customer profile from dashboard."],
     ctaLabel: "Open Dashboard",
-    ctaHref: "/dashboard",
+    ctaHref: "/customer-dashboard",
   };
 }
 

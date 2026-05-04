@@ -12,6 +12,6 @@ export function getRoleHomePath(role?: string): string {
       return "/studios";
     case "CUSTOMER":
     default:
-      return "/dashboard";
+      return "/customer-dashboard";
   }
 }
