@@ -17,7 +17,10 @@ type Artist = {
 };
 
 export default function ScheduleConsultationPage() {
-  const user = getCurrentUser();
+  const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState(
+    () => null as ReturnType<typeof getCurrentUser>,
+  );
   const [artists, setArtists] = useState<Artist[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
@@ -36,6 +39,11 @@ export default function ScheduleConsultationPage() {
   const apiBaseUrl =
     process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
     "http://localhost:8080";
+
+  useEffect(() => {
+    setMounted(true);
+    setUser(getCurrentUser());
+  }, []);
 
   useEffect(() => {
     const localArtists: Artist[] = getArtistProfiles().map((profile) => ({
@@ -208,6 +216,22 @@ export default function ScheduleConsultationPage() {
   };
 
   if (!user?.email) {
+    if (!mounted) {
+      return (
+        <div
+          className="page-container container"
+          style={{ paddingTop: "120px" }}
+        >
+          <div className="glass-card">
+            <h1 className="heading-3">Loading consultation page...</h1>
+            <p className="text-secondary mt-2">
+              Preparing your booking screen.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="page-container container" style={{ paddingTop: "120px" }}>
         <div className="glass-card">
@@ -215,6 +239,17 @@ export default function ScheduleConsultationPage() {
           <p className="text-secondary mt-2">
             You need to be logged in to schedule a consultation.
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!mounted) {
+    return (
+      <div className="page-container container" style={{ paddingTop: "120px" }}>
+        <div className="glass-card">
+          <h1 className="heading-3">Loading consultation page...</h1>
+          <p className="text-secondary mt-2">Preparing your booking screen.</p>
         </div>
       </div>
     );
