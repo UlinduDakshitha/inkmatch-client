@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getCurrentUser, normalizeRole } from "@/utils/appData";
 import ArtistAvailability from "@/components/ArtistAvailability";
 import ArtistBookings from "@/components/ArtistBookings";
+import ArtistActivity from "@/components/ArtistActivity";
 import Link from "next/link";
 
 export default function ArtistDashboardClient() {
@@ -153,6 +154,27 @@ export default function ArtistDashboardClient() {
         >
           Profile
         </button>
+        <button
+          onClick={() => setActiveTab("activity")}
+          style={{
+            padding: "0.75rem 1.5rem",
+            borderRadius: "8px 8px 0 0",
+            background:
+              activeTab === "activity"
+                ? "rgba(59, 130, 246, 0.2)"
+                : "transparent",
+            color:
+              activeTab === "activity" ? "#60a5fa" : "rgba(255, 255, 255, 0.6)",
+            border: "none",
+            cursor: "pointer",
+            fontSize: "1rem",
+            fontWeight: "500",
+            transition: "all 0.2s",
+          }}
+          className="hover:text-white"
+        >
+          Activity
+        </button>
       </div>
 
       {activeTab === "availability" && (
@@ -203,6 +225,12 @@ export default function ArtistDashboardClient() {
           <p className="text-secondary mt-4" style={{ fontSize: "0.875rem" }}>
             More profile editing features coming soon...
           </p>
+        </div>
+      )}
+
+      {activeTab === "activity" && (
+        <div style={{ marginBottom: "3rem" }}>
+          <ArtistActivity artistEmail={user.email} />
         </div>
       )}
     </div>

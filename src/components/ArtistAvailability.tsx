@@ -8,7 +8,7 @@ import {
 } from "@/utils/appData";
 
 interface TimeSlot {
-  id?: string;
+  id?: string | number;
   time: string;
   available: boolean;
   bookedByCustomer?: boolean;
@@ -41,29 +41,13 @@ export default function ArtistAvailability({
     setLoading(true);
     setError("");
     try {
-      // Fetch both availability and consultations for this date
-      const [availResponse, consultResponse] = await Promise.all([
-        fetch(
-          `http://localhost:8080/api/availability/${artistId}/${selectedDate}`,
-        ),
-        fetch(
-          `http://localhost:8080/api/consultations?artistId=${artistId}&date=${selectedDate}`,
-        ).catch(() => ({ ok: false })), // Consultations endpoint might not exist yet
-      ]);
+      const availResponse = await fetch(
+        `http://localhost:8080/api/availability/${artistId}/${selectedDate}`,
+      );
 
       const availData = await availResponse.json();
-      let consultations: any[] = [];
 
-      if (consultResponse.ok) {
-        try {
-          consultations = await consultResponse.json();
-        } catch (e) {
-          // If parsing fails, just use empty array
-          consultations = [];
-        }
-      }
-
-      // Merge availability and consultation data
+      // Merge availability data for artist view
       const mergedSlots = (availData || []).map((slot: any) => ({
         ...slot,
         available: !slot.booked,

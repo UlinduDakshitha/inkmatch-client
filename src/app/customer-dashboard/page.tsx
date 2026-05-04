@@ -46,7 +46,7 @@ export default function CustomerDashboardPage() {
     }
 
     function refreshSummary() {
-      const customerBookings = getBookingsForCustomer(user.email || "");
+      const customerBookings = getBookingsForCustomer(user?.email || "");
       setSummary({
         totalBookings: customerBookings.length,
         pendingBookings: customerBookings.filter(
@@ -291,7 +291,7 @@ export default function CustomerDashboardPage() {
               above to filter by booking status.
             </p>
           </div>
-          <CustomerBookings customerId={user.id || user.email} />
+          <CustomerBookings customerId={user?.email || ""} />
         </div>
       )}
 
@@ -299,13 +299,10 @@ export default function CustomerDashboardPage() {
         <div className="glass-card">
           <h2 className="heading-3">Your Profile</h2>
           <p className="text-secondary mt-4">
-            <strong>Name:</strong> {user.name || "Not set"}
+            <strong>Name:</strong> {user?.name || "Not set"}
           </p>
           <p className="text-secondary mt-2">
-            <strong>Email:</strong> {user.email}
-          </p>
-          <p className="text-secondary mt-2">
-            <strong>User ID:</strong> {user.id || "Not available"}
+            <strong>Email:</strong> {user?.email}
           </p>
 
           <div

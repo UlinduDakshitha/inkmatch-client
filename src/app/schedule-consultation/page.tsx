@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { addBooking, getArtistProfiles, getCurrentUser } from "@/utils/appData";
+import {
+  addBooking,
+  addNotification,
+  getArtistProfiles,
+  getCurrentUser,
+} from "@/utils/appData";
 import Availability from "@/components/Availability";
 import Calendar from "@/components/Calendar";
 
@@ -112,7 +117,7 @@ export default function ScheduleConsultationPage() {
       setArtists(mergeArtists(localArtists, backendArtists));
     } catch (err) {
       const fallbackArtists = mergeArtists(
-        ...getArtistProfiles().map((profile) => ({
+        getArtistProfiles().map((profile) => ({
           id: profile.id,
           ownerName: profile.ownerName,
           style: profile.style || "Custom Style",
@@ -187,6 +192,19 @@ export default function ScheduleConsultationPage() {
         status: "PENDING",
         createdAt: new Date().toISOString(),
       });
+
+      // Notify artist of new booking request
+      const artistEmail =
+        selectedArtistRecord?.ownerName?.toLowerCase().replace(/\s+/g, ".") +
+          "@inkmatch.local" || String(selectedArtist);
+      addNotification({
+        userEmail: artistEmail,
+        title: "📅 New Consultation Request",
+        message: `${user.name || "A customer"} requested a consultation for ${selectedDate} at ${selectedSlot.time}`,
+        isRead: false,
+        category: "BOOKING",
+      });
+
       setSuccess(true);
       setTimeout(() => {
         window.location.href = "/consultations";

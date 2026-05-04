@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { getBookings, updateBookingStatus } from "@/utils/appData";
 
 interface Booking {
-  id: number;
+  id: string | number;
   customerId: string | number;
   customer: {
     fullName: string;
@@ -24,7 +24,9 @@ export default function StudioBookings({ studioId }: StudioBookingsProps) {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
-  const [actionLoading, setActionLoading] = useState<number | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | number | null>(
+    null,
+  );
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [retrying, setRetrying] = useState(false);
 
@@ -129,7 +131,7 @@ export default function StudioBookings({ studioId }: StudioBookingsProps) {
     }
   };
 
-  const confirm = async (id: number) => {
+  const confirm = async (id: string | number) => {
     setActionLoading(id);
     setSuccessMessage("");
     try {
@@ -168,7 +170,7 @@ export default function StudioBookings({ studioId }: StudioBookingsProps) {
     }
   };
 
-  const reject = async (id: number) => {
+  const reject = async (id: string | number) => {
     setActionLoading(id);
     setSuccessMessage("");
     try {

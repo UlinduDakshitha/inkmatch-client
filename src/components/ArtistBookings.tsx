@@ -1,8 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getMockArtistBookings } from "@/utils/mockBookings";
-import { getBookings, updateBookingStatus } from "@/utils/appData";
+import {
+  getBookings,
+  updateBookingStatus,
+  addNotification,
+  getCurrentUser,
+} from "@/utils/appData";
 
 interface Booking {
   id: number;
@@ -25,10 +29,11 @@ export default function ArtistBookings({ artistId }: ArtistBookingsProps) {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
-  const [actionLoading, setActionLoading] = useState<number | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | number | null>(
+    null,
+  );
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [retrying, setRetrying] = useState(false);
-  const [usingMock, setUsingMock] = useState(false);
 
   useEffect(() => {
     fetchBookings();
@@ -105,22 +110,15 @@ export default function ArtistBookings({ artistId }: ArtistBookingsProps) {
     }
   };
 
-  const handleUseMock = () => {
-    setUsingMock(true);
-    setBookings(getMockArtistBookings());
-    setError("");
-    setLoading(false);
-  };
-
   const handleRetry = async () => {
     setRetrying(true);
-    setUsingMock(false);
     await fetchBookings();
   };
 
-  const confirm = async (id: number) => {
+  const confirm = async (id: string | number) => {
     setActionLoading(id);
     setSuccessMessage("");
+    const artist = getCurrentUser();
     try {
       const response = await fetch(
         `http://localhost:8080/api/bookings/confirm/${id}`,
@@ -136,6 +134,30 @@ export default function ArtistBookings({ artistId }: ArtistBookingsProps) {
           b.id === id ? { ...b, status: "CONFIRMED" as const } : b,
         ),
       );
+
+      // Log activity notification for artist
+      const booking = bookings.find((b) => b.id === id);
+      if (booking && artist?.email) {
+        addNotification({
+          userEmail: artist.email,
+          title: "✅ Booking Confirmed",
+          message: `You confirmed a booking with ${booking.customer.fullName} for ${booking.date} at ${booking.time}`,
+          isRead: false,
+          category: "BOOKING",
+        });
+      }
+
+      // Notify customer of confirmation
+      if (booking) {
+        addNotification({
+          userEmail: booking.customer.email || String(booking.customerId),
+          title: "✅ Booking Confirmed",
+          message: `Your booking for ${booking.date} at ${booking.time} has been confirmed!`,
+          isRead: false,
+          category: "BOOKING",
+        });
+      }
+
       setSuccessMessage("✅ Booking confirmed successfully!");
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (err) {
@@ -147,6 +169,30 @@ export default function ArtistBookings({ artistId }: ArtistBookingsProps) {
             b.id === id ? { ...b, status: "CONFIRMED" as const } : b,
           ),
         );
+
+        // Log activity notification for artist
+        const booking = bookings.find((b) => b.id === id);
+        if (booking && artist?.email) {
+          addNotification({
+            userEmail: artist.email,
+            title: "✅ Booking Confirmed",
+            message: `You confirmed a booking with ${booking.customer.fullName} for ${booking.date} at ${booking.time}`,
+            isRead: false,
+            category: "BOOKING",
+          });
+        }
+
+        // Notify customer of confirmation
+        if (booking) {
+          addNotification({
+            userEmail: booking.customer.email || String(booking.customerId),
+            title: "✅ Booking Confirmed",
+            message: `Your booking for ${booking.date} at ${booking.time} has been confirmed!`,
+            isRead: false,
+            category: "BOOKING",
+          });
+        }
+
         setSuccessMessage("✅ Booking confirmed locally (offline)");
         setTimeout(() => setSuccessMessage(""), 3000);
       } catch (localErr) {
@@ -157,9 +203,10 @@ export default function ArtistBookings({ artistId }: ArtistBookingsProps) {
     }
   };
 
-  const reject = async (id: number) => {
+  const reject = async (id: string | number) => {
     setActionLoading(id);
     setSuccessMessage("");
+    const artist = getCurrentUser();
     try {
       const response = await fetch(
         `http://localhost:8080/api/bookings/reject/${id}`,
@@ -175,6 +222,30 @@ export default function ArtistBookings({ artistId }: ArtistBookingsProps) {
           b.id === id ? { ...b, status: "REJECTED" as const } : b,
         ),
       );
+
+      // Log activity notification for artist
+      const booking = bookings.find((b) => b.id === id);
+      if (booking && artist?.email) {
+        addNotification({
+          userEmail: artist.email,
+          title: "❌ Booking Declined",
+          message: `You declined a booking request from ${booking.customer.fullName} for ${booking.date} at ${booking.time}`,
+          isRead: false,
+          category: "BOOKING",
+        });
+      }
+
+      // Notify customer of rejection
+      if (booking) {
+        addNotification({
+          userEmail: booking.customer.email || String(booking.customerId),
+          title: "❌ Booking Declined",
+          message: `Your booking request for ${booking.date} at ${booking.time} has been declined. Please try another date or artist.`,
+          isRead: false,
+          category: "BOOKING",
+        });
+      }
+
       setSuccessMessage("❌ Booking rejected");
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (err) {
@@ -186,6 +257,30 @@ export default function ArtistBookings({ artistId }: ArtistBookingsProps) {
             b.id === id ? { ...b, status: "REJECTED" as const } : b,
           ),
         );
+
+        // Log activity notification for artist
+        const booking = bookings.find((b) => b.id === id);
+        if (booking && artist?.email) {
+          addNotification({
+            userEmail: artist.email,
+            title: "❌ Booking Declined",
+            message: `You declined a booking request from ${booking.customer.fullName} for ${booking.date} at ${booking.time}`,
+            isRead: false,
+            category: "BOOKING",
+          });
+        }
+
+        // Notify customer of rejection
+        if (booking) {
+          addNotification({
+            userEmail: booking.customer.email || String(booking.customerId),
+            title: "❌ Booking Declined",
+            message: `Your booking request for ${booking.date} at ${booking.time} has been declined. Please try another date or artist.`,
+            isRead: false,
+            category: "BOOKING",
+          });
+        }
+
         setSuccessMessage("❌ Booking rejected locally (offline)");
         setTimeout(() => setSuccessMessage(""), 3000);
       } catch (localErr) {
@@ -375,21 +470,6 @@ export default function ArtistBookings({ artistId }: ArtistBookingsProps) {
               style={{ padding: "0.5rem 0.75rem" }}
             >
               {retrying ? "Retrying..." : "Retry"}
-            </button>
-
-            <button
-              onClick={handleUseMock}
-              className=""
-              style={{
-                padding: "0.5rem 0.75rem",
-                borderRadius: "6px",
-                border: "1px solid rgba(255,255,255,0.08)",
-                background: "transparent",
-                color: "#fff",
-                cursor: "pointer",
-              }}
-            >
-              Use Mock Data
             </button>
           </div>
         </div>

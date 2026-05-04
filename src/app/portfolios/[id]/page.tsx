@@ -7,6 +7,7 @@ import CustomerLoginRequiredModal from "@/components/CustomerLoginRequiredModal"
 import Availability from "@/components/Availability";
 import {
   addBooking,
+  addNotification,
   deleteArtistProfileByOwner,
   getArtistProfileById,
   getArtistProfileByOwner,
@@ -194,6 +195,15 @@ export default function PortfolioPage() {
       notes: bookingNote,
       status: "PENDING",
       createdAt: new Date().toISOString(),
+    });
+
+    // Notify artist of new booking request
+    addNotification({
+      userEmail: localPortfolio?.ownerEmail || String(portfolioId),
+      title: "📅 New Booking Request",
+      message: `${customerProfile?.ownerName || currentUser.name || "A customer"} requested a booking for ${appointmentDate}${selectedTime ? ` at ${selectedTime}` : ""}`,
+      isRead: false,
+      category: "BOOKING",
     });
 
     setAppointmentDate("");

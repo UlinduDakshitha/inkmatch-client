@@ -7,6 +7,7 @@ import CustomerLoginRequiredModal from "@/components/CustomerLoginRequiredModal"
 import Availability from "@/components/Availability";
 import {
   addBooking,
+  addNotification,
   getCustomerProfileByOwner,
   getCurrentUser,
   getStudioProfileById,
@@ -85,6 +86,15 @@ export default function StudioDetailsPage() {
       notes: bookingNote,
       status: "PENDING",
       createdAt: new Date().toISOString(),
+    });
+
+    // Notify studio owner of new booking request
+    addNotification({
+      userEmail: localStudio?.ownerEmail || String(studioId),
+      title: "📅 New Booking Request",
+      message: `${customerProfile?.ownerName || currentUser.name || "A customer"} requested a booking for ${appointmentDate}${selectedTime ? ` at ${selectedTime}` : ""}`,
+      isRead: false,
+      category: "BOOKING",
     });
 
     setAppointmentDate("");

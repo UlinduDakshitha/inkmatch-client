@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { getBookings } from "@/utils/appData";
 
 interface Booking {
-  id: number;
+  id: string | number;
   artistId?: string | number;
   studioId?: string | number;
   artist?: {
