@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { getRoleHomePath } from "@/utils/roleRedirect";
 import {
@@ -13,7 +14,6 @@ import {
   deleteCustomerProfileByOwner,
   getAdminProfileByOwner,
   getArtistProfiles,
-  getBookings,
   getBookingsForCustomer,
   getCurrentUser,
   getCustomerProfileByOwner,
@@ -122,7 +122,7 @@ export default function Dashboard() {
       );
     });
 
-  const refreshDashboardData = () => {
+  const refreshDashboardData = useCallback(() => {
     if (!user?.email || role !== "CUSTOMER") {
       setStats(EMPTY_STATS);
       return;
@@ -150,7 +150,7 @@ export default function Dashboard() {
       recentBookings: myBookings.slice(0, 4),
       recentNotifications: notifications.slice(0, 4),
     });
-  };
+  }, [user, role]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -167,7 +167,7 @@ export default function Dashboard() {
   }, [router, role]);
 
   useEffect(() => {
-    refreshDashboardData();
+    Promise.resolve().then(() => refreshDashboardData());
 
     function syncDashboard() {
       refreshDashboardData();
@@ -195,7 +195,7 @@ export default function Dashboard() {
       window.removeEventListener("storage", syncDashboard);
       window.removeEventListener(APP_DATA_UPDATED_EVENT, syncDashboard);
     };
-  }, [user?.email, user?.name, role]);
+  }, [user?.email, user?.name, role, refreshDashboardData]);
 
   const saveCustomerProfile = (e: React.FormEvent) => {
     e.preventDefault();
@@ -262,7 +262,7 @@ export default function Dashboard() {
         customerProfile.city,
         customerProfile.bio,
         customerProfile.profileImage,
-      ].filter((value) => value.trim().length > 0).length
+      ].filter((value) => String(value || "").trim().length > 0).length
     : 0;
   const profileCompletionPercent = Math.round((profileCompletion / 5) * 100);
 
@@ -531,15 +531,16 @@ export default function Dashboard() {
                     gap: "0.8rem",
                   }}
                 >
-                  <img
+                  <Image
                     src={customerProfile.profileImage}
                     alt="Customer profile"
-                    style={{
-                      width: "80px",
-                      height: "80px",
-                      objectFit: "cover",
-                      borderRadius: "50%",
-                    }}
+                    width={80}
+                    height={80}
+                    style={{ objectFit: "cover", borderRadius: "50%" }}
+                    unoptimized={
+                      typeof customerProfile.profileImage === "string" &&
+                      customerProfile.profileImage.startsWith("data:")
+                    }
                   />
                   <button
                     type="button"
