@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getNotificationsByUser, AppNotification } from "@/utils/appData";
+import {
+  getNotificationsByUser,
+  AppNotification,
+  APP_DATA_UPDATED_EVENT,
+} from "@/utils/appData";
 
 interface ArtistActivityProps {
   artistEmail: string;
@@ -13,9 +17,24 @@ export default function ArtistActivity({ artistEmail }: ArtistActivityProps) {
 
   useEffect(() => {
     setLoading(true);
-    const notifs = getNotificationsByUser(artistEmail);
-    setActivities(notifs);
-    setLoading(false);
+
+    const fetchActivities = () => {
+      const notifs = getNotificationsByUser(artistEmail);
+      setActivities(notifs);
+      setLoading(false);
+    };
+
+    fetchActivities();
+
+    const handleAppDataUpdate = () => {
+      const notifs = getNotificationsByUser(artistEmail);
+      setActivities(notifs);
+    };
+
+    window.addEventListener(APP_DATA_UPDATED_EVENT, handleAppDataUpdate);
+    return () => {
+      window.removeEventListener(APP_DATA_UPDATED_EVENT, handleAppDataUpdate);
+    };
   }, [artistEmail]);
 
   if (loading) {
