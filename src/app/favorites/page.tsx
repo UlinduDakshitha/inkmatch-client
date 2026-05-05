@@ -3,24 +3,67 @@
 import { useEffect, useState } from "react";
 import "../artists/shared.css";
 
+type FavoriteItem = {
+  id: string | number;
+  name?: string;
+  type?: "ARTIST" | "STUDIO";
+  description?: string;
+  image?: string;
+};
+
 export default function FavoritesPage() {
-  const [favorites, setFavorites] = useState([]);
+  const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
-    // In a real app we'd target `customer/{id}` based on session
-    fetch("http://localhost:8080/api/favorites/customer/1")
-      .then((res) => res.json())
-      .then((data) => {
-        setFavorites(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
+    let active = true;
+
+    async function loadFavorites() {
+      try {
+        const response = await fetch(
+          "http://localhost:8080/api/favorites/customer/1",
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to load favorites");
+        }
+
+        const data = await response.json();
+        if (active) {
+          setFavorites(Array.isArray(data) ? data : []);
+        }
+      } catch {
+        const fallback = (() => {
+          if (typeof window === "undefined") {
+            return [] as FavoriteItem[];
+          }
+
+          try {
+            const raw = localStorage.getItem("inkmatch.favorites");
+            const parsed = raw ? (JSON.parse(raw) as FavoriteItem[]) : [];
+            return Array.isArray(parsed) ? parsed : [];
+          } catch {
+            return [] as FavoriteItem[];
+          }
+        })();
+
+        if (active) {
+          setFavorites(fallback);
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void loadFavorites();
+
+    return () => {
+      active = false;
+    };
   }, []);
-  
+
   return (
     <div className="page-container container">
       <h1 className="heading-2">

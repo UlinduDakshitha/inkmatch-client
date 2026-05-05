@@ -13,6 +13,22 @@ export default function ArtistDashboardClient() {
   const role = normalizeRole(user?.role);
   const [activeTab, setActiveTab] = useState("availability");
 
+  const getTabStyles = (tabKey: string) => ({
+    padding: "0.75rem 1.5rem",
+    borderRadius: "8px 8px 0 0",
+    background:
+      activeTab === tabKey ? "rgba(59, 130, 246, 0.2)" : "transparent",
+    color: activeTab === tabKey ? "#60a5fa" : "rgba(255, 255, 255, 0.6)",
+    border: "none",
+    cursor: "pointer",
+    fontSize: "1rem",
+    fontWeight: "500",
+    transition: "all 0.2s",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "0.45rem",
+  });
+
   useEffect(() => {
     setMounted(true);
     setUser(getCurrentUser());
@@ -90,89 +106,43 @@ export default function ArtistDashboardClient() {
         }}
       >
         <button
+          type="button"
           onClick={() => setActiveTab("availability")}
-          style={{
-            padding: "0.75rem 1.5rem",
-            borderRadius: "8px 8px 0 0",
-            background:
-              activeTab === "availability"
-                ? "rgba(59, 130, 246, 0.2)"
-                : "transparent",
-            color:
-              activeTab === "availability"
-                ? "#60a5fa"
-                : "rgba(255, 255, 255, 0.6)",
-            border: "none",
-            cursor: "pointer",
-            fontSize: "1rem",
-            fontWeight: "500",
-            transition: "all 0.2s",
-          }}
+          aria-pressed={activeTab === "availability"}
+          style={getTabStyles("availability")}
           className="hover:text-white"
         >
-          Manage Availability
+          <span aria-hidden="true">🗓️</span>
+          Availability
         </button>
         <button
+          type="button"
           onClick={() => setActiveTab("bookings")}
-          style={{
-            padding: "0.75rem 1.5rem",
-            borderRadius: "8px 8px 0 0",
-            background:
-              activeTab === "bookings"
-                ? "rgba(59, 130, 246, 0.2)"
-                : "transparent",
-            color:
-              activeTab === "bookings" ? "#60a5fa" : "rgba(255, 255, 255, 0.6)",
-            border: "none",
-            cursor: "pointer",
-            fontSize: "1rem",
-            fontWeight: "500",
-            transition: "all 0.2s",
-          }}
+          aria-pressed={activeTab === "bookings"}
+          style={getTabStyles("bookings")}
           className="hover:text-white"
         >
-          Booking Requests
+          <span aria-hidden="true">📋</span>
+          Bookings
         </button>
         <button
+          type="button"
           onClick={() => setActiveTab("profile")}
-          style={{
-            padding: "0.75rem 1.5rem",
-            borderRadius: "8px 8px 0 0",
-            background:
-              activeTab === "profile"
-                ? "rgba(59, 130, 246, 0.2)"
-                : "transparent",
-            color:
-              activeTab === "profile" ? "#60a5fa" : "rgba(255, 255, 255, 0.6)",
-            border: "none",
-            cursor: "pointer",
-            fontSize: "1rem",
-            fontWeight: "500",
-            transition: "all 0.2s",
-          }}
+          aria-pressed={activeTab === "profile"}
+          style={getTabStyles("profile")}
           className="hover:text-white"
         >
+          <span aria-hidden="true">👤</span>
           Profile
         </button>
         <button
+          type="button"
           onClick={() => setActiveTab("activity")}
-          style={{
-            padding: "0.75rem 1.5rem",
-            borderRadius: "8px 8px 0 0",
-            background:
-              activeTab === "activity"
-                ? "rgba(59, 130, 246, 0.2)"
-                : "transparent",
-            color:
-              activeTab === "activity" ? "#60a5fa" : "rgba(255, 255, 255, 0.6)",
-            border: "none",
-            cursor: "pointer",
-            fontSize: "1rem",
-            fontWeight: "500",
-            transition: "all 0.2s",
-          }}
+          aria-pressed={activeTab === "activity"}
+          style={getTabStyles("activity")}
           className="hover:text-white"
         >
+          <span aria-hidden="true">📜</span>
           Activity
         </button>
       </div>
