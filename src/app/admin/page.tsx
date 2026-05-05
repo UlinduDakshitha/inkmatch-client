@@ -29,6 +29,7 @@ type AdminStats = {
   notifications?: number;
 };
 
+
 type DashboardCard = {
   title: string;
   value: string | number;
