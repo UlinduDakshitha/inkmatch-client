@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 type AdminMenuItem = {
   label: string;
@@ -15,6 +15,16 @@ export default function AdminShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      router.back();
+      return;
+    }
+
+    router.push("/");
+  };
 
   const adminMenuItems: AdminMenuItem[] = [
     { label: "Dashboard", href: "/admin", icon: "📊" },
@@ -45,6 +55,32 @@ export default function AdminShell({
           overflowY: "auto",
         }}
       >
+        <div style={{ padding: "0 1rem 1rem" }}>
+          <button
+            type="button"
+            onClick={handleBack}
+            style={{
+              width: "100%",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.5rem",
+              padding: "0.85rem 1rem",
+              borderRadius: "12px",
+              border: "1px solid rgba(96,165,250,0.28)",
+              background: "rgba(96,165,250,0.10)",
+              color: "#e5f0ff",
+              fontSize: "0.95rem",
+              fontWeight: 600,
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+            }}
+          >
+            <span aria-hidden="true">←</span>
+            Back
+          </button>
+        </div>
+
         <div style={{ padding: "0 1rem 1.5rem" }}>
           <p
             style={{
