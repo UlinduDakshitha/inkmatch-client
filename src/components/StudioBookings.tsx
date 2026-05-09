@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getApiBaseUrl } from "@/utils/api";
 import { getBookings, updateBookingStatus } from "@/utils/appData";
 
 interface Booking {
@@ -39,7 +40,7 @@ export default function StudioBookings({ studioId }: StudioBookingsProps) {
     setError("");
     try {
       const response = await fetch(
-        `http://localhost:8080/api/bookings/studio/${studioId}`,
+        `${getApiBaseUrl()}/api/bookings/studio/${studioId}`,
       );
       if (!response.ok) {
         throw new Error("Failed to load bookings");
@@ -136,7 +137,7 @@ export default function StudioBookings({ studioId }: StudioBookingsProps) {
     setSuccessMessage("");
     try {
       const response = await fetch(
-        `http://localhost:8080/api/bookings/confirm/${id}`,
+        `${getApiBaseUrl()}/api/bookings/confirm/${id}`,
         { method: "PUT" },
       );
 
@@ -175,7 +176,7 @@ export default function StudioBookings({ studioId }: StudioBookingsProps) {
     setSuccessMessage("");
     try {
       const response = await fetch(
-        `http://localhost:8080/api/bookings/reject/${id}`,
+        `${getApiBaseUrl()}/api/bookings/reject/${id}`,
         { method: "PUT" },
       );
 

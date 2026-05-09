@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getApiBaseUrl } from "@/utils/api";
 import {
   getBookings,
   updateBookingStatus,
@@ -44,7 +45,7 @@ export default function ArtistBookings({ artistId }: ArtistBookingsProps) {
     setError("");
     try {
       const response = await fetch(
-        `http://localhost:8080/api/bookings/artist/${artistId}`,
+        `${getApiBaseUrl()}/api/bookings/artist/${artistId}`,
       );
       if (!response.ok) {
         throw new Error("Failed to load bookings");
@@ -121,7 +122,7 @@ export default function ArtistBookings({ artistId }: ArtistBookingsProps) {
     const artist = getCurrentUser();
     try {
       const response = await fetch(
-        `http://localhost:8080/api/bookings/confirm/${id}`,
+        `${getApiBaseUrl()}/api/bookings/confirm/${id}`,
         { method: "PUT" },
       );
 
@@ -209,7 +210,7 @@ export default function ArtistBookings({ artistId }: ArtistBookingsProps) {
     const artist = getCurrentUser();
     try {
       const response = await fetch(
-        `http://localhost:8080/api/bookings/reject/${id}`,
+        `${getApiBaseUrl()}/api/bookings/reject/${id}`,
         { method: "PUT" },
       );
 

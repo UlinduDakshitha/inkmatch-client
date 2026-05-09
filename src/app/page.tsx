@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import "./page.css";
 import HeroSlideshow from "@/components/HeroSlideshow";
 import { useState } from "react";
+import { getApiBaseUrl } from "@/utils/api";
 
 function SocialIcon({ name, children }: { name: string; children: ReactNode }) {
   return (
@@ -31,7 +32,7 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8080/api/support", {
+      const res = await fetch(`${getApiBaseUrl()}/api/support`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

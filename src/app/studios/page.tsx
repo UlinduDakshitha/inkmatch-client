@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import "../artists/shared.css"; // sharing same layout logic
+import { getApiBaseUrl } from "@/utils/api";
 import {
   deleteStudioProfileByOwner,
   getCurrentUser,
@@ -69,9 +70,7 @@ export default function StudiosPage() {
     const localStudios = getStudioProfiles();
 
     async function loadStudios() {
-      const apiBase =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
-      const url = `${apiBase.replace(/\/$/, "")}/api/studios`;
+      const url = `${getApiBaseUrl()}/api/studios`;
 
       try {
         const res = await fetch(url);

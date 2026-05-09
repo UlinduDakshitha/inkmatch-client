@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import "../artists/shared.css";
+import { getApiBaseUrl } from "@/utils/api";
 
 type FavoriteItem = {
   id: string | number;
@@ -21,7 +22,7 @@ export default function FavoritesPage() {
     async function loadFavorites() {
       try {
         const response = await fetch(
-          "http://localhost:8080/api/favorites/customer/1",
+          `${getApiBaseUrl()}/api/favorites/customer/1`,
         );
 
         if (!response.ok) {

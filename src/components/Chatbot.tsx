@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { getApiBaseUrl } from "@/utils/api";
 
 type Message = {
   role: "user" | "bot";
@@ -22,9 +23,7 @@ function ChatbotAvatar({ size = 36 }: { size?: number }) {
 }
 
 export default function Chatbot() {
-  const apiBaseUrl =
-    process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
-    "http://localhost:8080";
+  const apiBaseUrl = getApiBaseUrl();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     { role: "bot", content: "Hi 👋 I'm your InkMatch assistant" },
@@ -70,7 +69,7 @@ export default function Chatbot() {
         {
           role: "bot",
           content:
-            "I cannot connect to the AI server right now. Please check that the backend is running on port 8080 or set NEXT_PUBLIC_API_BASE_URL.",
+            "I cannot connect to the AI server right now. Please check that the backend is running and set NEXT_PUBLIC_API_BASE_URL to its address.",
         },
       ]);
     } finally {

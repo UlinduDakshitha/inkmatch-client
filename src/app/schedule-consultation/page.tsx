@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getApiBaseUrl } from "@/utils/api";
 import {
   addBooking,
   addNotification,
@@ -49,9 +50,7 @@ export default function ScheduleConsultationPage() {
   } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
-  const apiBaseUrl =
-    process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
-    "http://localhost:8080";
+  const apiBaseUrl = getApiBaseUrl();
 
   useEffect(() => {
     setMounted(true);

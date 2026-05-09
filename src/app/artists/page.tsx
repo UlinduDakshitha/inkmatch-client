@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import "./shared.css";
+import { getApiBaseUrl } from "@/utils/api";
 import {
   getArtistProfileByOwner,
   getArtistProfiles,
@@ -27,9 +28,7 @@ type ArtistCard = {
 };
 
 export default function ArtistsPage() {
-  const apiBaseUrl =
-    process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
-    "http://localhost:8080";
+  const apiBaseUrl = getApiBaseUrl();
   const [artists, setArtists] = useState<ArtistCard[]>([]);
   const [loading, setLoading] = useState(true);
   const currentUser = getCurrentUser();

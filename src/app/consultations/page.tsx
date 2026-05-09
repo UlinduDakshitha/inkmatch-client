@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { getApiBaseUrl } from "@/utils/api";
 
 export default function ConsultationsPage() {
   const [consultations, setConsultations] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/consultations")
+    fetch(`${getApiBaseUrl()}/api/consultations`)
       .then((res) => res.json())
       .then((data) => {
         setConsultations(data);

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import "./auth.css";
 import { getRoleHomePath } from "@/utils/roleRedirect";
+import { getApiBaseUrl } from "@/utils/api";
 import {
   APP_DATA_UPDATED_EVENT,
   getAdminProfileByOwner,
@@ -92,7 +93,7 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:8080/api/auth/login", {
+      const res = await fetch(`${getApiBaseUrl()}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

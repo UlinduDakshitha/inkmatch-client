@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getApiBaseUrl } from "@/utils/api";
 import { getBookings } from "@/utils/appData";
 
 interface Booking {
@@ -46,7 +47,7 @@ export default function CustomerBookings({
     setError("");
     try {
       const response = await fetch(
-        `http://localhost:8080/api/bookings/customer/${customerId}`,
+        `${getApiBaseUrl()}/api/bookings/customer/${customerId}`,
       );
       if (!response.ok) {
         throw new Error("Failed to load bookings");

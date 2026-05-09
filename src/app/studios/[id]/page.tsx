@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { getApiBaseUrl } from "@/utils/api";
 import "../../artists/shared.css";
 import CustomerLoginRequiredModal from "@/components/CustomerLoginRequiredModal";
 import Availability from "@/components/Availability";
@@ -44,7 +45,7 @@ export default function StudioDetailsPage() {
       return;
     }
 
-    fetch("http://localhost:8080/api/studios")
+    fetch(`${getApiBaseUrl()}/api/studios`)
       .then((res) => res.json())
       .then((data: BackendStudio[]) => {
         const match = data.find((item) => String(item.id) === String(studioId));

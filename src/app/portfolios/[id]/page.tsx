@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import "../../artists/shared.css";
+import { getApiBaseUrl } from "@/utils/api";
 import CustomerLoginRequiredModal from "@/components/CustomerLoginRequiredModal";
 import Availability from "@/components/Availability";
 import {
@@ -106,7 +107,7 @@ export default function PortfolioPage() {
 
     // In actual implementation, we might need a GET endpoint.
     // Assuming backend returns portfolio on /api/artists/{id} or /api/portfolios
-    fetch(`http://localhost:8080/api/artists`)
+    fetch(`${getApiBaseUrl()}/api/artists`)
       .then((res) => res.json())
       .then((data: ArtistPortfolio[]) => {
         // Mock matching the ID for now

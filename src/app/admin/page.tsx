@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import AdminShell from "@/components/AdminShell";
+import { getApiBaseUrl } from "@/utils/api";
 import {
   BarChart,
   Bar,
@@ -66,7 +67,7 @@ export default function AdminDashboard() {
 
     async function loadStats() {
       try {
-        const response = await fetch("http://localhost:8080/api/admin/stats");
+        const response = await fetch(`${getApiBaseUrl()}/api/admin/stats`);
         if (!response.ok) {
           throw new Error(`Stats endpoint returned ${response.status}`);
         }

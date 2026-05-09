@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Calendar from "./Calendar";
+import { getApiBaseUrl } from "@/utils/api";
 import {
   getLocalAvailabilitySlots,
   upsertLocalAvailabilitySlots,
@@ -42,7 +43,7 @@ export default function ArtistAvailability({
     setError("");
     try {
       const availResponse = await fetch(
-        `http://localhost:8080/api/availability/${artistId}/${selectedDate}`,
+        `${getApiBaseUrl()}/api/availability/${artistId}/${selectedDate}`,
       );
 
       const availData = await availResponse.json();
@@ -150,7 +151,7 @@ export default function ArtistAvailability({
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/availability/${artistId}/${selectedDate}`,
+        `${getApiBaseUrl()}/api/availability/${artistId}/${selectedDate}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

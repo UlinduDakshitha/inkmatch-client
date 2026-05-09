@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { getLocalAvailabilitySlots } from "@/utils/appData";
+import { getApiBaseUrl } from "@/utils/api";
 
 interface AvailabilityProps {
   artistId: string | number;
@@ -26,9 +27,7 @@ export default function Availability({
     null,
   );
 
-  const apiBaseUrl =
-    process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
-    "http://localhost:8080";
+  const apiBaseUrl = getApiBaseUrl();
   const resolvedDate =
     date ||
     (() => {

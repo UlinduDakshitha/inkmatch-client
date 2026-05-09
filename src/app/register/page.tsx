@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import "../login/auth.css";
+import { getApiBaseUrl } from "@/utils/api";
 import { APP_DATA_UPDATED_EVENT, normalizeRole } from "@/utils/appData";
 
 const ROLE_BY_EMAIL_KEY = "inkmatch.roleByEmail";
@@ -72,7 +73,7 @@ export default function RegisterPage() {
         );
       }
 
-      const res = await fetch("http://localhost:8080/api/auth/register", {
+      const res = await fetch(`${getApiBaseUrl()}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
