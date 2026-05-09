@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getApiBaseUrl } from "@/utils/api";
+import BackButton from "@/components/BackButton";
 import "../../artists/shared.css";
 import CustomerLoginRequiredModal from "@/components/CustomerLoginRequiredModal";
 import Availability from "@/components/Availability";
@@ -110,9 +111,31 @@ export default function StudioDetailsPage() {
         onClose={() => setShowLoginModal(false)}
         onGoLogin={() => router.push("/login")}
       />
-      <h1 className="heading-2">
-        Studio <span className="text-gradient">Details</span>
-      </h1>
+      <div
+        className="flex items-center justify-between"
+        style={{ gap: "1rem", flexWrap: "wrap" }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.75rem",
+            flexWrap: "wrap",
+          }}
+        >
+          <BackButton />
+          <button
+            type="button"
+            onClick={() => router.push("/")}
+            className="inline-flex items-center gap-2 rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-2 text-sm text-white transition hover:bg-neutral-800"
+          >
+            Go Home
+          </button>
+        </div>
+        <h1 className="text-xl font-bold">
+          Studio <span className="text-gradient">Details</span>
+        </h1>
+      </div>
 
       {notice && (
         <div className="glass-card mt-4" style={{ marginTop: "1rem" }}>
