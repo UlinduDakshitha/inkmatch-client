@@ -2,106 +2,101 @@
 
 import { useState, useMemo } from "react";
 import AdminShell from "@/components/AdminShell";
-import { getArtistProfiles, getStudioProfiles } from "@/utils/appData";
+import {
+  getArtistProfiles,
+  getStudioProfiles,
+  getCustomerProfiles,
+} from "@/utils/appData";
 
-type VerificationItem = {
+type ApprovalRequest = {
   id: string;
   name: string;
-  type: "artist" | "studio";
-  verificationStatus: "pending" | "verified" | "rejected";
+  type: "artist" | "studio" | "account";
+  status: "pending" | "approved" | "rejected";
   details: string;
-  submissionDate?: string;
-  source: any;
+  requestDate: string;
+  requiredDocs?: string[];
 };
 
-export default function VerificationPage() {
+export default function ApprovalsPage() {
   const [filterStatus, setFilterStatus] = useState<
-    "all" | "pending" | "verified" | "rejected"
+    "all" | "pending" | "approved" | "rejected"
   >("pending");
-  const [filterType, setFilterType] = useState<"all" | "artist" | "studio">(
-    "all",
+  const [selectedRequests, setSelectedRequests] = useState<Set<string>>(
+    new Set(),
   );
-  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
 
-  const items = useMemo<VerificationItem[]>(() => {
-    const allItems: VerificationItem[] = [];
+  const approvalRequests = useMemo<ApprovalRequest[]>(() => {
+    const requests: ApprovalRequest[] = [];
 
     getArtistProfiles().forEach((artist) => {
-      allItems.push({
-        id: artist.id,
+      requests.push({
+        id: `artist-${artist.id}`,
         name: artist.ownerName || "Unnamed",
         type: "artist",
-        verificationStatus: "pending",
-        details: `${artist.style || "Unknown style"} • ${artist.location || "Location not set"}`,
-        source: artist,
+        status: "pending",
+        details: `Portfolio verification • ${artist.style || "Unknown style"}`,
+        requestDate: "2025-01-15",
+        requiredDocs: ["ID", "Portfolio samples", "Certificate"],
       });
     });
 
     getStudioProfiles().forEach((studio) => {
-      allItems.push({
-        id: studio.id,
+      requests.push({
+        id: `studio-${studio.id}`,
         name: studio.name || "Unnamed",
         type: "studio",
-        verificationStatus: "pending",
-        details: `${studio.address || "Location not set"} • ${studio.ownerName || "Owner"}`,
-        source: studio,
+        status: "pending",
+        details: `Business registration • ${studio.address || "Location"}`,
+        requestDate: "2025-01-14",
+        requiredDocs: ["Business license", "Insurance", "Safety cert"],
       });
     });
 
-    return allItems;
+    return requests;
   }, []);
 
-  const filteredItems = useMemo(() => {
-    return items.filter((item) => {
-      const matchStatus =
-        filterStatus === "all" || item.verificationStatus === filterStatus;
-      const matchType = filterType === "all" || item.type === filterType;
-      return matchStatus && matchType;
-    });
-  }, [items, filterStatus, filterType]);
+  const filteredRequests = useMemo(() => {
+    return approvalRequests.filter(
+      (req) => filterStatus === "all" || req.status === filterStatus,
+    );
+  }, [approvalRequests, filterStatus]);
 
-  const handleToggleItem = (itemId: string) => {
-    const newSelected = new Set(selectedItems);
-    if (newSelected.has(itemId)) {
-      newSelected.delete(itemId);
+  const handleToggleRequest = (id: string) => {
+    const newSelected = new Set(selectedRequests);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
     } else {
-      newSelected.add(itemId);
+      newSelected.add(id);
     }
-    setSelectedItems(newSelected);
+    setSelectedRequests(newSelected);
   };
 
   const handleApprove = () => {
-    if (selectedItems.size === 0) return;
-    alert(`Approved ${selectedItems.size} artist(s)/studio(ies).`);
-    setSelectedItems(new Set());
+    if (selectedRequests.size === 0) return;
+    alert(`Approved ${selectedRequests.size} request(s).`);
+    setSelectedRequests(new Set());
   };
 
   const handleReject = () => {
-    if (selectedItems.size === 0) return;
-    const reason = prompt("Enter rejection reason:");
+    if (selectedRequests.size === 0) return;
+    const reason = prompt("Rejection reason:");
     if (reason) {
-      alert(
-        `Rejected ${selectedItems.size} artist(s)/studio(ies). Reason sent: "${reason}"`,
-      );
-      setSelectedItems(new Set());
+      alert(`Rejected ${selectedRequests.size} request(s). Reason: ${reason}`);
+      setSelectedRequests(new Set());
     }
   };
 
-  const typeColors: Record<"artist" | "studio", string> = {
-    artist: "#10b981",
-    studio: "#c084fc",
-  };
-
-  const statusColors: Record<"pending" | "verified" | "rejected", string> = {
+  const statusColors: Record<"pending" | "approved" | "rejected", string> = {
     pending: "#f59e0b",
-    verified: "#10b981",
+    approved: "#10b981",
     rejected: "#ef4444",
   };
 
-  const statusIcons: Record<"pending" | "verified" | "rejected", string> = {
-    pending: "⏳",
-    verified: "✓",
-    rejected: "✕",
+  const typeIcons: Record<"artist" | "studio" | "account", string> = {
+    artist: "🎨",
+    studio: "🏢",
+    account: "👤",
   };
 
   return (
@@ -120,11 +115,11 @@ export default function VerificationPage() {
           }}
         >
           <h1 className="heading-2" style={{ marginBottom: "0.5rem" }}>
-            ✓ Artist & Studio Verification
+            ✍️ Approve / Reject Accounts
           </h1>
           <p className="text-secondary">
-            Review and verify artist and studio profiles. Approve or reject
-            accounts pending verification.
+            Review pending account approval requests. Check documentation and
+            approve or reject.
           </p>
         </div>
 
@@ -140,19 +135,19 @@ export default function VerificationPage() {
           {[
             {
               label: "Pending",
-              value: items.filter((i) => i.verificationStatus === "pending")
+              value: approvalRequests.filter((r) => r.status === "pending")
                 .length,
               color: "#f59e0b",
             },
             {
-              label: "Verified",
-              value: items.filter((i) => i.verificationStatus === "verified")
+              label: "Approved",
+              value: approvalRequests.filter((r) => r.status === "approved")
                 .length,
               color: "#10b981",
             },
             {
               label: "Rejected",
-              value: items.filter((i) => i.verificationStatus === "rejected")
+              value: approvalRequests.filter((r) => r.status === "rejected")
                 .length,
               color: "#ef4444",
             },
@@ -190,14 +185,7 @@ export default function VerificationPage() {
         </div>
 
         {/* Controls */}
-        <div
-          style={{
-            padding: "1.5rem",
-            display: "grid",
-            gap: "1rem",
-            gridTemplateColumns: "1fr 1fr",
-          }}
-        >
+        <div style={{ padding: "1.5rem" }}>
           <div>
             <label
               style={{
@@ -214,11 +202,12 @@ export default function VerificationPage() {
               value={filterStatus}
               onChange={(e) =>
                 setFilterStatus(
-                  e.target.value as "all" | "pending" | "verified" | "rejected",
+                  e.target.value as "all" | "pending" | "approved" | "rejected",
                 )
               }
               style={{
                 width: "100%",
+                maxWidth: "300px",
                 padding: "0.75rem 1rem",
                 background: "rgba(255,255,255,0.05)",
                 border: "1px solid rgba(255,255,255,0.1)",
@@ -229,47 +218,14 @@ export default function VerificationPage() {
             >
               <option value="all">All Statuses</option>
               <option value="pending">Pending</option>
-              <option value="verified">Verified</option>
+              <option value="approved">Approved</option>
               <option value="rejected">Rejected</option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              style={{
-                display: "block",
-                marginBottom: "0.5rem",
-                color: "rgba(255,255,255,0.72)",
-                fontSize: "0.9rem",
-                fontWeight: 500,
-              }}
-            >
-              Filter by type
-            </label>
-            <select
-              value={filterType}
-              onChange={(e) =>
-                setFilterType(e.target.value as "all" | "artist" | "studio")
-              }
-              style={{
-                width: "100%",
-                padding: "0.75rem 1rem",
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: "10px",
-                color: "white",
-                fontSize: "0.95rem",
-              }}
-            >
-              <option value="all">All Types</option>
-              <option value="artist">Artists</option>
-              <option value="studio">Studios</option>
             </select>
           </div>
         </div>
 
         {/* Bulk Actions */}
-        {selectedItems.size > 0 && (
+        {selectedRequests.size > 0 && (
           <div
             style={{
               padding: "1rem 1.5rem",
@@ -285,7 +241,7 @@ export default function VerificationPage() {
             }}
           >
             <span style={{ color: "rgba(255,255,255,0.8)" }}>
-              {selectedItems.size} item(s) selected
+              {selectedRequests.size} request(s) selected
             </span>
             <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
               <button
@@ -301,7 +257,7 @@ export default function VerificationPage() {
                   fontWeight: 500,
                 }}
               >
-                ✓ Approve
+                ✓ Approve Selected
               </button>
               <button
                 onClick={handleReject}
@@ -316,13 +272,13 @@ export default function VerificationPage() {
                   fontWeight: 500,
                 }}
               >
-                ✕ Reject
+                ✕ Reject Selected
               </button>
             </div>
           </div>
         )}
 
-        {/* Items List */}
+        {/* Requests List */}
         <div style={{ padding: "1.5rem" }}>
           <div
             className="glass-card"
@@ -332,7 +288,7 @@ export default function VerificationPage() {
               overflow: "hidden",
             }}
           >
-            {filteredItems.length === 0 ? (
+            {filteredRequests.length === 0 ? (
               <div
                 style={{
                   padding: "3rem 2rem",
@@ -341,32 +297,33 @@ export default function VerificationPage() {
                 }}
               >
                 <p style={{ margin: 0, fontSize: "1.1rem" }}>
-                  No items to review
+                  No requests to review
                 </p>
               </div>
             ) : (
               <div style={{ display: "grid", gap: "0" }}>
-                {filteredItems.map((item, index) => (
+                {filteredRequests.map((request, index) => (
                   <div
-                    key={item.id}
+                    key={request.id}
                     style={{
-                      display: "flex",
-                      alignItems: "center",
+                      display: "grid",
+                      gridTemplateColumns: "50px 1fr auto",
+                      alignItems: "start",
                       gap: "1rem",
                       padding: "1.2rem 1.5rem",
                       borderBottom:
-                        index < filteredItems.length - 1
+                        index < filteredRequests.length - 1
                           ? "1px solid rgba(96,165,250,0.08)"
                           : "none",
-                      background: selectedItems.has(item.id)
+                      background: selectedRequests.has(request.id)
                         ? "rgba(96,165,250,0.08)"
                         : "transparent",
                     }}
                   >
                     <input
                       type="checkbox"
-                      checked={selectedItems.has(item.id)}
-                      onChange={() => handleToggleItem(item.id)}
+                      checked={selectedRequests.has(request.id)}
+                      onChange={() => handleToggleRequest(request.id)}
                       style={{
                         cursor: "pointer",
                         width: "20px",
@@ -374,7 +331,7 @@ export default function VerificationPage() {
                       }}
                     />
 
-                    <div style={{ flex: 1 }}>
+                    <div>
                       <div
                         style={{
                           display: "flex",
@@ -383,20 +340,11 @@ export default function VerificationPage() {
                           marginBottom: "0.35rem",
                         }}
                       >
-                        <span
-                          style={{
-                            color: typeColors[item.type],
-                            fontSize: "0.9rem",
-                            fontWeight: 600,
-                            padding: "0.25rem 0.6rem",
-                            background: `${typeColors[item.type]}15`,
-                            borderRadius: "4px",
-                          }}
-                        >
-                          {item.type === "artist" ? "🎨" : "🏢"} {item.type}
+                        <span style={{ fontSize: "1.2rem" }}>
+                          {typeIcons[request.type]}
                         </span>
                         <span style={{ color: "white", fontWeight: 600 }}>
-                          {item.name}
+                          {request.name}
                         </span>
                       </div>
                       <p
@@ -406,59 +354,93 @@ export default function VerificationPage() {
                           fontSize: "0.9rem",
                         }}
                       >
-                        {item.details}
+                        {request.details}
+                      </p>
+                      {request.requiredDocs && (
+                        <div
+                          style={{
+                            marginTop: "0.5rem",
+                            display: "flex",
+                            gap: "0.5rem",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          {request.requiredDocs.map((doc) => (
+                            <span
+                              key={doc}
+                              style={{
+                                fontSize: "0.8rem",
+                                padding: "0.25rem 0.6rem",
+                                background: "rgba(96,165,250,0.15)",
+                                color: "#60a5fa",
+                                borderRadius: "4px",
+                              }}
+                            >
+                              📄 {doc}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      <p
+                        style={{
+                          margin: "0.5rem 0 0",
+                          color: "rgba(255,255,255,0.45)",
+                          fontSize: "0.8rem",
+                        }}
+                      >
+                        Requested: {request.requestDate}
                       </p>
                     </div>
 
-                    <span
+                    <div
                       style={{
-                        display: "inline-flex",
-                        alignItems: "center",
+                        display: "flex",
+                        flexDirection: "column",
                         gap: "0.5rem",
-                        padding: "0.35rem 0.75rem",
-                        background: `${statusColors[item.verificationStatus]}20`,
-                        color: statusColors[item.verificationStatus],
-                        borderRadius: "6px",
-                        fontSize: "0.85rem",
-                        fontWeight: 600,
-                        whiteSpace: "nowrap",
+                        alignItems: "flex-end",
+                        minWidth: "120px",
                       }}
                     >
-                      {statusIcons[item.verificationStatus]}{" "}
-                      {item.verificationStatus}
-                    </span>
-
-                    <button
-                      onClick={() =>
-                        alert(`View full profile for ${item.name}`)
-                      }
-                      style={{
-                        background: "none",
-                        border: "none",
-                        color: "#60a5fa",
-                        cursor: "pointer",
-                        textDecoration: "underline",
-                        fontSize: "0.9rem",
-                      }}
-                    >
-                      View
-                    </button>
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.5rem",
+                          padding: "0.35rem 0.75rem",
+                          background: `${statusColors[request.status]}20`,
+                          color: statusColors[request.status],
+                          borderRadius: "6px",
+                          fontSize: "0.85rem",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {request.status === "pending"
+                          ? "⏳"
+                          : request.status === "approved"
+                            ? "✓"
+                            : "✕"}{" "}
+                        {request.status}
+                      </span>
+                      <button
+                        onClick={() =>
+                          alert(`View full details for ${request.name}`)
+                        }
+                        style={{
+                          background: "none",
+                          border: "none",
+                          color: "#60a5fa",
+                          cursor: "pointer",
+                          textDecoration: "underline",
+                          fontSize: "0.85rem",
+                        }}
+                      >
+                        View details
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
             )}
-          </div>
-
-          <div
-            style={{
-              marginTop: "1rem",
-              color: "rgba(255,255,255,0.65)",
-              fontSize: "0.9rem",
-            }}
-          >
-            Showing {filteredItems.length} items
-            {filterStatus !== "all" && ` (${filterStatus})`}
-            {filterType !== "all" && ` (${filterType}s)`}
           </div>
         </div>
       </div>

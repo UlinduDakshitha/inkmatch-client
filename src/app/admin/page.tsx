@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import AdminShell from "@/components/AdminShell";
 import {
   BarChart,
   Bar,
@@ -154,299 +155,301 @@ export default function AdminDashboard() {
   const recentStudios = getStudioProfiles().slice(0, 5);
 
   return (
-    <div className="page-container container" style={{ paddingTop: "120px" }}>
-      <div
-        className="glass-card"
-        style={{
-          padding: "1.5rem",
-          marginBottom: "1.5rem",
-          border: "1px solid rgba(96,165,250,0.24)",
-          background:
-            "linear-gradient(135deg, rgba(15,23,42,0.92) 0%, rgba(30,41,59,0.88) 42%, rgba(88,28,135,0.20) 100%)",
-        }}
-      >
+    <AdminShell>
+      <div style={{ paddingTop: "120px" }}>
         <div
+          className="glass-card"
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            gap: "1rem",
-            flexWrap: "wrap",
-            alignItems: "flex-start",
+            padding: "1.5rem",
+            marginBottom: "1.5rem",
+            border: "1px solid rgba(96,165,250,0.24)",
+            background:
+              "linear-gradient(135deg, rgba(15,23,42,0.92) 0%, rgba(30,41,59,0.88) 42%, rgba(88,28,135,0.20) 100%)",
           }}
         >
-          <div>
-            <p
-              style={{
-                margin: 0,
-                color: "rgba(255,255,255,0.62)",
-                textTransform: "uppercase",
-                letterSpacing: "0.08em",
-                fontSize: "0.82rem",
-              }}
-            >
-              Administrator Console
-            </p>
-            <h1 className="heading-2" style={{ marginTop: "0.5rem" }}>
-              Admin <span className="text-gradient">Dashboard</span>
-            </h1>
-            <p className="text-secondary mt-2" style={{ maxWidth: "760px" }}>
-              Review the whole system in one place. Track users, bookings,
-              studios, artists, notifications, and verification activity from a
-              single command center.
-            </p>
-          </div>
-
-          <div
-            style={{
-              minWidth: "240px",
-              padding: "1rem 1.1rem",
-              borderRadius: "16px",
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.08)",
-            }}
-          >
-            <p
-              style={{
-                margin: 0,
-                color: "rgba(255,255,255,0.62)",
-                fontSize: "0.82rem",
-              }}
-            >
-              Data source
-            </p>
-            <p
-              style={{
-                margin: "0.35rem 0 0",
-                fontSize: "1rem",
-                fontWeight: 700,
-              }}
-            >
-              {source === "backend" ? "Backend API" : "Local fallback"}
-            </p>
-            <p
-              style={{
-                margin: "0.35rem 0 0",
-                color: "rgba(255,255,255,0.65)",
-                fontSize: "0.84rem",
-              }}
-            >
-              {error || "Live console ready"}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-          gap: "1rem",
-          marginBottom: "1.5rem",
-        }}
-      >
-        {cards.map((card) => (
-          <div
-            key={card.title}
-            className="glass-card"
-            style={{
-              padding: "1rem 1.1rem",
-              border: `1px solid ${card.accent}30`,
-              background: "rgba(255,255,255,0.04)",
-            }}
-          >
-            <p
-              style={{
-                margin: 0,
-                color: "rgba(255,255,255,0.62)",
-                fontSize: "0.82rem",
-              }}
-            >
-              {card.title}
-            </p>
-            <p
-              style={{
-                margin: "0.35rem 0 0",
-                color: card.accent,
-                fontSize: "1.85rem",
-                fontWeight: 800,
-              }}
-            >
-              {card.value}
-            </p>
-            <p
-              style={{
-                margin: "0.35rem 0 0",
-                color: "rgba(255,255,255,0.65)",
-                fontSize: "0.84rem",
-              }}
-            >
-              {card.note}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "minmax(0, 1.5fr) minmax(320px, 0.9fr)",
-          gap: "1.25rem",
-          alignItems: "start",
-        }}
-      >
-        <section className="glass-card" style={{ padding: "1.25rem" }}>
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
               gap: "1rem",
               flexWrap: "wrap",
-              marginBottom: "1rem",
+              alignItems: "flex-start",
             }}
           >
             <div>
-              <h2 className="heading-3" style={{ marginBottom: "0.25rem" }}>
-                System Overview
-              </h2>
-              <p className="text-secondary">
-                User base, bookings, and verification status in one chart.
+              <p
+                style={{
+                  margin: 0,
+                  color: "rgba(255,255,255,0.62)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  fontSize: "0.82rem",
+                }}
+              >
+                Administrator Console
+              </p>
+              <h1 className="heading-2" style={{ marginTop: "0.5rem" }}>
+                Admin <span className="text-gradient">Dashboard</span>
+              </h1>
+              <p className="text-secondary mt-2" style={{ maxWidth: "760px" }}>
+                Review the whole system in one place. Track users, bookings,
+                studios, artists, notifications, and verification activity from
+                a single command center.
               </p>
             </div>
-            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-              <Link href="/admin/verification" className="btn-primary">
-                Artist Verification
-              </Link>
-              <Link href="/dashboard" className="btn-secondary">
-                Main Dashboard
-              </Link>
+
+            <div
+              style={{
+                minWidth: "240px",
+                padding: "1rem 1.1rem",
+                borderRadius: "16px",
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.08)",
+              }}
+            >
+              <p
+                style={{
+                  margin: 0,
+                  color: "rgba(255,255,255,0.62)",
+                  fontSize: "0.82rem",
+                }}
+              >
+                Data source
+              </p>
+              <p
+                style={{
+                  margin: "0.35rem 0 0",
+                  fontSize: "1rem",
+                  fontWeight: 700,
+                }}
+              >
+                {source === "backend" ? "Backend API" : "Local fallback"}
+              </p>
+              <p
+                style={{
+                  margin: "0.35rem 0 0",
+                  color: "rgba(255,255,255,0.65)",
+                  fontSize: "0.84rem",
+                }}
+              >
+                {error || "Live console ready"}
+              </p>
             </div>
           </div>
+        </div>
 
-          <div
-            className="h-80 bg-white/5 p-4 rounded-xl"
-            style={{ minHeight: "320px" }}
-          >
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data}>
-                <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" />
-                <YAxis stroke="rgba(255,255,255,0.5)" />
-                <Tooltip
-                  contentStyle={{
-                    background: "rgba(15,23,42,0.95)",
-                    border: "1px solid rgba(255,255,255,0.12)",
-                    borderRadius: "12px",
-                    color: "white",
-                  }}
-                  labelStyle={{ color: "white" }}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+            gap: "1rem",
+            marginBottom: "1.5rem",
+          }}
+        >
+          {cards.map((card) => (
+            <div
+              key={card.title}
+              className="glass-card"
+              style={{
+                padding: "1rem 1.1rem",
+                border: `1px solid ${card.accent}30`,
+                background: "rgba(255,255,255,0.04)",
+              }}
+            >
+              <p
+                style={{
+                  margin: 0,
+                  color: "rgba(255,255,255,0.62)",
+                  fontSize: "0.82rem",
+                }}
+              >
+                {card.title}
+              </p>
+              <p
+                style={{
+                  margin: "0.35rem 0 0",
+                  color: card.accent,
+                  fontSize: "1.85rem",
+                  fontWeight: 800,
+                }}
+              >
+                {card.value}
+              </p>
+              <p
+                style={{
+                  margin: "0.35rem 0 0",
+                  color: "rgba(255,255,255,0.65)",
+                  fontSize: "0.84rem",
+                }}
+              >
+                {card.note}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "minmax(0, 1.5fr) minmax(320px, 0.9fr)",
+            gap: "1.25rem",
+            alignItems: "start",
+          }}
+        >
+          <section className="glass-card" style={{ padding: "1.25rem" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: "1rem",
+                flexWrap: "wrap",
+                marginBottom: "1rem",
+              }}
+            >
+              <div>
+                <h2 className="heading-3" style={{ marginBottom: "0.25rem" }}>
+                  System Overview
+                </h2>
+                <p className="text-secondary">
+                  User base, bookings, and verification status in one chart.
+                </p>
+              </div>
+              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                <Link href="/admin/verification" className="btn-primary">
+                  Artist Verification
+                </Link>
+                <Link href="/dashboard" className="btn-secondary">
+                  Main Dashboard
+                </Link>
+              </div>
+            </div>
+
+            <div
+              className="h-80 bg-white/5 p-4 rounded-xl"
+              style={{ minHeight: "320px" }}
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={data}>
+                  <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" />
+                  <YAxis stroke="rgba(255,255,255,0.5)" />
+                  <Tooltip
+                    contentStyle={{
+                      background: "rgba(15,23,42,0.95)",
+                      border: "1px solid rgba(255,255,255,0.12)",
+                      borderRadius: "12px",
+                      color: "white",
+                    }}
+                    labelStyle={{ color: "white" }}
+                  />
+                  <Bar dataKey="value" radius={[8, 8, 0, 0]} fill="#60a5fa" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </section>
+
+          <section style={{ display: "grid", gap: "1rem" }}>
+            <div className="glass-card" style={{ padding: "1.25rem" }}>
+              <h3 className="heading-4" style={{ marginBottom: "0.8rem" }}>
+                Management Links
+              </h3>
+              <div style={{ display: "grid", gap: "0.75rem" }}>
+                <Link href="/admin/verification" className="btn-primary">
+                  Review Artists
+                </Link>
+                <Link href="/artists" className="btn-secondary">
+                  Browse Artists
+                </Link>
+                <Link href="/studios" className="btn-secondary">
+                  Browse Studios
+                </Link>
+                <Link href="/bookings" className="btn-secondary">
+                  View Bookings
+                </Link>
+              </div>
+            </div>
+
+            <div className="glass-card" style={{ padding: "1.25rem" }}>
+              <h3 className="heading-4" style={{ marginBottom: "0.8rem" }}>
+                Live System Snapshot
+              </h3>
+              <div style={{ display: "grid", gap: "0.75rem" }}>
+                <SnapshotRow
+                  label="Artists"
+                  value={String(recentArtists.length)}
                 />
-                <Bar dataKey="value" radius={[8, 8, 0, 0]} fill="#60a5fa" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </section>
-
-        <section style={{ display: "grid", gap: "1rem" }}>
-          <div className="glass-card" style={{ padding: "1.25rem" }}>
-            <h3 className="heading-4" style={{ marginBottom: "0.8rem" }}>
-              Management Links
-            </h3>
-            <div style={{ display: "grid", gap: "0.75rem" }}>
-              <Link href="/admin/verification" className="btn-primary">
-                Review Artists
-              </Link>
-              <Link href="/artists" className="btn-secondary">
-                Browse Artists
-              </Link>
-              <Link href="/studios" className="btn-secondary">
-                Browse Studios
-              </Link>
-              <Link href="/bookings" className="btn-secondary">
-                View Bookings
-              </Link>
+                <SnapshotRow
+                  label="Studios"
+                  value={String(recentStudios.length)}
+                />
+                <SnapshotRow
+                  label="Bookings"
+                  value={String(recentBookings.length)}
+                />
+                <SnapshotRow
+                  label="Notifications"
+                  value={String(stats.notifications ?? 0)}
+                />
+                <SnapshotRow
+                  label="Verification queue"
+                  value={String(stats.pendingArtists)}
+                />
+              </div>
             </div>
-          </div>
+          </section>
+        </div>
 
-          <div className="glass-card" style={{ padding: "1.25rem" }}>
-            <h3 className="heading-4" style={{ marginBottom: "0.8rem" }}>
-              Live System Snapshot
-            </h3>
-            <div style={{ display: "grid", gap: "0.75rem" }}>
-              <SnapshotRow
-                label="Artists"
-                value={String(recentArtists.length)}
-              />
-              <SnapshotRow
-                label="Studios"
-                value={String(recentStudios.length)}
-              />
-              <SnapshotRow
-                label="Bookings"
-                value={String(recentBookings.length)}
-              />
-              <SnapshotRow
-                label="Notifications"
-                value={String(stats.notifications ?? 0)}
-              />
-              <SnapshotRow
-                label="Verification queue"
-                value={String(stats.pendingArtists)}
-              />
-            </div>
-          </div>
-        </section>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gap: "1rem",
+            marginTop: "1.25rem",
+          }}
+        >
+          <ListPanel title="Recent Bookings" accent="#f59e0b">
+            {recentBookings.length === 0 ? (
+              <EmptyState text="No bookings stored yet." />
+            ) : (
+              recentBookings.map((booking) => (
+                <ListItem
+                  key={booking.id}
+                  title={`${booking.customerName} → ${booking.targetName}`}
+                  subtitle={`${booking.targetType} | ${booking.status} | ${booking.appointmentDate}`}
+                />
+              ))
+            )}
+          </ListPanel>
+
+          <ListPanel title="Artists Pending Review" accent="#10b981">
+            {recentArtists.length === 0 ? (
+              <EmptyState text="No artist profiles found." />
+            ) : (
+              recentArtists.map((artist) => (
+                <ListItem
+                  key={artist.id}
+                  title={artist.ownerName || "Unnamed artist"}
+                  subtitle={`${artist.style || "Style not set"} | ${artist.location || "Location not set"}`}
+                />
+              ))
+            )}
+          </ListPanel>
+
+          <ListPanel title="Registered Studios" accent="#c084fc">
+            {recentStudios.length === 0 ? (
+              <EmptyState text="No studio profiles found." />
+            ) : (
+              recentStudios.map((studio) => (
+                <ListItem
+                  key={studio.id}
+                  title={studio.name || "Unnamed studio"}
+                  subtitle={`${studio.address || "Address not set"} | ${studio.ownerName || "Owner missing"}`}
+                />
+              ))
+            )}
+          </ListPanel>
+        </div>
       </div>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-          gap: "1rem",
-          marginTop: "1.25rem",
-        }}
-      >
-        <ListPanel title="Recent Bookings" accent="#f59e0b">
-          {recentBookings.length === 0 ? (
-            <EmptyState text="No bookings stored yet." />
-          ) : (
-            recentBookings.map((booking) => (
-              <ListItem
-                key={booking.id}
-                title={`${booking.customerName} → ${booking.targetName}`}
-                subtitle={`${booking.targetType} | ${booking.status} | ${booking.appointmentDate}`}
-              />
-            ))
-          )}
-        </ListPanel>
-
-        <ListPanel title="Artists Pending Review" accent="#10b981">
-          {recentArtists.length === 0 ? (
-            <EmptyState text="No artist profiles found." />
-          ) : (
-            recentArtists.map((artist) => (
-              <ListItem
-                key={artist.id}
-                title={artist.ownerName || "Unnamed artist"}
-                subtitle={`${artist.style || "Style not set"} | ${artist.location || "Location not set"}`}
-              />
-            ))
-          )}
-        </ListPanel>
-
-        <ListPanel title="Registered Studios" accent="#c084fc">
-          {recentStudios.length === 0 ? (
-            <EmptyState text="No studio profiles found." />
-          ) : (
-            recentStudios.map((studio) => (
-              <ListItem
-                key={studio.id}
-                title={studio.name || "Unnamed studio"}
-                subtitle={`${studio.address || "Address not set"} | ${studio.ownerName || "Owner missing"}`}
-              />
-            ))
-          )}
-        </ListPanel>
-      </div>
-    </div>
+    </AdminShell>
   );
 }
 

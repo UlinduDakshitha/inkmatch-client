@@ -2,106 +2,106 @@
 
 import { useState, useMemo } from "react";
 import AdminShell from "@/components/AdminShell";
-import { getArtistProfiles, getStudioProfiles } from "@/utils/appData";
+import { getNotifications, getAdminProfiles } from "@/utils/appData";
 
-type VerificationItem = {
+type ModerationItem = {
   id: string;
-  name: string;
-  type: "artist" | "studio";
-  verificationStatus: "pending" | "verified" | "rejected";
-  details: string;
-  submissionDate?: string;
-  source: any;
+  type: "comment" | "profile" | "message" | "image";
+  reportedBy: string;
+  reportedUser: string;
+  reason: string;
+  status: "pending" | "reviewed" | "resolved" | "dismissed";
+  reportedAt: string;
+  content: string;
 };
 
-export default function VerificationPage() {
+export default function ModerationPage() {
   const [filterStatus, setFilterStatus] = useState<
-    "all" | "pending" | "verified" | "rejected"
+    "all" | "pending" | "reviewed" | "resolved" | "dismissed"
   >("pending");
-  const [filterType, setFilterType] = useState<"all" | "artist" | "studio">(
-    "all",
-  );
+  const [filterType, setFilterType] = useState<
+    "all" | "comment" | "profile" | "message" | "image"
+  >("all");
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
 
-  const items = useMemo<VerificationItem[]>(() => {
-    const allItems: VerificationItem[] = [];
-
-    getArtistProfiles().forEach((artist) => {
-      allItems.push({
-        id: artist.id,
-        name: artist.ownerName || "Unnamed",
-        type: "artist",
-        verificationStatus: "pending",
-        details: `${artist.style || "Unknown style"} • ${artist.location || "Location not set"}`,
-        source: artist,
-      });
-    });
-
-    getStudioProfiles().forEach((studio) => {
-      allItems.push({
-        id: studio.id,
-        name: studio.name || "Unnamed",
-        type: "studio",
-        verificationStatus: "pending",
-        details: `${studio.address || "Location not set"} • ${studio.ownerName || "Owner"}`,
-        source: studio,
-      });
-    });
-
-    return allItems;
+  const moderationItems = useMemo<ModerationItem[]>(() => {
+    const notifications = getNotifications();
+    return notifications.slice(0, 10).map((notif, idx) => ({
+      id: `mod-${idx}`,
+      type: ["comment", "profile", "message", "image"][idx % 4] as any,
+      reportedBy: `User ${idx}`,
+      reportedUser: `Artist ${idx + 1}`,
+      reason: [
+        "Inappropriate content",
+        "Spam",
+        "Misleading information",
+        "Offensive language",
+      ][idx % 4],
+      status: idx % 4 === 0 ? "pending" : "reviewed",
+      reportedAt: new Date(Date.now() - idx * 86400000)
+        .toISOString()
+        .split("T")[0],
+      content: "Sample content that needs review...",
+    }));
   }, []);
 
   const filteredItems = useMemo(() => {
-    return items.filter((item) => {
+    return moderationItems.filter((item) => {
       const matchStatus =
-        filterStatus === "all" || item.verificationStatus === filterStatus;
+        filterStatus === "all" || item.status === filterStatus;
       const matchType = filterType === "all" || item.type === filterType;
       return matchStatus && matchType;
     });
-  }, [items, filterStatus, filterType]);
+  }, [moderationItems, filterStatus, filterType]);
 
-  const handleToggleItem = (itemId: string) => {
+  const handleToggleItem = (id: string) => {
     const newSelected = new Set(selectedItems);
-    if (newSelected.has(itemId)) {
-      newSelected.delete(itemId);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
     } else {
-      newSelected.add(itemId);
+      newSelected.add(id);
     }
     setSelectedItems(newSelected);
   };
 
   const handleApprove = () => {
     if (selectedItems.size === 0) return;
-    alert(`Approved ${selectedItems.size} artist(s)/studio(ies).`);
+    alert(`Approved ${selectedItems.size} item(s).`);
     setSelectedItems(new Set());
   };
 
-  const handleReject = () => {
+  const handleRemove = () => {
     if (selectedItems.size === 0) return;
-    const reason = prompt("Enter rejection reason:");
-    if (reason) {
-      alert(
-        `Rejected ${selectedItems.size} artist(s)/studio(ies). Reason sent: "${reason}"`,
-      );
-      setSelectedItems(new Set());
-    }
+    alert(`Removed ${selectedItems.size} item(s) from platform.`);
+    setSelectedItems(new Set());
   };
 
-  const typeColors: Record<"artist" | "studio", string> = {
-    artist: "#10b981",
-    studio: "#c084fc",
+  const handleSuspendUser = () => {
+    if (selectedItems.size === 0) return;
+    alert(`Suspended user(s) responsible for ${selectedItems.size} item(s).`);
+    setSelectedItems(new Set());
   };
 
-  const statusColors: Record<"pending" | "verified" | "rejected", string> = {
+  const statusColors: Record<ModerationItem["status"], string> = {
     pending: "#f59e0b",
-    verified: "#10b981",
-    rejected: "#ef4444",
+    reviewed: "#60a5fa",
+    resolved: "#10b981",
+    dismissed: "#8b5cf6",
   };
 
-  const statusIcons: Record<"pending" | "verified" | "rejected", string> = {
-    pending: "⏳",
-    verified: "✓",
-    rejected: "✕",
+  const typeIcons: Record<ModerationItem["type"], string> = {
+    comment: "💬",
+    profile: "👤",
+    message: "✉️",
+    image: "🖼️",
+  };
+
+  const stats = {
+    total: moderationItems.length,
+    pending: moderationItems.filter((i) => i.status === "pending").length,
+    reviewed: moderationItems.filter((i) => i.status === "reviewed").length,
+    resolved: moderationItems.filter((i) => i.status === "resolved").length,
+    dismissed: moderationItems.filter((i) => i.status === "dismissed").length,
   };
 
   return (
@@ -120,11 +120,10 @@ export default function VerificationPage() {
           }}
         >
           <h1 className="heading-2" style={{ marginBottom: "0.5rem" }}>
-            ✓ Artist & Studio Verification
+            🛡️ Content Moderation
           </h1>
           <p className="text-secondary">
-            Review and verify artist and studio profiles. Approve or reject
-            accounts pending verification.
+            Review reported content and manage community violations.
           </p>
         </div>
 
@@ -138,24 +137,11 @@ export default function VerificationPage() {
           }}
         >
           {[
-            {
-              label: "Pending",
-              value: items.filter((i) => i.verificationStatus === "pending")
-                .length,
-              color: "#f59e0b",
-            },
-            {
-              label: "Verified",
-              value: items.filter((i) => i.verificationStatus === "verified")
-                .length,
-              color: "#10b981",
-            },
-            {
-              label: "Rejected",
-              value: items.filter((i) => i.verificationStatus === "rejected")
-                .length,
-              color: "#ef4444",
-            },
+            { label: "Total Reports", value: stats.total, color: "#60a5fa" },
+            { label: "Pending", value: stats.pending, color: "#f59e0b" },
+            { label: "Reviewed", value: stats.reviewed, color: "#60a5fa" },
+            { label: "Resolved", value: stats.resolved, color: "#10b981" },
+            { label: "Dismissed", value: stats.dismissed, color: "#8b5cf6" },
           ].map((stat) => (
             <div
               key={stat.label}
@@ -214,7 +200,12 @@ export default function VerificationPage() {
               value={filterStatus}
               onChange={(e) =>
                 setFilterStatus(
-                  e.target.value as "all" | "pending" | "verified" | "rejected",
+                  e.target.value as
+                    | "all"
+                    | "pending"
+                    | "reviewed"
+                    | "resolved"
+                    | "dismissed",
                 )
               }
               style={{
@@ -229,8 +220,9 @@ export default function VerificationPage() {
             >
               <option value="all">All Statuses</option>
               <option value="pending">Pending</option>
-              <option value="verified">Verified</option>
-              <option value="rejected">Rejected</option>
+              <option value="reviewed">Reviewed</option>
+              <option value="resolved">Resolved</option>
+              <option value="dismissed">Dismissed</option>
             </select>
           </div>
 
@@ -249,7 +241,14 @@ export default function VerificationPage() {
             <select
               value={filterType}
               onChange={(e) =>
-                setFilterType(e.target.value as "all" | "artist" | "studio")
+                setFilterType(
+                  e.target.value as
+                    | "all"
+                    | "comment"
+                    | "profile"
+                    | "message"
+                    | "image",
+                )
               }
               style={{
                 width: "100%",
@@ -262,8 +261,10 @@ export default function VerificationPage() {
               }}
             >
               <option value="all">All Types</option>
-              <option value="artist">Artists</option>
-              <option value="studio">Studios</option>
+              <option value="comment">Comments</option>
+              <option value="profile">Profiles</option>
+              <option value="message">Messages</option>
+              <option value="image">Images</option>
             </select>
           </div>
         </div>
@@ -301,10 +302,10 @@ export default function VerificationPage() {
                   fontWeight: 500,
                 }}
               >
-                ✓ Approve
+                Approve
               </button>
               <button
-                onClick={handleReject}
+                onClick={handleRemove}
                 style={{
                   padding: "0.6rem 1.2rem",
                   background: "rgba(239,68,68,0.1)",
@@ -316,13 +317,28 @@ export default function VerificationPage() {
                   fontWeight: 500,
                 }}
               >
-                ✕ Reject
+                Remove Content
+              </button>
+              <button
+                onClick={handleSuspendUser}
+                style={{
+                  padding: "0.6rem 1.2rem",
+                  background: "rgba(245,158,11,0.1)",
+                  border: "1px solid rgba(245,158,11,0.3)",
+                  color: "#f59e0b",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontSize: "0.9rem",
+                  fontWeight: 500,
+                }}
+              >
+                Suspend User
               </button>
             </div>
           </div>
         )}
 
-        {/* Items List */}
+        {/* Reports List */}
         <div style={{ padding: "1.5rem" }}>
           <div
             className="glass-card"
@@ -341,7 +357,7 @@ export default function VerificationPage() {
                 }}
               >
                 <p style={{ margin: 0, fontSize: "1.1rem" }}>
-                  No items to review
+                  No reports to review
                 </p>
               </div>
             ) : (
@@ -350,8 +366,9 @@ export default function VerificationPage() {
                   <div
                     key={item.id}
                     style={{
-                      display: "flex",
-                      alignItems: "center",
+                      display: "grid",
+                      gridTemplateColumns: "50px 1fr auto",
+                      alignItems: "start",
                       gap: "1rem",
                       padding: "1.2rem 1.5rem",
                       borderBottom:
@@ -374,91 +391,104 @@ export default function VerificationPage() {
                       }}
                     />
 
-                    <div style={{ flex: 1 }}>
+                    <div>
                       <div
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          gap: "0.5rem",
-                          marginBottom: "0.35rem",
+                          gap: "0.75rem",
+                          marginBottom: "0.5rem",
                         }}
                       >
-                        <span
-                          style={{
-                            color: typeColors[item.type],
-                            fontSize: "0.9rem",
-                            fontWeight: 600,
-                            padding: "0.25rem 0.6rem",
-                            background: `${typeColors[item.type]}15`,
-                            borderRadius: "4px",
-                          }}
-                        >
-                          {item.type === "artist" ? "🎨" : "🏢"} {item.type}
+                        <span style={{ fontSize: "1.3rem" }}>
+                          {typeIcons[item.type]}
                         </span>
-                        <span style={{ color: "white", fontWeight: 600 }}>
-                          {item.name}
-                        </span>
+                        <div>
+                          <div style={{ color: "white", fontWeight: 600 }}>
+                            {item.reportedUser} - {item.type.toUpperCase()}
+                          </div>
+                          <div
+                            style={{
+                              fontSize: "0.85rem",
+                              color: "rgba(255,255,255,0.45)",
+                            }}
+                          >
+                            Reported by {item.reportedBy}
+                          </div>
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          marginTop: "0.5rem",
+                          padding: "0.75rem 1rem",
+                          background: "rgba(255,255,255,0.05)",
+                          borderRadius: "8px",
+                          fontSize: "0.9rem",
+                          color: "rgba(255,255,255,0.7)",
+                        }}
+                      >
+                        <strong>Reason:</strong> {item.reason}
                       </div>
                       <p
                         style={{
-                          margin: "0.35rem 0 0",
-                          color: "rgba(255,255,255,0.55)",
-                          fontSize: "0.9rem",
+                          margin: "0.5rem 0 0",
+                          color: "rgba(255,255,255,0.45)",
+                          fontSize: "0.8rem",
                         }}
                       >
-                        {item.details}
+                        Reported: {item.reportedAt}
                       </p>
                     </div>
 
-                    <span
+                    <div
                       style={{
-                        display: "inline-flex",
-                        alignItems: "center",
+                        display: "flex",
+                        flexDirection: "column",
                         gap: "0.5rem",
-                        padding: "0.35rem 0.75rem",
-                        background: `${statusColors[item.verificationStatus]}20`,
-                        color: statusColors[item.verificationStatus],
-                        borderRadius: "6px",
-                        fontSize: "0.85rem",
-                        fontWeight: 600,
-                        whiteSpace: "nowrap",
+                        alignItems: "flex-end",
+                        minWidth: "120px",
                       }}
                     >
-                      {statusIcons[item.verificationStatus]}{" "}
-                      {item.verificationStatus}
-                    </span>
-
-                    <button
-                      onClick={() =>
-                        alert(`View full profile for ${item.name}`)
-                      }
-                      style={{
-                        background: "none",
-                        border: "none",
-                        color: "#60a5fa",
-                        cursor: "pointer",
-                        textDecoration: "underline",
-                        fontSize: "0.9rem",
-                      }}
-                    >
-                      View
-                    </button>
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.5rem",
+                          padding: "0.35rem 0.75rem",
+                          background: `${statusColors[item.status]}20`,
+                          color: statusColors[item.status],
+                          borderRadius: "6px",
+                          fontSize: "0.85rem",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {item.status === "pending"
+                          ? "⏳"
+                          : item.status === "reviewed"
+                            ? "👁️"
+                            : item.status === "resolved"
+                              ? "✓"
+                              : "✕"}{" "}
+                        {item.status}
+                      </span>
+                      <button
+                        onClick={() => alert(`Review details for ${item.id}`)}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          color: "#60a5fa",
+                          cursor: "pointer",
+                          textDecoration: "underline",
+                          fontSize: "0.85rem",
+                        }}
+                      >
+                        View details
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
             )}
-          </div>
-
-          <div
-            style={{
-              marginTop: "1rem",
-              color: "rgba(255,255,255,0.65)",
-              fontSize: "0.9rem",
-            }}
-          >
-            Showing {filteredItems.length} items
-            {filterStatus !== "all" && ` (${filterStatus})`}
-            {filterType !== "all" && ` (${filterType}s)`}
           </div>
         </div>
       </div>
