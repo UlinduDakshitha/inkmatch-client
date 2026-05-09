@@ -55,32 +55,6 @@ export default function AdminShell({
           overflowY: "auto",
         }}
       >
-        <div style={{ padding: "0 1rem 1rem" }}>
-          <button
-            type="button"
-            onClick={handleBack}
-            style={{
-              width: "100%",
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "0.5rem",
-              padding: "0.85rem 1rem",
-              borderRadius: "12px",
-              border: "1px solid rgba(96,165,250,0.28)",
-              background: "rgba(96,165,250,0.10)",
-              color: "#e5f0ff",
-              fontSize: "0.95rem",
-              fontWeight: 600,
-              cursor: "pointer",
-              transition: "all 0.2s ease",
-            }}
-          >
-            <span aria-hidden="true">←</span>
-            Back
-          </button>
-        </div>
-
         <div style={{ padding: "0 1rem 1.5rem" }}>
           <p
             style={{
@@ -139,6 +113,59 @@ export default function AdminShell({
           background: "rgba(5,8,16,0.4)",
         }}
       >
+        <div
+          style={{
+            position: "sticky",
+            top: 0,
+            zIndex: 5,
+            padding: "1rem 1.5rem 0",
+            background:
+              "linear-gradient(180deg, rgba(5,8,16,0.96) 0%, rgba(5,8,16,0.78) 100%)",
+            backdropFilter: "blur(10px)",
+          }}
+        >
+          <button
+            type="button"
+            onClick={handleBack}
+            aria-label="Go back to previous page"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.75rem",
+              padding: "0.85rem 1rem",
+              borderRadius: "14px",
+              border: "1px solid rgba(147,197,253,0.26)",
+              background: "rgba(255,255,255,0.06)",
+              color: "#f8fbff",
+              fontSize: "0.95rem",
+              fontWeight: 600,
+              cursor: "pointer",
+              boxShadow: "0 12px 28px rgba(2,6,23,0.18)",
+              transition:
+                "transform 0.18s ease, background 0.18s ease, border-color 0.18s ease",
+            }}
+          >
+            <span
+              aria-hidden="true"
+              style={{
+                width: "2rem",
+                height: "2rem",
+                borderRadius: "999px",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "rgba(96,165,250,0.18)",
+                border: "1px solid rgba(96,165,250,0.24)",
+                fontSize: "0.95rem",
+                flexShrink: 0,
+              }}
+            >
+              ←
+            </span>
+            Back to previous page
+          </button>
+        </div>
+
         {children}
       </main>
     </div>
