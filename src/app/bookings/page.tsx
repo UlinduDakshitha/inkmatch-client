@@ -6,6 +6,7 @@ import {
   normalizeRole,
 } from "@/utils/appData";
 
+
 export default function BookingsPage() {
   const user = getCurrentUser();
   const role = normalizeRole(user?.role);
