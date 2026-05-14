@@ -11,7 +11,6 @@ import {
   normalizeRole,
 } from "@/utils/appData";
 
-
 type Artist = {
   id: number | string;
   style?: string;
