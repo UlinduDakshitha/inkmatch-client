@@ -17,6 +17,7 @@ export default function BookingsPage() {
       ? "This page shows customer bookings only."
       : "";
 
+      
   const bookings =
     user?.email && role === "CUSTOMER"
       ? getBookingsForCustomer(user.email)
